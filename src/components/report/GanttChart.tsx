@@ -117,7 +117,138 @@ const MONTHS = [
   { mes: "Jun 2026", semanas: 4 },
 ];
 
-type ViewMode = "general" | "cuantitativa" | "cualitativa" | "procesamiento";
+type ViewMode = "general" | "cuantitativa" | "cualitativa" | "procesamiento" | "calendario";
+
+// ─── Calendar Data ──────────────────────────
+type CalendarDay = {
+  day: number;
+  tasks: { label: string; phase: string; colorClass: string }[];
+};
+
+const calendarMonths = [
+  { name: "Febrero 2026", year: 2026, month: 1, startDay: 0 }, // Sun=0, Mon=1... Feb 1 2026 = Sunday
+  { name: "Marzo 2026", year: 2026, month: 2, startDay: 0 },
+  { name: "Abril 2026", year: 2026, month: 3, startDay: 3 },
+  { name: "Mayo 2026", year: 2026, month: 4, startDay: 5 },
+  { name: "Junio 2026", year: 2026, month: 5, startDay: 1 },
+];
+
+// Map tasks to actual calendar days
+type CalendarTaskEntry = {
+  label: string;
+  startDate: [number, number]; // [month(0-indexed), day]
+  endDate: [number, number];
+  phase: string;
+  colorBg: string;
+  hito: boolean;
+};
+
+const calendarTasks: CalendarTaskEntry[] = [
+  // Cuantitativa
+  { label: "Análisis info. secundaria", startDate: [1, 2], endDate: [1, 20], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Acercamiento institucional", startDate: [1, 16], endDate: [2, 6], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Definición herramienta", startDate: [2, 2], endDate: [2, 13], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Aprobación CISAN", startDate: [2, 9], endDate: [2, 20], phase: "cuantitativa", colorBg: "bg-primary/30", hito: true },
+  { label: "Encuesta digital", startDate: [2, 16], endDate: [2, 27], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Prueba piloto", startDate: [2, 30], endDate: [3, 3], phase: "cuantitativa", colorBg: "bg-primary/30", hito: true },
+  { label: "Ajustes post-piloto", startDate: [3, 6], endDate: [3, 10], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Contratación 420 enc.", startDate: [2, 23], endDate: [3, 10], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Capacitación", startDate: [3, 13], endDate: [3, 24], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
+  { label: "Aplicación encuestas", startDate: [3, 27], endDate: [4, 22], phase: "cuantitativa", colorBg: "bg-primary/25", hito: false },
+  // Cualitativa
+  { label: "Rev. info cualitativa", startDate: [3, 6], endDate: [3, 17], phase: "cualitativa", colorBg: "bg-secondary/20", hito: false },
+  { label: "Acercamiento líderes", startDate: [3, 13], endDate: [4, 1], phase: "cualitativa", colorBg: "bg-secondary/20", hito: false },
+  { label: "Diseño talleres", startDate: [3, 20], endDate: [4, 1], phase: "cualitativa", colorBg: "bg-secondary/20", hito: false },
+  { label: "Logística talleres", startDate: [4, 4], endDate: [4, 15], phase: "cualitativa", colorBg: "bg-secondary/20", hito: false },
+  { label: "Talleres Sur/Macizo", startDate: [4, 18], endDate: [4, 27], phase: "cualitativa", colorBg: "bg-secondary/30", hito: true },
+  { label: "Talleres Pac./Norte", startDate: [4, 28], endDate: [5, 5], phase: "cualitativa", colorBg: "bg-secondary/30", hito: true },
+  { label: "Talleres Centro/Or.", startDate: [5, 5], endDate: [5, 12], phase: "cualitativa", colorBg: "bg-secondary/30", hito: true },
+  // Procesamiento
+  { label: "Limpieza datos", startDate: [4, 11], endDate: [4, 22], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
+  { label: "Proc. estadístico", startDate: [4, 18], endDate: [4, 29], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
+  { label: "Análisis cruzado", startDate: [5, 1], endDate: [5, 12], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
+  { label: "Redacción informe", startDate: [5, 8], endDate: [5, 19], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
+  { label: "Aprobación CISAN", startDate: [5, 15], endDate: [5, 26], phase: "procesamiento", colorBg: "bg-accent/30", hito: true },
+];
+
+function getDaysInMonth(year: number, month: number) {
+  return new Date(year, month + 1, 0).getDate();
+}
+
+function getFirstDayOfWeek(year: number, month: number) {
+  return new Date(year, month, 1).getDay(); // 0=Sun
+}
+
+function getTasksForDay(month: number, day: number, phaseFilter?: string): { label: string; colorBg: string; hito: boolean }[] {
+  return calendarTasks.filter(t => {
+    if (phaseFilter && t.phase !== phaseFilter) return false;
+    const [sm, sd] = t.startDate;
+    const [em, ed] = t.endDate;
+    const dateVal = month * 100 + day;
+    const startVal = sm * 100 + sd;
+    const endVal = em * 100 + ed;
+    return dateVal >= startVal && dateVal <= endVal;
+  });
+}
+
+// ─── Calendar Month Grid ─────────────────────
+const CalendarMonth: React.FC<{ name: string; year: number; month: number; phaseFilter?: string }> = ({ name, year, month, phaseFilter }) => {
+  const daysInMonth = getDaysInMonth(year, month);
+  const firstDay = getFirstDayOfWeek(year, month);
+  const [hoveredDay, setHoveredDay] = useState<number | null>(null);
+
+  const cells: (number | null)[] = [];
+  for (let i = 0; i < firstDay; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) cells.push(d);
+
+  const weekDays = ["Dom", "Lun", "Mar", "Mié", "Jue", "Vie", "Sáb"];
+
+  return (
+    <div className="bg-card rounded-2xl border border-border p-4">
+      <h4 className="font-heading font-bold text-sm text-foreground mb-3 text-center">{name}</h4>
+      <div className="grid grid-cols-7 gap-0.5">
+        {weekDays.map(d => (
+          <div key={d} className="text-center text-[10px] font-heading font-semibold text-muted-foreground py-1">{d}</div>
+        ))}
+        {cells.map((day, i) => {
+          if (day === null) return <div key={`e-${i}`} />;
+          const tasks = getTasksForDay(month, day, phaseFilter);
+          const hasTask = tasks.length > 0;
+          const hasHito = tasks.some(t => t.hito);
+
+          return (
+            <div
+              key={day}
+              className={`relative text-center text-xs py-1.5 rounded-md cursor-default transition-all ${
+                hasTask
+                  ? hasHito
+                    ? "bg-primary/30 text-foreground font-bold ring-1 ring-primary/50"
+                    : "bg-primary/15 text-foreground"
+                  : "text-muted-foreground hover:bg-muted/50"
+              }`}
+              onMouseEnter={() => hasTask && setHoveredDay(day)}
+              onMouseLeave={() => setHoveredDay(null)}
+            >
+              {day}
+              {hasHito && <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 rounded-full bg-primary" />}
+              {hoveredDay === day && tasks.length > 0 && (
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-1 z-30 bg-foreground text-background text-[9px] px-2 py-1.5 rounded-md shadow-lg whitespace-nowrap pointer-events-none max-w-[200px]">
+                  {tasks.map((t, j) => (
+                    <div key={j} className="flex items-center gap-1">
+                      {t.hito && <span>◆</span>}
+                      <span className="truncate">{t.label}</span>
+                    </div>
+                  ))}
+                  <div className="absolute left-1/2 -translate-x-1/2 top-full w-0 h-0 border-l-3 border-r-3 border-t-3 border-transparent border-t-foreground" />
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
 
 // ─── Dependency Arrow (SVG) ──────────────────
 const DependencyArrows: React.FC<{ tasks: GanttTask[]; colorClass: string }> = ({ tasks }) => {
@@ -282,6 +413,7 @@ const GanttChart: React.FC = () => {
     { key: "cuantitativa", label: "📊 Cuantitativa" },
     { key: "cualitativa", label: "🗣️ Cualitativa" },
     { key: "procesamiento", label: "⚙️ Procesamiento" },
+    { key: "calendario", label: "📅 Calendario" },
   ];
 
   const visiblePhases = view === "general"
@@ -338,79 +470,105 @@ const GanttChart: React.FC = () => {
         ))}
       </div>
 
-      {/* ── Gantt Chart ── */}
-      <motion.div variants={fadeUp} className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
-        <div className="min-w-[900px]">
-          <WeekHeaders />
-          {visiblePhases.map((phase, i) => (
-            <PhaseBlock key={phase.key} phase={phase} showHeader={true} />
-          ))}
-        </div>
-
-        {/* Leyenda */}
-        <div className="flex flex-wrap items-center gap-4 mt-6 pt-4 border-t border-border min-w-[900px]">
-          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-            <div className="w-3 h-3 rounded-sm bg-primary" /> Cuantitativa
-          </div>
-          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-            <div className="w-3 h-3 rounded-sm bg-secondary" /> Cualitativa
-          </div>
-          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-            <div className="w-3 h-3 rounded-sm bg-accent" /> Procesamiento
-          </div>
-          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-            <span className="text-primary">◆</span> Hito clave
-          </div>
-          <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-            <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" /><polygon points="16 1, 20 4, 16 7" fill="currentColor" /></svg>
-            Dependencia
-          </div>
-          <div className="text-xs text-muted-foreground ml-auto font-body italic">
-            Pasa el cursor sobre las barras para ver los días
-          </div>
-        </div>
-      </motion.div>
-
-      {/* ── Detail table for selected phase ── */}
-      {view !== "general" && (
+      {/* ── Gantt Chart or Calendar ── */}
+      {view === "calendario" ? (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mt-6 bg-card rounded-2xl border border-border overflow-hidden"
         >
-          <div className="px-6 py-4 border-b border-border bg-muted/50">
-            <h3 className="font-heading font-bold text-lg text-foreground">
-              Detalle por Actividad — {visiblePhases[0]?.title}
-            </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {calendarMonths.map((m) => (
+              <CalendarMonth key={m.name} name={m.name} year={m.year} month={m.month} />
+            ))}
           </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">#</th>
-                  <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">Actividad</th>
-                  <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">Período</th>
-                  <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">Depende de</th>
-                  <th className="px-4 py-3 text-center font-heading font-semibold text-muted-foreground">Hito</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visiblePhases[0]?.tasks.map((t, i) => {
-                  const dep = t.dependsOn ? visiblePhases[0].tasks.find(x => x.id === t.dependsOn) : null;
-                  return (
-                    <tr key={t.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                      <td className="px-4 py-2.5 font-heading font-semibold text-muted-foreground">{i + 1}</td>
-                      <td className="px-4 py-2.5 font-body text-foreground">{t.label}</td>
-                      <td className="px-4 py-2.5 font-body text-muted-foreground whitespace-nowrap">{t.dias}</td>
-                      <td className="px-4 py-2.5 font-body text-muted-foreground">{dep ? dep.label : "—"}</td>
-                      <td className="px-4 py-2.5 text-center">{t.hito ? "◆" : ""}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+          <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-border">
+            <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+              <div className="w-3 h-3 rounded-sm bg-primary/20 border border-primary/30" /> Día con actividad
+            </div>
+            <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+              <div className="w-3 h-3 rounded-sm bg-primary/30 ring-1 ring-primary/50" /> Hito clave
+            </div>
+            <div className="text-xs text-muted-foreground ml-auto font-body italic">
+              Pasa el cursor sobre un día para ver las actividades
+            </div>
           </div>
         </motion.div>
+      ) : (
+        <>
+          <motion.div variants={fadeUp} className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
+            <div className="min-w-[900px]">
+              <WeekHeaders />
+              {visiblePhases.map((phase) => (
+                <PhaseBlock key={phase.key} phase={phase} showHeader={true} />
+              ))}
+            </div>
+
+            {/* Leyenda */}
+            <div className="flex flex-wrap items-center gap-4 mt-6 pt-4 border-t border-border min-w-[900px]">
+              <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                <div className="w-3 h-3 rounded-sm bg-primary" /> Cuantitativa
+              </div>
+              <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                <div className="w-3 h-3 rounded-sm bg-secondary" /> Cualitativa
+              </div>
+              <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                <div className="w-3 h-3 rounded-sm bg-accent" /> Procesamiento
+              </div>
+              <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                <span className="text-primary">◆</span> Hito clave
+              </div>
+              <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                <svg width="20" height="8"><line x1="0" y1="4" x2="20" y2="4" stroke="currentColor" strokeWidth="1.5" strokeDasharray="4 2" /><polygon points="16 1, 20 4, 16 7" fill="currentColor" /></svg>
+                Dependencia
+              </div>
+              <div className="text-xs text-muted-foreground ml-auto font-body italic">
+                Pasa el cursor sobre las barras para ver los días
+              </div>
+            </div>
+          </motion.div>
+
+          {/* ── Detail table for selected phase ── */}
+          {view !== "general" && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mt-6 bg-card rounded-2xl border border-border overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-border bg-muted/50">
+                <h3 className="font-heading font-bold text-lg text-foreground">
+                  Detalle por Actividad — {visiblePhases[0]?.title}
+                </h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">#</th>
+                      <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">Actividad</th>
+                      <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">Período</th>
+                      <th className="px-4 py-3 text-left font-heading font-semibold text-muted-foreground">Depende de</th>
+                      <th className="px-4 py-3 text-center font-heading font-semibold text-muted-foreground">Hito</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visiblePhases[0]?.tasks.map((t, i) => {
+                      const dep = t.dependsOn ? visiblePhases[0].tasks.find(x => x.id === t.dependsOn) : null;
+                      return (
+                        <tr key={t.id} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                          <td className="px-4 py-2.5 font-heading font-semibold text-muted-foreground">{i + 1}</td>
+                          <td className="px-4 py-2.5 font-body text-foreground">{t.label}</td>
+                          <td className="px-4 py-2.5 font-body text-muted-foreground whitespace-nowrap">{t.dias}</td>
+                          <td className="px-4 py-2.5 font-body text-muted-foreground">{dep ? dep.label : "—"}</td>
+                          <td className="px-4 py-2.5 text-center">{t.hito ? "◆" : ""}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </motion.div>
+          )}
+        </>
       )}
     </div>
   );

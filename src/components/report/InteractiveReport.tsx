@@ -349,107 +349,107 @@ const InteractiveReport: React.FC = () => {
         </Section>
       </div>
 
-      {/* ═══ PARTICIPANTES ═══ */}
+      {/* ═══ POBLACIÓN ═══ */}
       <Section>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<Users size={16} />} label="Sección 5" />
-          <SectionTitle>Participantes y Análisis de Actores</SectionTitle>
+          <SectionTag icon={<MapPin size={16} />} label="Sección 5" />
+          <SectionTitle>Población Objetivo</SectionTitle>
           <SectionSummary>
-            Mapa de actores clave del proyecto: instituciones ejecutoras, cooperantes internacionales, enlaces territoriales con enfoque diferencial y beneficiarios directos.
+            Caracterización demográfica y territorial de los 1.59 millones de habitantes afectados, con foco en las 466 mil personas con inseguridad alimentaria en 42 municipios y 7 subregiones.
           </SectionSummary>
-          <motion.div variants={fadeUp} className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
-              <thead>
-                <tr className="bg-primary text-primary-foreground">
-                  <th className="px-4 py-3 text-left font-heading font-semibold rounded-tl-xl">Actor</th>
-                  <th className="px-4 py-3 text-left font-heading font-semibold">Rol</th>
-                  <th className="px-4 py-3 text-left font-heading font-semibold rounded-tr-xl">Contribución</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["Gobernación del Cauca", "Ejecutor principal", "Liderazgo y financiamiento"],
-                  ["Asamblea Departamental", "Aprobador", "Aprobación ordenanza"],
-                  ["PMA / FAO", "Cooperante técnico", "Metodologías CARI/FIES"],
-                  ["Enlace Afro", "Participante diferencial", "Enfoque étnico afrodescendiente"],
-                  ["Enlace Indígena", "Participante diferencial", "Enfoque étnico indígena"],
-                  ["Enlace Campesino", "Participante diferencial", "Enfoque campesino territorial"],
-                  ["Enlace Género", "Participante diferencial", "Enfoque de género"],
-                  ["Adultos Mayores", "Beneficiario", "Priorización ciclo de vida"],
-                  ["Jóvenes", "Beneficiario", "Participación activa"],
-                ].map(([a, r, c], i) => (
-                  <tr key={i} className={`border-b border-border ${i % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-slide-green-light transition-colors`}>
-                    <td className="px-4 py-3 font-heading font-semibold text-foreground">{a}</td>
-                    <td className="px-4 py-3 text-muted-foreground font-body">{r}</td>
-                    <td className="px-4 py-3 text-muted-foreground font-body">{c}</td>
-                  </tr>
+          <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
+            <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<Target size={24} />} color="bg-secondary" />
+            <StatCard value="42" label="Municipios" icon={<MapPin size={24} />} />
+            <StatCard value="7" label="Subregiones" icon={<Network size={24} />} color="bg-accent" />
+          </motion.div>
+          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="font-heading font-bold text-lg mb-4">Subregiones del Cauca</h3>
+              <div className="flex flex-wrap gap-2 mb-4">
+                {["Sur", "Macizo", "Pacífico", "Norte", "Centro", "Piedemonte", "Oriente"].map(s => (
+                  <span key={s} className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-heading font-semibold">{s}</span>
                 ))}
-              </tbody>
-            </table>
+              </div>
+              <p className="text-muted-foreground text-sm font-body">
+                <strong>50.7%</strong> población femenina — Priorización por vulnerabilidad y acceso alimentario
+              </p>
+              <AIBadge text="Heatmaps IA para focalización territorial" detail="Generar mapas de calor dinámicos cruzando datos de encuestas FIES con variables socioeconómicas (NBI, conflicto armado, acceso vial) para identificar los municipios y veredas con mayor urgencia de intervención alimentaria." />
+            </div>
+            <div>
+              <h3 className="font-heading font-bold text-lg mb-4">Caracterización Demográfica</h3>
+              <div className="space-y-2">
+                {[
+                  { grupo: "0-14 años", pob: "103.726", pct: 22 },
+                  { grupo: "15-29 años", pob: "112.340", pct: 24 },
+                  { grupo: "30-49 años", pob: "118.950", pct: 26 },
+                  { grupo: "50-64 años", pob: "78.420", pct: 17 },
+                  { grupo: "65+ años", pob: "52.564", pct: 11 },
+                ].map((d, i) => (
+                  <div key={i} className="flex items-center gap-3">
+                    <span className="text-sm font-heading font-semibold min-w-[90px]">{d.grupo}</span>
+                    <div className="flex-1 bg-border rounded-full h-6 overflow-hidden">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${d.pct}%` }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.8, delay: i * 0.1 }}
+                        className="h-full bg-primary rounded-full flex items-center justify-end pr-2"
+                      >
+                        <span className="text-xs text-primary-foreground font-bold">{d.pct}%</span>
+                      </motion.div>
+                    </div>
+                    <span className="text-xs text-muted-foreground min-w-[70px]">{d.pob}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+          {/* Interactive Map */}
+          <motion.div variants={fadeUp} className="mt-8">
+            <CaucaMap />
           </motion.div>
         </motion.div>
       </Section>
 
-      {/* ═══ POBLACIÓN ═══ */}
+      {/* ═══ PARTICIPANTES ═══ */}
       <div className="bg-muted/50">
         <Section>
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<MapPin size={16} />} label="Sección 6" />
-            <SectionTitle>Población Objetivo</SectionTitle>
+            <SectionTag icon={<Users size={16} />} label="Sección 6" />
+            <SectionTitle>Participantes y Análisis de Actores</SectionTitle>
             <SectionSummary>
-              Caracterización demográfica y territorial de los 1.59 millones de habitantes afectados, con foco en las 466 mil personas con inseguridad alimentaria en 42 municipios y 7 subregiones.
+              Mapa de actores clave del proyecto: instituciones ejecutoras, cooperantes internacionales, enlaces territoriales con enfoque diferencial y beneficiarios directos.
             </SectionSummary>
-            <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
-              <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<Target size={24} />} color="bg-secondary" />
-              <StatCard value="42" label="Municipios" icon={<MapPin size={24} />} />
-              <StatCard value="7" label="Subregiones" icon={<Network size={24} />} color="bg-accent" />
-            </motion.div>
-            <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <h3 className="font-heading font-bold text-lg mb-4">Subregiones del Cauca</h3>
-                <div className="flex flex-wrap gap-2 mb-4">
-                  {["Sur", "Macizo", "Pacífico", "Norte", "Centro", "Piedemonte", "Oriente"].map(s => (
-                    <span key={s} className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-heading font-semibold">{s}</span>
-                  ))}
-                </div>
-                <p className="text-muted-foreground text-sm font-body">
-                  <strong>50.7%</strong> población femenina — Priorización por vulnerabilidad y acceso alimentario
-                </p>
-                <AIBadge text="Heatmaps IA para focalización territorial" detail="Generar mapas de calor dinámicos cruzando datos de encuestas FIES con variables socioeconómicas (NBI, conflicto armado, acceso vial) para identificar los municipios y veredas con mayor urgencia de intervención alimentaria." />
-              </div>
-              <div>
-                <h3 className="font-heading font-bold text-lg mb-4">Caracterización Demográfica</h3>
-                <div className="space-y-2">
+            <motion.div variants={fadeUp} className="overflow-x-auto">
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-primary text-primary-foreground">
+                    <th className="px-4 py-3 text-left font-heading font-semibold rounded-tl-xl">Actor</th>
+                    <th className="px-4 py-3 text-left font-heading font-semibold">Rol</th>
+                    <th className="px-4 py-3 text-left font-heading font-semibold rounded-tr-xl">Contribución</th>
+                  </tr>
+                </thead>
+                <tbody>
                   {[
-                    { grupo: "0-14 años", pob: "103.726", pct: 22 },
-                    { grupo: "15-29 años", pob: "112.340", pct: 24 },
-                    { grupo: "30-49 años", pob: "118.950", pct: 26 },
-                    { grupo: "50-64 años", pob: "78.420", pct: 17 },
-                    { grupo: "65+ años", pob: "52.564", pct: 11 },
-                  ].map((d, i) => (
-                    <div key={i} className="flex items-center gap-3">
-                      <span className="text-sm font-heading font-semibold min-w-[90px]">{d.grupo}</span>
-                      <div className="flex-1 bg-border rounded-full h-6 overflow-hidden">
-                        <motion.div
-                          initial={{ width: 0 }}
-                          whileInView={{ width: `${d.pct}%` }}
-                          viewport={{ once: true }}
-                          transition={{ duration: 0.8, delay: i * 0.1 }}
-                          className="h-full bg-primary rounded-full flex items-center justify-end pr-2"
-                        >
-                          <span className="text-xs text-primary-foreground font-bold">{d.pct}%</span>
-                        </motion.div>
-                      </div>
-                      <span className="text-xs text-muted-foreground min-w-[70px]">{d.pob}</span>
-                    </div>
+                    ["Gobernación del Cauca", "Ejecutor principal", "Liderazgo y financiamiento"],
+                    ["Asamblea Departamental", "Aprobador", "Aprobación ordenanza"],
+                    ["PMA / FAO", "Cooperante técnico", "Metodologías CARI/FIES"],
+                    ["Enlace Afro", "Participante diferencial", "Enfoque étnico afrodescendiente"],
+                    ["Enlace Indígena", "Participante diferencial", "Enfoque étnico indígena"],
+                    ["Enlace Campesino", "Participante diferencial", "Enfoque campesino territorial"],
+                    ["Enlace Género", "Participante diferencial", "Enfoque de género"],
+                    ["Adultos Mayores", "Beneficiario", "Priorización ciclo de vida"],
+                    ["Jóvenes", "Beneficiario", "Participación activa"],
+                  ].map(([a, r, c], i) => (
+                    <tr key={i} className={`border-b border-border ${i % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-slide-green-light transition-colors`}>
+                      <td className="px-4 py-3 font-heading font-semibold text-foreground">{a}</td>
+                      <td className="px-4 py-3 text-muted-foreground font-body">{r}</td>
+                      <td className="px-4 py-3 text-muted-foreground font-body">{c}</td>
+                    </tr>
                   ))}
-                </div>
-              </div>
-            </motion.div>
-            {/* Interactive Map */}
-            <motion.div variants={fadeUp} className="mt-8">
-              <CaucaMap />
+                </tbody>
+              </table>
             </motion.div>
           </motion.div>
         </Section>
