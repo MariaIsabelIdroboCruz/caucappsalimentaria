@@ -137,7 +137,6 @@ const InteractiveReport: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-foreground/30" />
         <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10 text-center px-6 max-w-4xl">
           <motion.div variants={fadeUp} className="flex items-center justify-center gap-6 mb-10">
-            <img src={escudoCauca} alt="Escudo" className="h-16 md:h-20 w-auto" />
             <img src={secretariaLogo} alt="Secretaría" className="h-16 md:h-20 w-auto" />
           </motion.div>
           <motion.div variants={fadeUp} className="h-1 w-20 bg-primary rounded mx-auto mb-6" />
