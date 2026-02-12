@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield, MessageSquare, Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu, Network, Sparkles, X } from "lucide-react";
+import { ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield, MessageSquare, Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu, Network, Sparkles, X, Activity, ClipboardList, Clock } from "lucide-react";
 import { AnimatePresence } from "framer-motion";
 import heroCauca from "@/assets/hero-cauca-report.jpg";
 import escudoCauca from "@/assets/escudo-cauca.png";
@@ -38,7 +38,13 @@ const SectionTag: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, 
 );
 
 const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-6 leading-tight">{children}</h2>
+  <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-3 leading-tight">{children}</h2>
+);
+
+const SectionSummary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+  <p className="text-muted-foreground font-body text-base leading-relaxed mb-8 max-w-3xl border-l-4 border-primary/30 pl-4">
+    {children}
+  </p>
 );
 
 const AIBadge: React.FC<{ text: string; detail?: string }> = ({ text, detail }) => {
@@ -84,6 +90,13 @@ const StatCard: React.FC<{ value: string; label: string; icon: React.ReactNode; 
     </div>
     <p className="font-heading font-black text-3xl text-foreground">{value}</p>
     <p className="text-muted-foreground text-sm mt-1 font-body">{label}</p>
+  </motion.div>
+);
+
+const HeroStat: React.FC<{ value: string; label: string }> = ({ value, label }) => (
+  <motion.div variants={scaleIn} className="text-center px-4 py-3">
+    <p className="font-heading font-black text-3xl md:text-4xl text-primary">{value}</p>
+    <p className="text-muted-foreground text-xs md:text-sm mt-1 font-body">{label}</p>
   </motion.div>
 );
 
@@ -144,18 +157,40 @@ const InteractiveReport: React.FC = () => {
               Fase III — Factibilidad
             </span>
           </motion.div>
-          <motion.a variants={fadeUp} href="#contexto" className="inline-flex items-center gap-2 mt-12 text-primary-foreground/60 hover:text-primary-foreground transition-colors animate-bounce">
+          <motion.a variants={fadeUp} href="#cifras-clave" className="inline-flex items-center gap-2 mt-12 text-primary-foreground/60 hover:text-primary-foreground transition-colors animate-bounce">
             <span className="text-sm font-body">Explorar Informe</span>
             <ChevronDown size={20} />
           </motion.a>
         </motion.div>
       </section>
 
+      {/* ═══ CIFRAS CLAVE (KEY STATS BANNER) ═══ */}
+      <div id="cifras-clave" className="bg-card border-y border-border">
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
+            <motion.p variants={fadeUp} className="text-center font-heading font-bold text-sm uppercase tracking-widest text-primary mb-8">Cifras Clave del Proyecto</motion.p>
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 divide-x divide-border">
+              <HeroStat value="7,560" label="Encuestas totales" />
+              <HeroStat value="420" label="Encuestadores" />
+              <HeroStat value="18" label="Semanas de proyecto" />
+              <HeroStat value="99.5%" label="Uptime objetivo" />
+              <HeroStat value="42" label="Municipios" />
+              <HeroStat value="466K" label="Personas objetivo" />
+              <HeroStat value="$943M" label="Presupuesto" />
+              <HeroStat value="14" label="Talleres participativos" />
+            </div>
+          </motion.div>
+        </div>
+      </div>
+
       {/* ═══ CONTEXTO ═══ */}
       <Section id="contexto">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<FileText size={16} />} label="Sección 1" />
           <SectionTitle>Contexto del Proyecto</SectionTitle>
+          <SectionSummary>
+            Visión general del proyecto: presupuesto, duración, fase actual y enfoques diferenciales que guían la construcción de la política pública de seguridad y soberanía alimentaria.
+          </SectionSummary>
           <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard value="$943M" label="Presupuesto Total" icon={<BarChart3 size={24} />} />
             <StatCard value="12" label="Meses de Duración" icon={<Calendar size={24} />} color="bg-secondary" />
@@ -188,6 +223,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Database size={16} />} label="Sección 2" />
             <SectionTitle>Antecedentes</SectionTitle>
+            <SectionSummary>
+              Contexto histórico de inseguridad alimentaria en el Cauca: datos DANE, brechas rurales y étnicas, y la necesidad de una política pública departamental articulada.
+            </SectionSummary>
             <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 {[
@@ -219,6 +257,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<FileText size={16} />} label="Sección 3" />
           <SectionTitle>Justificación y Marco Legal</SectionTitle>
+          <SectionSummary>
+            Fundamento legal y justificación técnica: alineación con el Plan de Desarrollo 2024-2027, normativa nacional (Ley 715, CONPES 113) y estándares internacionales PMA-FAO.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h3 className="font-heading font-bold text-xl text-foreground mb-4">Justificación</h3>
@@ -264,6 +305,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Network size={16} />} label="Sección 4" />
             <SectionTitle>Análisis del Problema — Árbol de Problemas</SectionTitle>
+            <SectionSummary>
+              Diagrama interactivo que presenta el problema central, sus causas directas e indirectas, y los efectos sobre la seguridad alimentaria en el departamento.
+            </SectionSummary>
             <motion.div variants={fadeUp} className="flex flex-col items-center gap-2 mb-8">
               {/* Effects */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
@@ -310,6 +354,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<Users size={16} />} label="Sección 5" />
           <SectionTitle>Participantes y Análisis de Actores</SectionTitle>
+          <SectionSummary>
+            Mapa de actores clave del proyecto: instituciones ejecutoras, cooperantes internacionales, enlaces territoriales con enfoque diferencial y beneficiarios directos.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="overflow-x-auto">
             <table className="w-full text-sm border-collapse">
               <thead>
@@ -349,6 +396,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<MapPin size={16} />} label="Sección 6" />
             <SectionTitle>Población Objetivo</SectionTitle>
+            <SectionSummary>
+              Caracterización demográfica y territorial de los 1.59 millones de habitantes afectados, con foco en las 466 mil personas con inseguridad alimentaria en 42 municipios y 7 subregiones.
+            </SectionSummary>
             <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
               <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<Target size={24} />} color="bg-secondary" />
@@ -410,6 +460,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<Target size={16} />} label="Sección 7" />
           <SectionTitle>Objetivos — Árbol de Objetivos</SectionTitle>
+          <SectionSummary>
+            Estructura jerárquica de objetivos: desde el general (garantía del derecho a la alimentación) hasta los tres específicos de diagnóstico, formulación y seguimiento con sus indicadores clave.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="flex flex-col items-center gap-4 mb-8">
             <div className="bg-primary text-primary-foreground rounded-2xl px-8 py-5 text-center max-w-2xl shadow-xl">
               <span className="text-xs font-heading uppercase tracking-wider opacity-80">Objetivo General</span>
@@ -453,6 +506,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Lightbulb size={16} />} label="Sección 8" />
             <SectionTitle>Alternativa Seleccionada</SectionTitle>
+            <SectionSummary>
+              Alternativa 1 — Construcción participativa en 7 subregiones. Desglose de costos por actividad: diagnóstico ($571M), elaboración ($228M) y seguimiento ($73M).
+            </SectionSummary>
             <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="md:col-span-2 bg-card border border-border rounded-2xl p-6">
                 <div className="bg-primary text-primary-foreground rounded-xl px-5 py-2 inline-block mb-4">
@@ -497,6 +553,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<Flag size={16} />} label="Sección 9" />
           <SectionTitle>Plan de Acción General</SectionTitle>
+          <SectionSummary>
+            Hoja de ruta completa desde la Fase 0 (alistamiento) hasta la Fase 5 (transferencia), con los perfiles profesionales requeridos y la línea temporal de ejecución.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <div className="bg-card rounded-2xl border border-border p-6 mb-6">
@@ -544,6 +603,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Calendar size={16} />} label="Sección 10" />
             <SectionTitle>Foco: Primeros 4 Meses — Contratación y Alistamiento</SectionTitle>
+            <SectionSummary>
+              Detalle operativo de febrero a mayo 2026: arranque del proyecto, contratación del equipo técnico y 420 encuestadores, e inicio del diagnóstico integral en campo.
+            </SectionSummary>
             <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <motion.div variants={scaleIn} className="bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg">
                 <h3 className="font-heading font-bold text-lg mb-3">Fase 0 — Feb 2026</h3>
@@ -587,6 +649,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<BarChart3 size={16} />} label="Sección 11" />
           <SectionTitle>Actividad 1: Diagnóstico (4 Meses — $571M)</SectionTitle>
+          <SectionSummary>
+            El diagnóstico combina 7.560 encuestas cuantitativas (CARI/FIES/IPC) con 14 talleres participativos cualitativos para obtener una visión integral de la seguridad alimentaria por subregión.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <ExpandableCard title="📊 Componente Cuantitativo" defaultOpen>
               <ul className="space-y-2 text-sm font-body">
@@ -616,6 +681,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Calendar size={16} />} label="Sección 12" />
             <SectionTitle>Cronograma Detallado — Actividad 1 (Gantt)</SectionTitle>
+            <SectionSummary>
+              Diagrama Gantt animado con las tres fases del diagnóstico: cuantitativa (encuestas), cualitativa (talleres) y procesamiento/consolidación de resultados.
+            </SectionSummary>
             <motion.div variants={fadeUp} className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
               {/* Month headers */}
               <div className="flex mb-4 min-w-[600px]">
@@ -679,11 +747,14 @@ const InteractiveReport: React.FC = () => {
         </Section>
       </div>
 
-      {/* ═══ FLUJO DE FASES (from uploaded diagram) ═══ */}
+      {/* ═══ FLUJO DE FASES ═══ */}
       <Section>
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<Network size={16} />} label="Sección 13" />
           <SectionTitle>Flujo de Fases y Responsables</SectionTitle>
+          <SectionSummary>
+            Diagrama de flujo que conecta cada fase del proyecto con sus responsables: desde el diseño de instrumentos hasta la transferencia y cierre final.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="flex flex-col items-center gap-0">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-0">
               {/* Left track */}
@@ -717,6 +788,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Users size={16} />} label="Sección 14" />
             <SectionTitle>Perfiles del Equipo y Responsabilidades</SectionTitle>
+            <SectionSummary>
+              Matriz de responsabilidades por perfil profesional y fase del proyecto. La contratación de los 420 encuestadores (bachiller mínimo) es prioritaria en los primeros 4 meses.
+            </SectionSummary>
             <motion.div variants={fadeUp} className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
@@ -756,6 +830,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<Shield size={16} />} label="Sección 15" />
           <SectionTitle>Riesgos y Mitigación</SectionTitle>
+          <SectionSummary>
+            Matriz de riesgos operacionales con probabilidad, impacto y medidas de mitigación. El monitoreo quincenal en Comité Técnico garantiza respuesta temprana.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="space-y-3 mb-6">
             {[
               { risk: "Consensos difíciles entre actores", prob: "Alta", impact: "Alto", mit: "Diálogos interculturales previos" },
@@ -794,6 +871,9 @@ const InteractiveReport: React.FC = () => {
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<TrendingUp size={16} />} label="Sección 16" />
             <SectionTitle>Indicadores de Éxito</SectionTitle>
+            <SectionSummary>
+              Métricas de seguimiento del proyecto: ejecución de actividades, aprobación de entregables, cobertura municipal y meta de reducción de inseguridad alimentaria grave.
+            </SectionSummary>
             <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
               <StatCard value="≥90%" label="Actividades Ejecutadas" icon={<BarChart3 size={24} />} />
               <StatCard value="100%" label="Entregables Aprobados" icon={<Target size={24} />} color="bg-primary" />
@@ -813,6 +893,9 @@ const InteractiveReport: React.FC = () => {
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<MessageSquare size={16} />} label="Sección 17" />
           <SectionTitle>Protocolo de Comunicación</SectionTitle>
+          <SectionSummary>
+            Estructura de reuniones y canales digitales para la coordinación del proyecto: seguimiento quincenal en Comité Técnico y mensual con CISAN, apoyados por herramientas colaborativas.
+          </SectionSummary>
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <h3 className="font-heading font-bold text-lg mb-4">Reuniones</h3>
@@ -863,9 +946,12 @@ const InteractiveReport: React.FC = () => {
         <div className="max-w-7xl mx-auto px-6">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Flag size={16} />} label="Sección 18" />
-            <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-primary-foreground mb-8">
+            <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-primary-foreground mb-4">
               Conclusión y Siguientes Pasos
             </h2>
+            <p className="text-primary-foreground/60 font-body text-base leading-relaxed mb-8 max-w-3xl border-l-4 border-primary/30 pl-4">
+              Resumen ejecutivo del orden de implementación y llamado a acción para iniciar la contratación del equipo en febrero 2026, con miras a la aprobación en Asamblea Departamental.
+            </p>
             <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
               {[
                 { num: "1", title: "Contratación Equipo", time: "Febrero 2026", color: "bg-primary" },
