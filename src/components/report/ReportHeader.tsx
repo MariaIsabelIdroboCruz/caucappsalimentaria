@@ -7,7 +7,6 @@ const ReportHeader: React.FC = () => (
   <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border">
     <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
       <div className="flex items-center gap-4">
-        <img src={escudoCauca} alt="Escudo Cauca" className="h-10 w-auto" />
         <img src={secretariaLogo} alt="Secretaría Agricultura" className="h-10 w-auto" />
         <div className="hidden md:block ml-2">
           <p className="font-heading font-bold text-sm text-foreground leading-tight">Gobernación del Cauca</p>
