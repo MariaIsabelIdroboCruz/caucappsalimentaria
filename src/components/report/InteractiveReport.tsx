@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield, MessageSquare, Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu, Network } from "lucide-react";
+import { ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield, MessageSquare, Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu, Network, Sparkles, X } from "lucide-react";
+import { AnimatePresence } from "framer-motion";
 import heroCauca from "@/assets/hero-cauca-report.jpg";
 import escudoCauca from "@/assets/escudo-cauca.png";
 import secretariaLogo from "@/assets/secretaria-agricultura.png";
 import ReportHeader from "./ReportHeader";
 import ReportFooter from "./ReportFooter";
+import CaucaMap from "./CaucaMap";
 
 // ─── Animation variants ────────────────────────
 const fadeUp = {
@@ -39,12 +41,41 @@ const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => 
   <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-6 leading-tight">{children}</h2>
 );
 
-const AIBadge: React.FC<{ text: string }> = ({ text }) => (
-  <div className="inline-flex items-center gap-2 bg-accent/20 border border-accent rounded-full px-4 py-1.5 text-sm font-heading font-semibold text-accent-foreground mt-4">
-    <Cpu size={14} />
-    <span>IA: {text}</span>
-  </div>
-);
+const AIBadge: React.FC<{ text: string; detail?: string }> = ({ text, detail }) => {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="mt-4">
+      <button
+        onClick={() => detail && setOpen(!open)}
+        className={`inline-flex items-center gap-2 bg-gradient-to-r from-accent/20 to-accent/10 border border-accent rounded-full px-4 py-1.5 text-sm font-heading font-semibold text-accent-foreground transition-all hover:shadow-md hover:from-accent/30 ${detail ? "cursor-pointer" : "cursor-default"}`}
+      >
+        <Sparkles size={14} className="text-accent" />
+        <span>IA: {text}</span>
+        {detail && <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />}
+      </button>
+      <AnimatePresence>
+        {open && detail && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="mt-2 bg-accent/10 border border-accent/30 rounded-xl p-4 text-sm font-body text-foreground relative">
+              <button onClick={() => setOpen(false)} className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
+                <X size={14} />
+              </button>
+              <div className="flex items-start gap-2">
+                <Cpu size={16} className="text-accent mt-0.5 shrink-0" />
+                <p>{detail}</p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const StatCard: React.FC<{ value: string; label: string; icon: React.ReactNode; color?: string }> = ({ value, label, icon, color = "bg-primary" }) => (
   <motion.div variants={scaleIn} className="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-lg transition-shadow">
@@ -145,7 +176,7 @@ const InteractiveReport: React.FC = () => {
                   <span key={e} className="bg-slide-green-light text-primary px-4 py-2 rounded-full font-heading font-semibold text-sm">{e}</span>
                 ))}
               </div>
-              <AIBadge text="Modelos predictivos para monitorear avances" />
+              <AIBadge text="Modelos predictivos para monitorear avances" detail="Implementar modelos de series temporales (ARIMA/Prophet) con datos DANE para proyectar indicadores de inseguridad alimentaria por subregión, generando alertas tempranas cuando se identifiquen tendencias de deterioro y permitiendo ajustar las intervenciones en tiempo real." />
             </div>
           </motion.div>
         </motion.div>
@@ -176,7 +207,7 @@ const InteractiveReport: React.FC = () => {
                 <p className="text-foreground font-body text-sm leading-relaxed">
                   Sin política pública, las acciones permanecen fragmentadas y sin seguimiento articulado. Se requiere un diagnóstico integral con datos DANE actualizados y enfoque territorial diferenciado.
                 </p>
-                <AIBadge text="IA para análisis geo-espacial de brechas" />
+                <AIBadge text="IA para análisis geo-espacial de brechas" detail="Utilizar modelos de clustering geoespacial (K-means sobre datos GPS de hogares encuestados) para identificar zonas de alta concentración de inseguridad alimentaria dentro de cada subregión, combinando capas de datos DANE con imágenes satelitales de cobertura agrícola para priorizar intervenciones." />
               </motion.div>
             </motion.div>
           </motion.div>
@@ -221,7 +252,7 @@ const InteractiveReport: React.FC = () => {
                   </motion.div>
                 ))}
               </div>
-              <AIBadge text="Compliance legal automatizado" />
+              <AIBadge text="Compliance legal automatizado" detail="Implementar un sistema de verificación automática que mapee cada actividad del plan de acción contra el marco normativo (Ley 715, CONPES 113, PMA-FAO), generando reportes de cumplimiento en tiempo real y alertando sobre desviaciones normativas antes de que se materialicen." />
             </div>
           </motion.div>
         </motion.div>
@@ -335,7 +366,7 @@ const InteractiveReport: React.FC = () => {
                 <p className="text-muted-foreground text-sm font-body">
                   <strong>50.7%</strong> población femenina — Priorización por vulnerabilidad y acceso alimentario
                 </p>
-                <AIBadge text="Heatmaps IA para focalización territorial" />
+                <AIBadge text="Heatmaps IA para focalización territorial" detail="Generar mapas de calor dinámicos cruzando datos de encuestas FIES con variables socioeconómicas (NBI, conflicto armado, acceso vial) para identificar los municipios y veredas con mayor urgencia de intervención alimentaria." />
               </div>
               <div>
                 <h3 className="font-heading font-bold text-lg mb-4">Caracterización Demográfica</h3>
@@ -365,6 +396,10 @@ const InteractiveReport: React.FC = () => {
                   ))}
                 </div>
               </div>
+            </motion.div>
+            {/* Interactive Map */}
+            <motion.div variants={fadeUp} className="mt-8">
+              <CaucaMap />
             </motion.div>
           </motion.div>
         </Section>
@@ -408,7 +443,7 @@ const InteractiveReport: React.FC = () => {
               <span className="text-sm ml-2 font-body">Reducir inseguridad alimentaria grave al <strong>1.8%</strong></span>
             </div>
           </motion.div>
-          <div className="text-center"><AIBadge text="Machine Learning para proyección de indicadores" /></div>
+          <div className="text-center"><AIBadge text="Machine Learning para proyección de indicadores" detail="Entrenar modelos de regresión con datos históricos DANE para proyectar la trayectoria de la meta del 1.8% de inseguridad grave, simulando diferentes escenarios de intervención y su impacto esperado." /></div>
         </motion.div>
       </Section>
 
@@ -477,7 +512,7 @@ const InteractiveReport: React.FC = () => {
                   <span key={p} className="bg-slide-green-light text-primary px-3 py-1.5 rounded-full text-xs font-heading font-semibold">{p}</span>
                 ))}
               </div>
-              <AIBadge text="IA para coordinación de equipo" />
+              <AIBadge text="IA para coordinación de equipo" detail="Usar algoritmos de optimización de recursos para asignar perfiles profesionales a las 7 subregiones, considerando expertise, disponibilidad y carga de trabajo, maximizando la cobertura territorial y minimizando tiempos de desplazamiento." />
             </div>
             <div className="space-y-3">
               {[
@@ -560,7 +595,7 @@ const InteractiveReport: React.FC = () => {
                 <li>• 6 encuestas diarias mínimo por encuestador</li>
                 <li>• Metodologías CARI/FIES/IPC aprobadas por CISAN</li>
               </ul>
-              <AIBadge text="Dashboard IA para monitoreo en tiempo real" />
+              <AIBadge text="Dashboard IA para monitoreo en tiempo real" detail="Dashboard con visualización en tiempo real del avance de las 7.560 encuestas por municipio, con indicadores de calidad de datos (completitud, consistencia) y alertas automáticas cuando un municipio presenta rezagos en la recolección." />
             </ExpandableCard>
             <ExpandableCard title="🗣️ Componente Cualitativo" defaultOpen>
               <ul className="space-y-2 text-sm font-body">
@@ -569,7 +604,7 @@ const InteractiveReport: React.FC = () => {
                 <li>• Enfoques: familia, consumo, prácticas alimentación</li>
                 <li>• Almuerzo completo incluido</li>
               </ul>
-              <AIBadge text="NLP para análisis cualitativo automatizado" />
+              <AIBadge text="NLP para análisis cualitativo automatizado" detail="Aplicar procesamiento de lenguaje natural (NLP) a las transcripciones de los 14 talleres para identificar patrones temáticos, sentimientos predominantes y necesidades emergentes, acelerando el análisis cualitativo de semanas a horas." />
             </ExpandableCard>
           </motion.div>
         </motion.div>
@@ -749,7 +784,7 @@ const InteractiveReport: React.FC = () => {
             <span className="text-xl">🔄</span>
             <span className="text-sm font-body"><strong>Monitoreo quincenal</strong> en Comité Técnico</span>
           </div>
-          <AIBadge text="Alertas predictivas de riesgo con IA" />
+          <AIBadge text="Alertas predictivas de riesgo con IA" detail="Sistema de monitoreo continuo que analiza indicadores de riesgo (participación en reuniones, cumplimiento de hitos, cambios institucionales) y genera alertas predictivas al Comité Técnico cuando la probabilidad de materialización de un riesgo supera el 60%." />
         </motion.div>
       </Section>
 
@@ -768,7 +803,7 @@ const InteractiveReport: React.FC = () => {
             <motion.div variants={fadeUp} className="bg-accent/20 border border-accent rounded-xl px-6 py-4 text-center">
               <p className="text-sm font-body">📈 Indicadores de <strong>corto, mediano y largo plazo</strong> integrados en la política pública</p>
             </motion.div>
-            <div className="text-center"><AIBadge text="Dashboard IA para métricas en tiempo real" /></div>
+            <div className="text-center"><AIBadge text="Dashboard IA para métricas en tiempo real" detail="Panel de control ejecutivo con KPIs actualizados automáticamente: porcentaje de municipios cubiertos, tasa de ejecución presupuestal, avance por fase, y semáforos de alerta temprana para cada indicador de éxito." /></div>
           </motion.div>
         </Section>
       </div>
@@ -817,7 +852,7 @@ const InteractiveReport: React.FC = () => {
                   </div>
                 ))}
               </div>
-              <AIBadge text="Chatbots para reportes semanales" />
+              <AIBadge text="Chatbots para reportes semanales" detail="Implementar un asistente conversacional en Teams que genere automáticamente reportes semanales de avance, permita consultar el estado de cualquier actividad y envíe recordatorios inteligentes de compromisos pendientes a cada miembro del equipo." />
             </div>
           </motion.div>
         </motion.div>
