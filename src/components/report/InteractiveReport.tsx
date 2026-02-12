@@ -681,67 +681,206 @@ const InteractiveReport: React.FC = () => {
             <SectionTag icon={<Calendar size={16} />} label="Sección 12" />
             <SectionTitle>Cronograma Detallado — Actividad 1 (Gantt)</SectionTitle>
             <SectionSummary>
-              Diagrama Gantt animado con las tres fases del diagnóstico: cuantitativa (encuestas), cualitativa (talleres) y procesamiento/consolidación de resultados.
+              Diagrama Gantt ampliado con las tres fases del diagnóstico, desglose por meses y días específicos de implementación para cada actividad.
             </SectionSummary>
+
+            {/* ── Resumen de Fases ── */}
+            <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+              {[
+                { fase: "Fase Cuantitativa", icon: "📊", meses: "Feb — May", dias: "90 días", color: "bg-primary", items: ["7.560 encuestas", "420 encuestadores", "42 municipios"] },
+                { fase: "Fase Cualitativa", icon: "🗣️", meses: "Abr — Jun", dias: "75 días", color: "bg-secondary", items: ["14 talleres", "1.400 participantes", "7 subregiones"] },
+                { fase: "Procesamiento", icon: "⚙️", meses: "May — Jun", dias: "45 días", color: "bg-accent", items: ["Consolidación datos", "Análisis estadístico", "Informe diagnóstico"] },
+              ].map((f, i) => (
+                <motion.div key={i} variants={scaleIn} className="bg-card rounded-2xl border border-border p-5 hover:shadow-lg transition-shadow">
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-2xl">{f.icon}</span>
+                    <div>
+                      <p className="font-heading font-bold text-sm text-foreground">{f.fase}</p>
+                      <p className="text-xs text-muted-foreground">{f.meses} 2026</p>
+                    </div>
+                  </div>
+                  <div className={`${f.color} text-primary-foreground rounded-lg px-3 py-1.5 text-center font-heading font-bold text-lg mb-3`}>
+                    {f.dias}
+                  </div>
+                  <ul className="space-y-1">
+                    {f.items.map((item, j) => (
+                      <li key={j} className="text-xs font-body text-muted-foreground flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* ── Gantt Principal ── */}
             <motion.div variants={fadeUp} className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
-              {/* Month headers */}
-              <div className="flex mb-4 min-w-[600px]">
-                {["Feb", "Mar", "Abr", "May", "Jun"].map(m => (
-                  <div key={m} className="flex-1 text-center font-heading font-semibold text-xs text-muted-foreground border-b border-border pb-2">
-                    {m} 2026
-                  </div>
-                ))}
-              </div>
-              <div className="space-y-2 min-w-[600px]">
-                <p className="font-heading font-bold text-sm text-primary mb-2">FASE 1 — Cuantitativa</p>
-                {[
-                  { label: "Análisis info. secundaria", start: 0, dur: 3 },
-                  { label: "Acercamiento institucional", start: 3, dur: 3 },
-                  { label: "Definición herramienta", start: 6, dur: 2 },
-                  { label: "Aprobación CISAN", start: 8, dur: 2 },
-                  { label: "Desarrollo encuesta digital", start: 10, dur: 3 },
-                  { label: "Logística y capacitación", start: 13, dur: 3 },
-                  { label: "Aplicación encuestas", start: 16, dur: 4 },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-center h-8 group">
-                    <span className="w-[180px] text-xs font-body truncate pr-2 text-foreground shrink-0">{item.label}</span>
-                    <div className="flex-1 relative h-6">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${(item.dur / 20) * 100}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: i * 0.08 }}
-                        className="absolute h-full rounded-md bg-primary group-hover:bg-primary/80 transition-colors"
-                        style={{ left: `${(item.start / 20) * 100}%` }}
-                      />
+              {/* Month headers with week subdivisions */}
+              <div className="min-w-[900px]">
+                <div className="flex mb-1">
+                  {[
+                    { mes: "Febrero 2026", semanas: 4 },
+                    { mes: "Marzo 2026", semanas: 4 },
+                    { mes: "Abril 2026", semanas: 5 },
+                    { mes: "Mayo 2026", semanas: 4 },
+                    { mes: "Junio 2026", semanas: 4 },
+                  ].map((m, i) => (
+                    <div key={i} className="text-center font-heading font-bold text-xs text-foreground border-b-2 border-primary/30 pb-1" style={{ flex: m.semanas }}>
+                      {m.mes}
                     </div>
-                  </div>
-                ))}
-                <div className="border-t border-border pt-2 mt-2">
-                  <p className="font-heading font-bold text-sm text-secondary mb-2">FASE 2 — Cualitativa</p>
+                  ))}
                 </div>
-                {[
-                  { label: "Info. secundaria cualitativa", start: 6, dur: 3 },
-                  { label: "Acercamiento actores", start: 9, dur: 4 },
-                  { label: "Construcción talleres", start: 13, dur: 2 },
-                  { label: "Realización 14 talleres", start: 15, dur: 5 },
-                ].map((item, i) => (
-                  <div key={`q-${i}`} className="flex items-center h-8 group">
-                    <span className="w-[180px] text-xs font-body truncate pr-2 text-foreground shrink-0">{item.label}</span>
-                    <div className="flex-1 relative h-6">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${(item.dur / 20) * 100}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.6, delay: i * 0.08 }}
-                        className="absolute h-full rounded-md bg-secondary group-hover:bg-secondary/80 transition-colors"
-                        style={{ left: `${(item.start / 20) * 100}%` }}
-                      />
+                <div className="flex mb-4">
+                  {Array.from({ length: 21 }, (_, i) => (
+                    <div key={i} className="flex-1 text-center text-[10px] text-muted-foreground border-r border-border/30 pb-1">
+                      S{i + 1}
                     </div>
+                  ))}
+                </div>
+
+                {/* FASE 1 — Cuantitativa */}
+                <div className="mb-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded-sm bg-primary" />
+                    <p className="font-heading font-bold text-sm text-primary">FASE 1 — Cuantitativa (Feb 2 — May 22)</p>
+                    <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-heading font-semibold">90 días</span>
                   </div>
-                ))}
+                  {[
+                    { label: "Análisis información secundaria", start: 0, dur: 3, dias: "Feb 2–20 (15 días)", hito: false },
+                    { label: "Acercamiento institucional y territorial", start: 2, dur: 3, dias: "Feb 16 – Mar 6 (18 días)", hito: false },
+                    { label: "Definición herramienta encuesta", start: 4, dur: 2, dias: "Mar 2–13 (10 días)", hito: false },
+                    { label: "Validación y aprobación CISAN", start: 5, dur: 2, dias: "Mar 9–20 (10 días)", hito: true },
+                    { label: "Desarrollo encuesta digital (KoboToolbox)", start: 6, dur: 2, dias: "Mar 16–27 (10 días)", hito: false },
+                    { label: "Prueba piloto (2 municipios)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 (5 días)", hito: true },
+                    { label: "Ajustes post-piloto", start: 9, dur: 1, dias: "Abr 6–10 (5 días)", hito: false },
+                    { label: "Logística y contratación 420 encuestadores", start: 7, dur: 3, dias: "Mar 23 – Abr 10 (15 días)", hito: false },
+                    { label: "Capacitación encuestadores (7 sedes)", start: 10, dur: 2, dias: "Abr 13–24 (10 días)", hito: false },
+                    { label: "Aplicación encuestas — 7.560 hogares", start: 12, dur: 4, dias: "Abr 27 – May 22 (20 días)", hito: false },
+                    { label: "Supervisión y control de calidad", start: 12, dur: 4, dias: "Abr 27 – May 22 (20 días)", hito: false },
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center h-9 group relative">
+                      <span className="w-[250px] text-xs font-body pr-2 text-foreground shrink-0 flex items-center gap-1.5">
+                        {item.hito && <span className="text-primary">◆</span>}
+                        <span className="truncate">{item.label}</span>
+                      </span>
+                      <div className="flex-1 relative h-7">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${(item.dur / 21) * 100}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.6, delay: i * 0.06 }}
+                          className={`absolute h-full rounded-md ${item.hito ? "bg-primary ring-2 ring-primary/30" : "bg-primary/80"} group-hover:brightness-110 transition-all cursor-default flex items-center justify-center`}
+                          style={{ left: `${(item.start / 21) * 100}%` }}
+                        >
+                          <span className="text-[9px] text-primary-foreground font-semibold whitespace-nowrap px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {item.dias}
+                          </span>
+                        </motion.div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* FASE 2 — Cualitativa */}
+                <div className="border-t border-border pt-3 mb-2 mt-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded-sm bg-secondary" />
+                    <p className="font-heading font-bold text-sm text-secondary">FASE 2 — Cualitativa (Abr 6 — Jun 12)</p>
+                    <span className="text-xs bg-secondary/10 text-secondary px-2 py-0.5 rounded-full font-heading font-semibold">75 días</span>
+                  </div>
+                  {[
+                    { label: "Revisión información secundaria cualitativa", start: 8, dur: 2, dias: "Abr 6–17 (10 días)", hito: false },
+                    { label: "Acercamiento líderes y actores clave", start: 9, dur: 3, dias: "Abr 13 – May 1 (15 días)", hito: false },
+                    { label: "Diseño metodológico talleres", start: 10, dur: 2, dias: "Abr 20 – May 1 (10 días)", hito: false },
+                    { label: "Logística talleres (7 sedes × 2)", start: 11, dur: 2, dias: "May 4–15 (10 días)", hito: false },
+                    { label: "Talleres subregión Sur y Macizo", start: 13, dur: 1.5, dias: "May 18–27 (8 días)", hito: true },
+                    { label: "Talleres subregión Pacífico y Norte", start: 14.5, dur: 1.5, dias: "May 28 – Jun 5 (7 días)", hito: true },
+                    { label: "Talleres subregión Centro, Oriente, Bota", start: 16, dur: 1.5, dias: "Jun 5–12 (7 días)", hito: true },
+                    { label: "Relatorías y sistematización", start: 13, dur: 5, dias: "May 18 – Jun 12 (22 días)", hito: false },
+                  ].map((item, i) => (
+                    <div key={`q-${i}`} className="flex items-center h-9 group relative">
+                      <span className="w-[250px] text-xs font-body pr-2 text-foreground shrink-0 flex items-center gap-1.5">
+                        {item.hito && <span className="text-secondary">◆</span>}
+                        <span className="truncate">{item.label}</span>
+                      </span>
+                      <div className="flex-1 relative h-7">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${(item.dur / 21) * 100}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.6, delay: i * 0.06 }}
+                          className={`absolute h-full rounded-md ${item.hito ? "bg-secondary ring-2 ring-secondary/30" : "bg-secondary/80"} group-hover:brightness-110 transition-all cursor-default flex items-center justify-center`}
+                          style={{ left: `${(item.start / 21) * 100}%` }}
+                        >
+                          <span className="text-[9px] text-primary-foreground font-semibold whitespace-nowrap px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {item.dias}
+                          </span>
+                        </motion.div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* FASE 3 — Procesamiento */}
+                <div className="border-t border-border pt-3 mt-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 rounded-sm bg-accent" />
+                    <p className="font-heading font-bold text-sm text-accent-foreground">FASE 3 — Procesamiento y Consolidación (May 11 — Jun 26)</p>
+                    <span className="text-xs bg-accent/20 text-accent-foreground px-2 py-0.5 rounded-full font-heading font-semibold">45 días</span>
+                  </div>
+                  {[
+                    { label: "Limpieza y validación de datos", start: 14, dur: 2, dias: "May 11–22 (10 días)", hito: false },
+                    { label: "Procesamiento estadístico (SPSS/R)", start: 15, dur: 2, dias: "May 18–29 (10 días)", hito: false },
+                    { label: "Análisis cruzado cuanti-cuali", start: 16, dur: 2, dias: "Jun 1–12 (10 días)", hito: false },
+                    { label: "Redacción informe diagnóstico", start: 17, dur: 2, dias: "Jun 8–19 (10 días)", hito: false },
+                    { label: "Revisión y aprobación CISAN", start: 19, dur: 2, dias: "Jun 15–26 (10 días)", hito: true },
+                  ].map((item, i) => (
+                    <div key={`p-${i}`} className="flex items-center h-9 group relative">
+                      <span className="w-[250px] text-xs font-body pr-2 text-foreground shrink-0 flex items-center gap-1.5">
+                        {item.hito && <span className="text-accent">◆</span>}
+                        <span className="truncate">{item.label}</span>
+                      </span>
+                      <div className="flex-1 relative h-7">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          whileInView={{ width: `${(item.dur / 21) * 100}%` }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.6, delay: i * 0.06 }}
+                          className={`absolute h-full rounded-md ${item.hito ? "bg-accent ring-2 ring-accent/30" : "bg-accent/70"} group-hover:brightness-110 transition-all cursor-default flex items-center justify-center`}
+                          style={{ left: `${(item.start / 21) * 100}%` }}
+                        >
+                          <span className="text-[9px] text-primary-foreground font-semibold whitespace-nowrap px-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                            {item.dias}
+                          </span>
+                        </motion.div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Leyenda */}
+              <div className="flex flex-wrap items-center gap-4 mt-6 pt-4 border-t border-border min-w-[900px]">
+                <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                  <div className="w-3 h-3 rounded-sm bg-primary" /> Cuantitativa
+                </div>
+                <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                  <div className="w-3 h-3 rounded-sm bg-secondary" /> Cualitativa
+                </div>
+                <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                  <div className="w-3 h-3 rounded-sm bg-accent" /> Procesamiento
+                </div>
+                <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
+                  <span className="text-primary">◆</span> Hito clave
+                </div>
+                <div className="text-xs text-muted-foreground ml-auto font-body italic">
+                  Pasa el cursor sobre las barras para ver los días exactos
+                </div>
               </div>
             </motion.div>
+
+            <AIBadge text="IA para optimización de cronograma" detail="Algoritmos de programación dinámica para ajustar automáticamente el cronograma ante retrasos, redistribuyendo encuestadores y recursos entre subregiones para mantener las metas de cobertura dentro de los plazos establecidos." />
           </motion.div>
         </Section>
       </div>
