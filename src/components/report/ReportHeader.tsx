@@ -16,7 +16,7 @@ const ReportHeader: React.FC = () => (
       <nav className="hidden lg:flex items-center gap-6 text-sm font-body text-muted-foreground">
         <a href="#contexto" className="hover:text-primary transition-colors">Contexto</a>
         <a href="#problema" className="hover:text-primary transition-colors">Problema</a>
-        <a href="#plan" className="hover:text-primary transition-colors">Plan</a>
+        <a href="#plan" className="text-primary font-semibold hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1 rounded-full">Plan de Acción</a>
         <a href="#cronograma" className="hover:text-primary transition-colors">Cronograma</a>
         <a href="#riesgos" className="hover:text-primary transition-colors">Riesgos</a>
       </nav>
