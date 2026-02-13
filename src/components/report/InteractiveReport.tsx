@@ -549,10 +549,11 @@ const InteractiveReport: React.FC = () => {
       </div>
 
       {/* ═══ PLAN DE ACCIÓN ═══ */}
+      <div className="bg-primary/5 border-y-4 border-primary">
       <Section id="plan">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<Flag size={16} />} label="Sección 9" />
-          <SectionTitle>Plan de Acción General</SectionTitle>
+          <SectionTag icon={<Flag size={16} />} label="Sección 9 — Destacado" />
+          <SectionTitle>🎯 Plan de Acción</SectionTitle>
           <SectionSummary>
             Hoja de ruta completa desde la Fase 0 (alistamiento) hasta la Fase 5 (transferencia), con los perfiles profesionales requeridos y la línea temporal de ejecución.
           </SectionSummary>
@@ -596,6 +597,7 @@ const InteractiveReport: React.FC = () => {
           </motion.div>
         </motion.div>
       </Section>
+      </div>
 
       {/* ═══ PRIMEROS 4 MESES ═══ */}
       <div className="bg-muted/50">
