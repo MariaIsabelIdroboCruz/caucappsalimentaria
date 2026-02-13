@@ -682,9 +682,9 @@ const InteractiveReport: React.FC = () => {
         <Section id="cronograma">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
             <SectionTag icon={<Calendar size={16} />} label="Sección 12" />
-            <SectionTitle>Cronograma Detallado — Actividad 1 (Gantt)</SectionTitle>
+            <SectionTitle>Plan de Acción — Cronograma Detallado (Gantt)</SectionTitle>
             <SectionSummary>
-              Diagrama Gantt ampliado con las tres fases del diagnóstico, desglose por meses y días específicos de implementación. Selecciona una fase para ver el detalle.
+              Diagrama Gantt del Plan de Acción con las tres fases del diagnóstico, desglose por meses y días específicos de implementación. Selecciona una fase para ver el detalle.
             </SectionSummary>
             <GanttChart />
             <AIBadge text="IA para optimización de cronograma" detail="Algoritmos de programación dinámica para ajustar automáticamente el cronograma ante retrasos, redistribuyendo encuestadores y recursos entre subregiones para mantener las metas de cobertura dentro de los plazos establecidos." />
