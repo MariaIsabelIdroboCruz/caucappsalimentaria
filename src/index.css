@@ -106,6 +106,75 @@
 .slide-content {
   font-family: 'Open Sans', Arial, sans-serif;
 }
+/* ===== PRINT / PDF EXPORT ===== */
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm 12mm;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+  }
+
+  /* Hide non-printable UI */
+  .print\:hidden,
+  header,
+  nav,
+  button:not(.print-show) {
+    display: none !important;
+  }
+
+  /* Force all sections to expand */
+  [data-state="closed"] > [data-radix-collapsible-content] {
+    display: block !important;
+    height: auto !important;
+  }
+
+  /* Avoid breaking cards/sections across pages */
+  section,
+  .print-section,
+  article {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Make backgrounds & colors print */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Remove sticky positioning */
+  .sticky {
+    position: relative !important;
+  }
+
+  /* Expand max-width to fill page */
+  .max-w-7xl,
+  .max-w-5xl,
+  .max-w-4xl,
+  .max-w-3xl,
+  .max-w-2xl {
+    max-width: 100% !important;
+  }
+
+  /* Gantt chart should not clip */
+  .overflow-x-auto,
+  .overflow-hidden {
+    overflow: visible !important;
+  }
+
+  /* Framer motion — remove transforms that can crop content */
+  [style*="transform"],
+  [style*="opacity"] {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
 .slide-content h1,
 .slide-content h2,
 .slide-content h3,
