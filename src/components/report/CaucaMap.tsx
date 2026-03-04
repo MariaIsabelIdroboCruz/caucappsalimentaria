@@ -12,6 +12,9 @@ interface ZonaData {
   labelX: number;
   labelY: number;
   actores: string[];
+  poblacion: number;       // total population
+  encuestas: number;       // assigned surveys
+  insegAlimentaria: string; // food insecurity rate
 }
 
 // ─── Zone Data ────────────────────────────────
@@ -24,6 +27,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Piendamó",
     color: "#1a7a3e",
     labelX: 415, labelY: 295,
+    poblacion: 112400,
+    encuestas: 840,
+    insegAlimentaria: "3.1%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Indígenas",
@@ -44,6 +50,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Santander de Quilichao",
     color: "#2d9e5a",
     labelX: 510, labelY: 195,
+    poblacion: 198600,
+    encuestas: 1260,
+    insegAlimentaria: "2.6%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -65,6 +74,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Inzá",
     color: "#c97a1a",
     labelX: 630, labelY: 255,
+    poblacion: 87300,
+    encuestas: 630,
+    insegAlimentaria: "3.8%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Indígenas",
@@ -85,6 +97,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Guapi",
     color: "#1a6ea0",
     labelX: 175, labelY: 320,
+    poblacion: 74200,
+    encuestas: 630,
+    insegAlimentaria: "4.2%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -106,6 +121,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede El Bordo",
     color: "#b02828",
     labelX: 320, labelY: 510,
+    poblacion: 163500,
+    encuestas: 1260,
+    insegAlimentaria: "3.4%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -127,6 +145,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Popayán",
     color: "#6a3db8",
     labelX: 420, labelY: 368,
+    poblacion: 340000,
+    encuestas: 840,
+    insegAlimentaria: "1.8%",
     actores: [
       "ICA", "ICBF", "PAE Educación", "Proveedores PAE", "Galpones Ganaderos",
       "Cámara de Comercio", "Emcaservicios", "CRC", "Acueducto de Popayán",
@@ -149,6 +170,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Timbío",
     color: "#c0404a",
     labelX: 455, labelY: 440,
+    poblacion: 95800,
+    encuestas: 840,
+    insegAlimentaria: "2.9%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -170,6 +194,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede La Vega",
     color: "#7a3daa",
     labelX: 530, labelY: 490,
+    poblacion: 68400,
+    encuestas: 630,
+    insegAlimentaria: "3.6%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -191,6 +218,9 @@ const zonas: ZonaData[] = [
     taller: "1 taller participativo — sede Piamonte",
     color: "#1a8a7a",
     labelX: 580, labelY: 610,
+    poblacion: 28700,
+    encuestas: 420,
+    insegAlimentaria: "4.8%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -479,7 +509,28 @@ const CaucaMap: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Municipios */}
+                  {/* Población stats */}
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {[
+                      { label: "Población", value: focusedData.poblacion.toLocaleString("es-CO") },
+                      { label: "Encuestas", value: focusedData.encuestas.toLocaleString("es-CO") },
+                      { label: "Inseg. Alim.", value: focusedData.insegAlimentaria },
+                    ].map((stat, i) => (
+                      <div
+                        key={i}
+                        className="rounded-lg px-2 py-2 text-center border"
+                        style={{
+                          backgroundColor: `${focusedData.color}10`,
+                          borderColor: `${focusedData.color}30`,
+                        }}
+                      >
+                        <p className="font-heading font-black text-sm leading-tight" style={{ color: focusedData.color }}>
+                          {stat.value}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground font-body mt-0.5 leading-tight">{stat.label}</p>
+                      </div>
+                    ))}
+                  </div>
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin size={13} className="text-muted-foreground" />
