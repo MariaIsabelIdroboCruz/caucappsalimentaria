@@ -9,6 +9,7 @@ import {
 import heroCauca from "@/assets/hero-cauca-report.jpg";
 import escudoCauca from "@/assets/escudo-cauca.png";
 import secretariaLogo from "@/assets/secretaria-agricultura.png";
+import logoGobernacion from "@/assets/logo-gobernacion-cauca.jpg";
 import ReportHeader from "./ReportHeader";
 import ReportFooter from "./ReportFooter";
 import CaucaMap from "./CaucaMap";
@@ -155,30 +156,45 @@ const InteractiveReport: React.FC = () => {
           className="absolute inset-0 w-full h-full object-cover"
           loading="eager"
         />
-        {/* Stronger gradient for better text contrast */}
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground/95 via-foreground/70 to-foreground/25" />
+        {/* Dark gradient — stronger at bottom for text legibility */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/20" />
 
         <motion.div
           initial="hidden"
           animate="visible"
           variants={stagger}
-          className="relative z-10 text-center px-6 max-w-4xl"
+          className="relative z-10 text-center px-6 max-w-4xl w-full"
         >
-          <motion.div variants={fadeUp} className="h-1 w-20 bg-primary rounded mx-auto mb-8" />
+          {/* Logo institucional sobre fondo semi-transparente */}
+          <motion.div variants={fadeUp} className="flex justify-center mb-8">
+            <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-2xl inline-block">
+              <img
+                src={logoGobernacion}
+                alt="Gobernación del Cauca — Secretaría de Agricultura y Desarrollo Rural"
+                className="h-14 md:h-16 w-auto object-contain"
+              />
+            </div>
+          </motion.div>
+
+          {/* Divider */}
+          <motion.div variants={fadeUp} className="h-[2px] w-16 bg-primary rounded mx-auto mb-7" />
+
           <motion.h1
             variants={fadeUp}
             className="font-heading font-black text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5 drop-shadow-lg"
           >
             Construcción de la Política Pública de{" "}
-            <span className="text-accent">Seguridad y Soberanía Alimentaria</span>{" "}
+            <span className="text-accent drop-shadow-md">Seguridad y Soberanía Alimentaria</span>{" "}
             en el Cauca
           </motion.h1>
-          <motion.p variants={fadeUp} className="text-lg md:text-xl text-white/85 font-body mb-3 leading-relaxed">
+
+          <motion.p variants={fadeUp} className="text-lg md:text-xl text-white/90 font-body mb-3 leading-relaxed drop-shadow">
             Plan de Acción Pre-Fases y Cronograma de Implementación
           </motion.p>
-          <motion.p variants={fadeUp} className="text-sm text-white/60 font-body mb-10">
+          <motion.p variants={fadeUp} className="text-sm text-white/65 font-body mb-10 tracking-wide">
             Secretaría de Agricultura y Desarrollo Rural · Febrero 2026
           </motion.p>
+
           {/* Scroll CTA */}
           <motion.a
             variants={fadeUp}
