@@ -141,21 +141,6 @@ const InteractiveReport: React.FC = () => {
           <motion.p variants={fadeUp} className="text-sm text-primary-foreground/60 font-body mb-8">
             Secretaría de Agricultura y Desarrollo Rural · Febrero 2026
           </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-4 mb-10">
-            <span className="bg-primary text-primary-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm shadow-md">Febrero 2026 — Enero 2027</span>
-            <span className="bg-secondary text-primary-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm shadow-md">Fase III — Factibilidad</span>
-            <span className="bg-accent text-accent-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm shadow-md">$943.381.615</span>
-          </motion.div>
-          <motion.div variants={fadeUp}>
-            <a
-              href="#cifras-clave"
-              className="inline-flex items-center gap-3 bg-primary/20 backdrop-blur-md border border-primary/50 text-primary-foreground px-8 py-3 rounded-full font-heading font-bold text-base hover:bg-primary/40 transition-all shadow-lg hover:shadow-primary/30"
-            >
-              <Sparkles size={18} className="text-accent" />
-              Explorar con IA
-              <ChevronDown size={18} className="animate-bounce" />
-            </a>
-          </motion.div>
         </motion.div>
       </section>
 
