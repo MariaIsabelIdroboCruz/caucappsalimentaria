@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, MapPin, Users } from "lucide-react";
+import { MapPin, Users } from "lucide-react";
 
 interface ZonaData {
   id: string;
@@ -9,33 +9,39 @@ interface ZonaData {
   municipios: string[];
   taller: string;
   color: string;
-  labelX: number;
-  labelY: number;
+  cx: number;
+  cy: number;
+  rx: number;
+  ry: number;
   actores: string[];
-  poblacion: number;       // total population
-  encuestas: number;       // assigned surveys
-  insegAlimentaria: string; // food insecurity rate
+  poblacion: number;
+  encuestas: number;
+  insegAlimentaria: string;
 }
 
-// ─── Zone Data ────────────────────────────────
+// Zonas como elipses bien distribuidas en el mapa (viewBox 0 0 760 680)
+// Basado en la distribución geográfica real del Cauca:
+// Pacífico (oeste grande), Norte (noreste), Oriente (este), Centro (centro),
+// Popayán (centro pequeño), Sur (sur grande), Timbío (centro-sur), Macizo, Bota Caucana (sureste)
 const zonas: ZonaData[] = [
   {
-    id: "zona1",
-    name: "Zona 1",
-    subregion: "Centro — Piendamó",
-    municipios: ["Piendamó", "Cajibío", "Morales", "Silvia"],
-    taller: "1 taller participativo — sede Piendamó",
-    color: "#1a7a3e",
-    labelX: 415, labelY: 295,
-    poblacion: 112400,
-    encuestas: 840,
-    insegAlimentaria: "3.1%",
+    id: "zona4",
+    name: "Zona 4",
+    subregion: "Pacífico — Guapi",
+    municipios: ["Guapi", "López de Micay", "Timbiquí"],
+    taller: "1 taller participativo — sede Guapi",
+    color: "#1a6ea0",
+    cx: 130, cy: 310, rx: 110, ry: 175,
+    poblacion: 74200,
+    encuestas: 630,
+    insegAlimentaria: "4.2%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
+      "Consejos comunitarios",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -49,7 +55,7 @@ const zonas: ZonaData[] = [
     municipios: ["Santander de Quilichao", "Caldono", "Buenos Aires", "Caloto", "Jambaló"],
     taller: "1 taller participativo — sede Santander de Quilichao",
     color: "#2d9e5a",
-    labelX: 510, labelY: 195,
+    cx: 400, cy: 120, rx: 130, ry: 90,
     poblacion: 198600,
     encuestas: 1260,
     insegAlimentaria: "2.6%",
@@ -58,8 +64,8 @@ const zonas: ZonaData[] = [
       "Consejos comunitarios",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -73,7 +79,7 @@ const zonas: ZonaData[] = [
     municipios: ["Inzá", "Páez (Belalcázar)", "Totoró"],
     taller: "1 taller participativo — sede Inzá",
     color: "#c97a1a",
-    labelX: 630, labelY: 255,
+    cx: 610, cy: 155, rx: 105, ry: 80,
     poblacion: 87300,
     encuestas: 630,
     insegAlimentaria: "3.8%",
@@ -81,8 +87,8 @@ const zonas: ZonaData[] = [
       "Campesinos (se aterriza en cada municipio)",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -90,47 +96,22 @@ const zonas: ZonaData[] = [
     ],
   },
   {
-    id: "zona4",
-    name: "Zona 4",
-    subregion: "Pacífico — Guapi",
-    municipios: ["Guapi", "López de Micay", "Timbiquí"],
-    taller: "1 taller participativo — sede Guapi",
-    color: "#1a6ea0",
-    labelX: 175, labelY: 320,
-    poblacion: 74200,
-    encuestas: 630,
-    insegAlimentaria: "4.2%",
+    id: "zona1",
+    name: "Zona 1",
+    subregion: "Centro — Piendamó",
+    municipios: ["Piendamó", "Cajibío", "Morales", "Silvia"],
+    taller: "1 taller participativo — sede Piendamó",
+    color: "#1a7a3e",
+    cx: 380, cy: 270, rx: 95, ry: 75,
+    poblacion: 112400,
+    encuestas: 840,
+    insegAlimentaria: "3.1%",
     actores: [
       "Campesinos (se aterriza en cada municipio)",
-      "Consejos comunitarios",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
-      "Mujeres gestantes",
-      "Institucional (salud, educación, alcaldías)",
-      "Comunidad LGTBI",
-      "OAC",
-    ],
-  },
-  {
-    id: "zona5",
-    name: "Zona 5",
-    subregion: "Sur — Bolívar / El Bordo",
-    municipios: ["El Bordo (Patía)", "Mercaderes", "Bolívar", "Florencia", "Sucre", "Balboa", "Argelia"],
-    taller: "1 taller participativo — sede El Bordo",
-    color: "#b02828",
-    labelX: 320, labelY: 510,
-    poblacion: 163500,
-    encuestas: 1260,
-    insegAlimentaria: "3.4%",
-    actores: [
-      "Campesinos (se aterriza en cada municipio)",
-      "Consejos comunitarios",
-      "Indígenas",
-      "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -144,7 +125,7 @@ const zonas: ZonaData[] = [
     municipios: ["Popayán"],
     taller: "1 taller participativo — sede Popayán",
     color: "#6a3db8",
-    labelX: 420, labelY: 368,
+    cx: 390, cy: 375, rx: 60, ry: 50,
     poblacion: 340000,
     encuestas: 840,
     insegAlimentaria: "1.8%",
@@ -152,14 +133,34 @@ const zonas: ZonaData[] = [
       "ICA", "ICBF", "PAE Educación", "Proveedores PAE", "Galpones Ganaderos",
       "Cámara de Comercio", "Emcaservicios", "CRC", "Acueducto de Popayán",
       "Ministerio de la Igualdad", "FAMAS y comerciantes de alimentos",
-      "Diputados (CDSAN)", "Actores políticos (diputados)",
-      "PAES y PANES", "FAO", "PMA", "Salud departamental",
-      "Campesinos (se aterriza en cada municipio)", "Consejos comunitarios",
-      "Indígenas", "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
-      "Mujeres gestantes", "Institucional (salud, educación, alcaldías)",
-      "Comunidad LGTBI", "OAC",
+      "Diputados (CDSAN)", "FAO", "PMA", "Salud departamental",
+      "Campesinos", "Consejos comunitarios", "Indígenas",
+      "Personas con discapacidad", "Adulto mayor", "Jóvenes",
+      "Mujeres gestantes", "Comunidad LGTBI", "OAC",
+    ],
+  },
+  {
+    id: "zona5",
+    name: "Zona 5",
+    subregion: "Sur — Bolívar / El Bordo",
+    municipios: ["El Bordo (Patía)", "Mercaderes", "Bolívar", "Florencia", "Sucre", "Balboa", "Argelia"],
+    taller: "1 taller participativo — sede El Bordo",
+    color: "#b02828",
+    cx: 290, cy: 490, rx: 130, ry: 115,
+    poblacion: 163500,
+    encuestas: 1260,
+    insegAlimentaria: "3.4%",
+    actores: [
+      "Campesinos (se aterriza en cada municipio)",
+      "Consejos comunitarios",
+      "Indígenas",
+      "Personas con discapacidad",
+      "Adulto mayor",
+      "Jóvenes",
+      "Mujeres gestantes",
+      "Institucional (salud, educación, alcaldías)",
+      "Comunidad LGTBI",
+      "OAC",
     ],
   },
   {
@@ -169,7 +170,7 @@ const zonas: ZonaData[] = [
     municipios: ["Timbío", "Rosas", "La Sierra", "Sotará"],
     taller: "1 taller participativo — sede Timbío",
     color: "#c0404a",
-    labelX: 455, labelY: 440,
+    cx: 460, cy: 440, rx: 72, ry: 60,
     poblacion: 95800,
     encuestas: 840,
     insegAlimentaria: "2.9%",
@@ -178,8 +179,8 @@ const zonas: ZonaData[] = [
       "Consejos comunitarios",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -193,7 +194,7 @@ const zonas: ZonaData[] = [
     municipios: ["La Vega", "San Sebastián", "Almaguer"],
     taller: "1 taller participativo — sede La Vega",
     color: "#7a3daa",
-    labelX: 530, labelY: 490,
+    cx: 560, cy: 455, rx: 65, ry: 58,
     poblacion: 68400,
     encuestas: 630,
     insegAlimentaria: "3.6%",
@@ -202,8 +203,8 @@ const zonas: ZonaData[] = [
       "Consejos comunitarios",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -217,7 +218,7 @@ const zonas: ZonaData[] = [
     municipios: ["Santa Rosa", "Piamonte"],
     taller: "1 taller participativo — sede Piamonte",
     color: "#1a8a7a",
-    labelX: 580, labelY: 610,
+    cx: 610, cy: 560, rx: 72, ry: 65,
     poblacion: 28700,
     encuestas: 420,
     insegAlimentaria: "4.8%",
@@ -226,8 +227,8 @@ const zonas: ZonaData[] = [
       "Consejos comunitarios",
       "Indígenas",
       "Personas con discapacidad",
-      "Adulto mayor (Gestión social, secretarías de salud, programas de adultos mayores)",
-      "Jóvenes (Instituciones educativas, PANES, Consejos de juventudes, salud departamental)",
+      "Adulto mayor",
+      "Jóvenes",
       "Mujeres gestantes",
       "Institucional (salud, educación, alcaldías)",
       "Comunidad LGTBI",
@@ -236,90 +237,6 @@ const zonas: ZonaData[] = [
   },
 ];
 
-/**
- * SVG zone paths traced to match the real Cauca department map.
- * ViewBox: 0 0 810 685  (matches the reference map image proportions)
- *
- * Zone layout (approximate geographic areas):
- *  Z1 Centro-Piendamó    — center cluster
- *  Z2 Norte              — northeast quadrant
- *  Z3 Oriente            — far right bulge
- *  Z4 Pacífico           — entire left/west coast strip
- *  Z5 Sur                — lower-center left
- *  Z6 Popayán capital    — small center node
- *  Z7 Timbío-Rosas       — center-south cluster
- *  Z8 Macizo             — south-center-right
- *  Z9 Bota Caucana       — far south-east peninsula
- */
-const zonePaths: Record<string, string> = {
-  // ZONA 4 — Pacífico (large western coast, painted first / underneath)
-  zona4:
-    "M 95 115 L 150 85 L 200 95 L 245 115 L 280 145 L 300 185 L 310 235 " +
-    "L 305 285 L 290 325 L 275 365 L 260 405 L 240 440 L 215 470 L 185 490 " +
-    "L 155 500 L 125 490 L 100 465 L 78 430 L 65 390 L 58 345 L 60 295 " +
-    "L 68 245 L 75 195 L 82 155 Z",
-
-  // ZONA 2 — Norte (north/northeast cluster, complex border)
-  zona2:
-    "M 355 48 L 400 40 L 440 44 L 475 52 L 510 58 L 545 68 L 570 82 " +
-    "L 590 100 L 600 118 L 595 138 L 575 155 L 555 170 L 528 182 " +
-    "L 500 190 L 470 195 L 445 200 L 415 205 L 395 215 L 375 228 " +
-    "L 355 238 L 335 230 L 315 220 L 300 210 L 295 195 L 300 180 " +
-    "L 310 165 L 320 148 L 330 128 L 340 108 L 348 78 Z",
-
-  // ZONA 3 — Oriente (right bulge)
-  zona3:
-    "M 570 82 L 610 72 L 650 68 L 685 75 L 710 92 L 725 115 L 730 140 " +
-    "L 725 168 L 710 195 L 690 215 L 668 232 L 645 245 L 620 255 " +
-    "L 598 258 L 575 255 L 555 240 L 540 220 L 528 200 L 528 182 " +
-    "L 545 168 L 565 155 L 580 138 L 595 118 L 590 100 Z",
-
-  // ZONA 1 — Centro-Piendamó (center area, smallish)
-  zona1:
-    "M 300 185 L 335 175 L 355 168 L 375 175 L 395 185 L 415 192 " +
-    "L 435 198 L 445 200 L 415 205 L 395 215 L 375 228 L 355 238 " +
-    "L 335 248 L 320 258 L 305 270 L 295 285 L 290 300 L 292 318 " +
-    "L 295 335 L 300 350 L 295 365 " +
-    "L 285 370 L 275 365 L 275 345 L 280 325 L 285 305 L 290 285 " +
-    "L 295 265 L 300 245 L 305 225 L 305 205 L 300 185 Z",
-
-  // ZONA 6 — Popayán capital (center, small)
-  zona6:
-    "M 358 345 L 380 338 L 398 340 L 415 348 L 425 360 L 422 375 " +
-    "L 408 385 L 390 390 L 370 386 L 355 375 L 352 360 Z",
-
-  // ZONA 7 — Timbío-Rosas (center-south)
-  zona7:
-    "M 395 390 L 428 382 L 450 385 L 468 395 L 480 410 L 485 428 " +
-    "L 478 448 L 462 460 L 442 465 L 420 460 L 405 448 L 395 430 " +
-    "L 390 410 Z",
-
-  // ZONA 5 — Sur (lower-left, large)
-  zona5:
-    "M 295 365 L 300 350 L 320 355 L 345 358 L 358 345 " +
-    "L 352 360 L 355 375 L 370 386 L 390 390 " +
-    "L 390 410 L 395 430 L 405 448 L 420 460 L 442 465 " +
-    "L 445 480 L 440 500 L 428 518 L 412 530 L 390 538 " +
-    "L 368 538 L 348 528 L 328 515 L 310 498 L 292 480 " +
-    "L 278 460 L 265 440 L 253 418 L 248 395 L 248 370 " +
-    "L 255 355 L 268 348 L 285 348 Z",
-
-  // ZONA 8 — Macizo (south center-right)
-  zona8:
-    "M 468 395 L 490 390 L 512 392 L 532 400 L 548 415 " +
-    "L 555 435 L 550 455 L 538 472 L 520 482 L 500 488 " +
-    "L 480 482 L 462 468 L 462 460 L 478 448 L 485 428 " +
-    "L 480 410 Z",
-
-  // ZONA 9 — Bota Caucana (southeast peninsula)
-  zona9:
-    "M 548 415 L 565 410 L 585 408 L 608 412 L 628 422 " +
-    "L 642 438 L 650 458 L 652 480 L 646 500 L 634 518 " +
-    "L 618 532 L 600 540 L 580 542 L 562 535 L 550 520 " +
-    "L 542 502 L 538 482 L 538 460 L 540 438 L 544 420 Z",
-};
-
-// ─── Main Component ──────────────────────────
 const CaucaMap: React.FC = () => {
   const [selected, setSelected] = useState<string | null>(null);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -364,70 +281,95 @@ const CaucaMap: React.FC = () => {
         <div className="lg:col-span-3 p-4 flex items-center justify-center bg-muted/20">
           <div className="relative w-full max-w-[540px]">
             <svg
-              viewBox="0 0 810 685"
+              viewBox="0 0 760 660"
               className="w-full h-auto"
-              role="img"
               aria-label="Mapa interactivo del Departamento del Cauca con 9 zonas operativas"
             >
-              {/* Zone fills */}
+              {/* subtle background */}
+              <rect x="0" y="0" width="760" height="660" fill="transparent" />
+
+              {/* Render zones as ellipses */}
               {zonas.map((zona) => {
                 const isSelected = selected === zona.id;
-                const isHovered = hovered === zona.id && !selected;
+                const isHovered = hovered === zona.id;
                 const isActive = isSelected || isHovered;
-                // All zones always visible — only dim non-selected when one is selected
                 const opacity = selected
-                  ? isSelected ? 0.9 : 0.3
-                  : isHovered ? 0.85 : 0.65;
+                  ? isSelected ? 0.92 : 0.22
+                  : isHovered ? 0.88 : 0.72;
 
                 return (
-                  <path
-                    key={zona.id}
-                    d={zonePaths[zona.id]}
-                    fill={zona.color}
-                    fillOpacity={opacity}
-                    stroke="white"
-                    strokeWidth={isActive ? 2.8 : 1.4}
-                    strokeOpacity={isActive ? 1 : 0.7}
-                    className="cursor-pointer transition-all duration-200"
-                    style={{
-                      filter: isActive ? `drop-shadow(0 0 7px ${zona.color}99)` : "none",
-                    }}
-                    onMouseEnter={() => setHovered(zona.id)}
-                    onMouseLeave={() => setHovered(null)}
-                    onClick={() => handleZoneClick(zona.id)}
-                    role="button"
-                    aria-label={`${zona.name} — ${zona.subregion}`}
-                    tabIndex={0}
-                    onKeyDown={e => e.key === "Enter" && handleZoneClick(zona.id)}
-                  />
-                );
-              })}
-
-              {/* Zone labels — always readable */}
-              {zonas.map((zona) => {
-                const isActive = selected === zona.id || (!selected && hovered === zona.id);
-                const isDimmed = selected && selected !== zona.id;
-                return (
-                  <g key={`label-${zona.id}`} className="pointer-events-none select-none">
+                  <g key={zona.id}>
+                    {/* Glow ring when active */}
+                    {isActive && (
+                      <ellipse
+                        cx={zona.cx}
+                        cy={zona.cy}
+                        rx={zona.rx + 8}
+                        ry={zona.ry + 8}
+                        fill="none"
+                        stroke={zona.color}
+                        strokeWidth="3"
+                        opacity="0.5"
+                      />
+                    )}
+                    {/* Main ellipse */}
+                    <ellipse
+                      cx={zona.cx}
+                      cy={zona.cy}
+                      rx={zona.rx}
+                      ry={zona.ry}
+                      fill={zona.color}
+                      fillOpacity={opacity}
+                      stroke="white"
+                      strokeWidth={isActive ? 2.5 : 1.2}
+                      strokeOpacity={0.9}
+                      className="cursor-pointer transition-all duration-200"
+                      onMouseEnter={() => setHovered(zona.id)}
+                      onMouseLeave={() => setHovered(null)}
+                      onClick={() => handleZoneClick(zona.id)}
+                      role="button"
+                      aria-label={`${zona.name} — ${zona.subregion}`}
+                      tabIndex={0}
+                      onKeyDown={e => e.key === "Enter" && handleZoneClick(zona.id)}
+                    />
+                    {/* Label — always centered inside ellipse */}
                     <text
-                      x={zona.labelX}
-                      y={zona.labelY}
+                      x={zona.cx}
+                      y={zona.cy - 6}
                       textAnchor="middle"
                       dominantBaseline="central"
                       fill="white"
-                      fontSize={isActive ? 13 : 11}
+                      fontSize={isActive ? 14 : 12}
                       fontWeight="bold"
-                      opacity={isDimmed ? 0.4 : 1}
-                      style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.9))" }}
+                      opacity={selected && !isSelected ? 0.35 : 1}
+                      style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.85))", pointerEvents: "none", userSelect: "none" }}
                     >
                       {zona.name}
                     </text>
+                    {/* Subregion name below — only when active or no selection */}
+                    {(isActive || !selected) && (
+                      <text
+                        x={zona.cx}
+                        y={zona.cy + 10}
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fill="white"
+                        fontSize={9}
+                        fontWeight="normal"
+                        opacity={selected && !isSelected ? 0 : 0.85}
+                        style={{ filter: "drop-shadow(0 1px 2px rgba(0,0,0,0.9))", pointerEvents: "none", userSelect: "none" }}
+                      >
+                        {zona.subregion.split(" — ")[0]}
+                      </text>
+                    )}
                   </g>
                 );
               })}
             </svg>
             <p className="text-center text-[11px] text-muted-foreground font-body mt-1">
-              {selected ? "Clic en otra zona para navegar · Clic en la zona activa para deseleccionar" : "Clic o hover en una zona para explorar"}
+              {selected
+                ? "Clic en otra zona para navegar · Clic en la misma zona para deseleccionar"
+                : "Haz clic en cualquier zona de color para ver sus detalles"}
             </p>
           </div>
         </div>
@@ -435,7 +377,7 @@ const CaucaMap: React.FC = () => {
         {/* ── INFO PANEL ── */}
         <div className="lg:col-span-2 border-t lg:border-t-0 lg:border-l border-border flex flex-col">
 
-          {/* Zone list — always visible as quick nav */}
+          {/* Quick nav */}
           <div className="px-4 pt-3 pb-2 border-b border-border/60 bg-muted/20">
             <p className="text-[10px] font-heading font-semibold text-muted-foreground uppercase tracking-widest mb-2">
               Navegar por zona
@@ -460,10 +402,7 @@ const CaucaMap: React.FC = () => {
                   aria-pressed={selected === z.id}
                   title={z.subregion}
                 >
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: z.color }}
-                  />
+                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: z.color }} />
                   {z.name}
                 </button>
               ))}
@@ -509,7 +448,7 @@ const CaucaMap: React.FC = () => {
                     </p>
                   </div>
 
-                  {/* Población stats */}
+                  {/* Stats grid */}
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {[
                       { label: "Población", value: focusedData.poblacion.toLocaleString("es-CO") },
@@ -531,6 +470,8 @@ const CaucaMap: React.FC = () => {
                       </div>
                     ))}
                   </div>
+
+                  {/* Municipios */}
                   <div className="mb-4">
                     <div className="flex items-center gap-2 mb-2">
                       <MapPin size={13} className="text-muted-foreground" />
