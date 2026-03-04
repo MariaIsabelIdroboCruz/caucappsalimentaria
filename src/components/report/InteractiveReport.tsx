@@ -378,7 +378,7 @@ const InteractiveReport: React.FC = () => {
               <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
               <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<AlertTriangle size={24} />} color="bg-secondary" />
               <StatCard value="9" label="Zonas Operativas" icon={<Layers size={24} />} />
-              <StatCard value="9" label="Talleres Participativos" icon={<Users size={24} />} color="bg-accent" />
+              <StatCard value="20" label="Talleres Participativos" icon={<Users size={24} />} color="bg-accent" />
             </motion.div>
             <motion.div variants={fadeUp}>
               <CaucaMap />
