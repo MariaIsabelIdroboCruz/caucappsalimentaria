@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, MapPin, Users } from "lucide-react";
-import caucaBase from "@/assets/mapa-cauca-base.png";
 
 interface ZonaData {
   id: string;
@@ -309,7 +308,7 @@ const CaucaMap: React.FC = () => {
       {/* Header */}
       <div className="px-6 pt-5 pb-2">
         <h3 className="font-heading font-bold text-lg text-foreground">
-          Mapa Interactivo del Cauca — 7 Subregiones / 9 Zonas Operativas
+          Mapa Interactivo del Cauca — 7 Subregiones / 9 Zonas
         </h3>
         <p className="text-xs text-muted-foreground font-body mt-1">
           Haz clic en una zona coloreada para ver municipios y actores a convocar · 1 taller diferencial por zona
@@ -326,14 +325,6 @@ const CaucaMap: React.FC = () => {
               role="img"
               aria-label="Mapa interactivo del Departamento del Cauca con 9 zonas operativas"
             >
-              {/* Base map image */}
-              <image
-                href={caucaBase}
-                x="0" y="0"
-                width="810" height="685"
-                preserveAspectRatio="xMidYMid meet"
-                opacity="0.35"
-              />
 
               {/* Zone fills */}
               {zonas.map((zona) => {
