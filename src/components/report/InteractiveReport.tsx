@@ -369,16 +369,16 @@ const InteractiveReport: React.FC = () => {
       <div className="bg-muted/50">
         <Section id="poblacion">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<MapPin size={16} />} label="Sección 5 — Población Objetivo" />
-            <SectionTitle>Población Objetivo — 7 Subregiones / 9 Zonas</SectionTitle>
-            <SectionSummary>
-              Se intervendrán las 7 subregiones del Cauca, organizadas en 9 zonas operativas para facilitar la ejecución de 1 taller diferencial por zona. Haz clic en cada zona del mapa para ver municipios y actores a convocar.
-            </SectionSummary>
-            <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
-              <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
-              <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<AlertTriangle size={24} />} color="bg-secondary" />
-              <StatCard value="9" label="Zonas Operativas" icon={<Layers size={24} />} />
-              <StatCard value="20" label="Talleres Participativos" icon={<Users size={24} />} color="bg-accent" />
+          <SectionTag icon={<MapPin size={16} />} label="Sección 5 — Población Objeto" />
+          <SectionTitle>Población Objeto — 7 Subregiones / 9 Zonas</SectionTitle>
+          <SectionSummary>
+            Se intervendrán las 7 subregiones del Cauca, organizadas en 9 zonas para facilitar la ejecución de 1 taller diferencial por zona. Haz clic en cada zona del mapa para ver municipios y actores a convocar.
+          </SectionSummary>
+          <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+            <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
+            <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<AlertTriangle size={24} />} color="bg-secondary" />
+            <StatCard value="9" label="Zonas" icon={<Layers size={24} />} />
+            <StatCard value="20" label="Talleres Participativos" icon={<Users size={24} />} color="bg-accent" />
             </motion.div>
             <motion.div variants={fadeUp}>
               <CaucaMap />
