@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
 
 const fadeUp = {
@@ -370,11 +370,39 @@ const GanttRow: React.FC<{
   colorDot: string;
 }> = ({ item, index, colorBar, colorBg, colorRing, colorDot }) => {
   const [hovered, setHovered] = useState(false);
+  const [pinned, setPinned] = useState(false);
+  const popupRef = useRef<HTMLDivElement>(null);
+  const rowRef = useRef<HTMLDivElement>(null);
+
   const popupItems = item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL : null;
   const popupGrupos = item.id === "q2" ? ACERCAMIENTO_LIDERES_GRUPOS : null;
+  const hasSpecialPopup = !!(popupItems || popupGrupos);
+
+  const showPopup = hovered || pinned;
+
+  // Close on outside click
+  const handleOutsideClick = useCallback((e: MouseEvent) => {
+    if (
+      popupRef.current && !popupRef.current.contains(e.target as Node) &&
+      rowRef.current && !rowRef.current.contains(e.target as Node)
+    ) {
+      setPinned(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (pinned) {
+      document.addEventListener("mousedown", handleOutsideClick);
+    } else {
+      document.removeEventListener("mousedown", handleOutsideClick);
+    }
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, [pinned, handleOutsideClick]);
 
   return (
-    <div className="flex items-center h-9 group relative"
+    <div
+      ref={rowRef}
+      className="flex items-center h-9 group relative"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
@@ -382,6 +410,9 @@ const GanttRow: React.FC<{
         {item.hito && <span className={colorDot}>◆</span>}
         {item.dependsOn && <span className="text-muted-foreground/50 text-[10px]">↳</span>}
         <span className="truncate">{item.label}</span>
+        {hasSpecialPopup && (
+          <span className="ml-1 text-[9px] text-primary/60 font-heading hidden group-hover:inline">clic para fijar</span>
+        )}
       </span>
       <div className="flex-1 relative h-7">
         <motion.div
@@ -389,11 +420,13 @@ const GanttRow: React.FC<{
           whileInView={{ width: `${(item.dur / TOTAL_WEEKS) * 100}%` }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: index * 0.05 }}
-          className={`absolute h-full rounded-md ${item.hito ? `${colorBar} ring-2 ${colorRing}` : colorBg} group-hover:brightness-110 transition-all cursor-default`}
+          onClick={() => hasSpecialPopup && setPinned(p => !p)}
+          className={`absolute h-full rounded-md ${item.hito ? `${colorBar} ring-2 ${colorRing}` : colorBg} group-hover:brightness-110 transition-all ${hasSpecialPopup ? "cursor-pointer" : "cursor-default"} ${pinned ? "ring-2 ring-accent" : ""}`}
           style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
         />
-        {/* Tooltip above the bar */}
-        {hovered && !popupItems && !popupGrupos && (
+
+        {/* Simple date tooltip (non-special tasks) */}
+        {showPopup && !hasSpecialPopup && (
           <div
             className="absolute -top-8 z-20 bg-foreground text-background text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none"
             style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
@@ -402,43 +435,63 @@ const GanttRow: React.FC<{
             <div className="absolute left-3 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-foreground" />
           </div>
         )}
+
         {/* Popup for institucional (flat list) */}
-        {hovered && popupItems && (
+        {showPopup && popupItems && (
           <div
-            className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-3 py-2 rounded-xl shadow-xl pointer-events-none max-w-[260px]"
+            ref={pinned ? popupRef : undefined}
+            className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-4 py-3 rounded-xl shadow-2xl max-w-[280px]"
             style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
           >
-            <p className="font-heading font-bold text-[11px] mb-1">{item.label}</p>
-            <p className="text-background/70 mb-1.5">{item.dias}</p>
+            <div className="flex items-center justify-between mb-2 gap-4">
+              <p className="font-heading font-bold text-[11px]">{item.label}</p>
+              {pinned && (
+                <button onClick={() => setPinned(false)} className="text-background/50 hover:text-background text-[11px] shrink-0">✕</button>
+              )}
+            </div>
+            <p className="text-background/60 text-[10px] mb-2">{item.dias}</p>
             {popupItems.map((p, i) => (
               <div key={i} className="flex items-center gap-1.5 py-0.5">
-                <span className="w-1 h-1 rounded-full bg-accent shrink-0" />
+                <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0" />
                 <span>{p}</span>
               </div>
             ))}
+            {!pinned && <p className="text-background/40 text-[9px] mt-2 italic">Clic en la barra para fijar</p>}
           </div>
         )}
+
         {/* Popup for líderes y actores (grouped) */}
-        {hovered && popupGrupos && (
+        {showPopup && popupGrupos && (
           <div
-            className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-3 py-2 rounded-xl shadow-xl pointer-events-none max-w-[320px]"
-            style={{ left: `${Math.min((item.start / TOTAL_WEEKS) * 100, 40)}%` }}
+            ref={pinned ? popupRef : undefined}
+            className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-4 py-3 rounded-xl shadow-2xl max-w-[340px]"
+            style={{ left: `${Math.min((item.start / TOTAL_WEEKS) * 100, 35)}%` }}
+            onMouseEnter={() => setHovered(true)}
+            onMouseLeave={() => setHovered(false)}
           >
-            <p className="font-heading font-bold text-[11px] mb-2">{item.label}</p>
-            <p className="text-background/70 mb-2">{item.dias}</p>
-            <div className="space-y-2 max-h-[260px] overflow-auto">
+            <div className="flex items-center justify-between mb-2 gap-4">
+              <p className="font-heading font-bold text-[11px]">{item.label}</p>
+              {pinned && (
+                <button onClick={() => setPinned(false)} className="text-background/50 hover:text-background text-[11px] shrink-0">✕</button>
+              )}
+            </div>
+            <p className="text-background/60 text-[10px] mb-2">{item.dias}</p>
+            <div className="space-y-2.5 max-h-[300px] overflow-y-auto pr-1">
               {popupGrupos.map((g, gi) => (
                 <div key={gi}>
                   <p className="font-heading font-semibold text-[10px] text-accent mb-0.5 uppercase tracking-wide">{g.grupo}</p>
                   {g.items.map((it, ii) => (
                     <div key={ii} className="flex items-start gap-1.5 py-0.5">
-                      <span className="w-1 h-1 rounded-full bg-accent shrink-0 mt-1" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0 mt-1" />
                       <span className="leading-snug">{it}</span>
                     </div>
                   ))}
                 </div>
               ))}
             </div>
+            {!pinned && <p className="text-background/40 text-[9px] mt-2 italic">Clic en la barra para fijar</p>}
           </div>
         )}
       </div>
