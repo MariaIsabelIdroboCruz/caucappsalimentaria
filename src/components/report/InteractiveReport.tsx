@@ -1,7 +1,11 @@
 import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield, MessageSquare, Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu, Network, Sparkles, X, Activity, ClipboardList, Clock } from "lucide-react";
-import { AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield,
+  Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu,
+  Network, Sparkles, X, Activity, ClipboardList, Clock, BookOpen,
+  Scale, Globe, Layers, CheckCircle2, AlertTriangle, ArrowRight,
+} from "lucide-react";
 import heroCauca from "@/assets/hero-cauca-report.jpg";
 import escudoCauca from "@/assets/escudo-cauca.png";
 import secretariaLogo from "@/assets/secretaria-agricultura.png";
@@ -15,16 +19,13 @@ const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
 };
-const stagger = {
-  visible: { transition: { staggerChildren: 0.12 } },
-};
+const stagger = { visible: { transition: { staggerChildren: 0.12 } } };
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
 };
 
 // ─── Reusable Components ────────────────────────
-
 const Section: React.FC<{ id?: string; children: React.ReactNode; className?: string }> = ({ id, children, className = "" }) => (
   <section id={id} className={`max-w-7xl mx-auto px-6 py-16 ${className}`}>
     {children}
@@ -33,8 +34,7 @@ const Section: React.FC<{ id?: string; children: React.ReactNode; className?: st
 
 const SectionTag: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
   <div className="flex items-center gap-2 text-primary font-heading font-semibold text-sm uppercase tracking-wider mb-3">
-    {icon}
-    {label}
+    {icon}{label}
   </div>
 );
 
@@ -62,16 +62,9 @@ const AIBadge: React.FC<{ text: string; detail?: string }> = ({ text, detail }) 
       </button>
       <AnimatePresence>
         {open && detail && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            className="overflow-hidden"
-          >
+          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="mt-2 bg-accent/10 border border-accent/30 rounded-xl p-4 text-sm font-body text-foreground relative">
-              <button onClick={() => setOpen(false)} className="absolute top-2 right-2 text-muted-foreground hover:text-foreground">
-                <X size={14} />
-              </button>
+              <button onClick={() => setOpen(false)} className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><X size={14} /></button>
               <div className="flex items-start gap-2">
                 <Cpu size={16} className="text-accent mt-0.5 shrink-0" />
                 <p>{detail}</p>
@@ -86,9 +79,7 @@ const AIBadge: React.FC<{ text: string; detail?: string }> = ({ text, detail }) 
 
 const StatCard: React.FC<{ value: string; label: string; icon: React.ReactNode; color?: string }> = ({ value, label, icon, color = "bg-primary" }) => (
   <motion.div variants={scaleIn} className="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-lg transition-shadow">
-    <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-primary-foreground mb-4`}>
-      {icon}
-    </div>
+    <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-primary-foreground mb-4`}>{icon}</div>
     <p className="font-heading font-black text-3xl text-foreground">{value}</p>
     <p className="text-muted-foreground text-sm mt-1 font-body">{label}</p>
   </motion.div>
@@ -101,30 +92,27 @@ const HeroStat: React.FC<{ value: string; label: string }> = ({ value, label }) 
   </motion.div>
 );
 
-const ExpandableCard: React.FC<{ title: string; children: React.ReactNode; defaultOpen?: boolean }> = ({ title, children, defaultOpen = false }) => {
+const Accordion: React.FC<{ title: string; icon?: React.ReactNode; children: React.ReactNode; defaultOpen?: boolean; accent?: string }> = ({ title, icon, children, defaultOpen = false, accent = "border-primary/30" }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
-    <div className="bg-card rounded-2xl border border-border overflow-hidden shadow-sm">
+    <div className={`bg-card rounded-2xl border border-border overflow-hidden shadow-sm border-l-4 ${accent}`}>
       <button onClick={() => setOpen(!open)} className="w-full flex items-center justify-between px-6 py-4 hover:bg-muted/50 transition-colors">
-        <span className="font-heading font-bold text-lg text-foreground">{title}</span>
+        <div className="flex items-center gap-3">
+          {icon && <span className="text-primary">{icon}</span>}
+          <span className="font-heading font-bold text-lg text-foreground">{title}</span>
+        </div>
         <ChevronDown size={20} className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="px-6 pb-6 border-t border-border pt-4">{children}</div>}
+      <AnimatePresence>
+        {open && (
+          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
+            <div className="px-6 pb-6 border-t border-border pt-4">{children}</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
-
-// ─── Phases Flow Diagram ────────────────────────
-const PhaseNode: React.FC<{ phase: string; title: string; team: string; color: string; isLast?: boolean }> = ({ phase, title, team, color, isLast }) => (
-  <div className="flex flex-col items-center">
-    <div className={`${color} text-primary-foreground rounded-2xl px-6 py-4 text-center min-w-[180px] shadow-lg`}>
-      <p className="font-heading font-bold text-sm opacity-80">{phase}</p>
-      <p className="font-heading font-semibold text-base mt-1">{title}</p>
-      <p className="text-xs opacity-70 mt-1">{team}</p>
-    </div>
-    {!isLast && <div className="w-0.5 h-8 bg-border" />}
-  </div>
-);
 
 // ─── MAIN COMPONENT ─────────────────────────────
 const InteractiveReport: React.FC = () => {
@@ -132,796 +120,555 @@ const InteractiveReport: React.FC = () => {
     <div className="min-h-screen bg-background">
       <ReportHeader />
 
-      {/* ═══ HERO ═══ */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      {/* ═══ 1. HERO / PORTADA ═══ */}
+      <section id="hero" className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
         <img src={heroCauca} alt="Cauca" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/70 to-foreground/30" />
-        <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10 text-center px-6 max-w-4xl">
-          <motion.div variants={fadeUp} className="flex items-center justify-center gap-6 mb-10">
-            <img src={secretariaLogo} alt="Secretaría" className="h-16 md:h-20 w-auto" />
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/75 to-foreground/20" />
+        <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10 text-center px-6 max-w-5xl">
+          <motion.div variants={fadeUp} className="flex items-center justify-center gap-8 mb-10">
+            <img src={escudoCauca} alt="Escudo Cauca" className="h-16 md:h-20 w-auto drop-shadow-lg" />
+            <img src={secretariaLogo} alt="Secretaría Agricultura" className="h-16 md:h-20 w-auto drop-shadow-lg" />
           </motion.div>
-          <motion.div variants={fadeUp} className="h-1 w-20 bg-primary rounded mx-auto mb-6" />
+          <motion.div variants={fadeUp} className="h-1 w-24 bg-primary rounded mx-auto mb-6" />
           <motion.h1 variants={fadeUp} className="font-heading font-black text-4xl md:text-6xl text-primary-foreground leading-tight mb-6">
             Construcción de la Política Pública de{" "}
-            <span className="text-accent">Seguridad y Soberanía Alimentaria</span>
-            {" "}en el Cauca
+            <span className="text-accent">Seguridad y Soberanía Alimentaria</span>{" "}
+            en el Cauca
           </motion.h1>
-          <motion.p variants={fadeUp} className="text-xl text-primary-foreground/70 font-body mb-8">
+          <motion.p variants={fadeUp} className="text-xl text-primary-foreground/80 font-body mb-4">
             Plan de Acción Pre-Fases y Cronograma de Implementación
           </motion.p>
-          <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-4">
-            <span className="bg-primary text-primary-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm">
-              Febrero 2026
-            </span>
-            <span className="text-primary-foreground/50 text-sm font-body">
-              Fase III — Factibilidad
-            </span>
+          <motion.p variants={fadeUp} className="text-sm text-primary-foreground/60 font-body mb-8">
+            Secretaría de Agricultura y Desarrollo Rural · Febrero 2026
+          </motion.p>
+          <motion.div variants={fadeUp} className="flex flex-wrap items-center justify-center gap-4 mb-10">
+            <span className="bg-primary text-primary-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm shadow-md">Febrero 2026 — Enero 2027</span>
+            <span className="bg-secondary text-primary-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm shadow-md">Fase III — Factibilidad</span>
+            <span className="bg-accent text-accent-foreground px-5 py-2 rounded-full font-heading font-semibold text-sm shadow-md">$943.381.615</span>
           </motion.div>
-          <motion.a variants={fadeUp} href="#cifras-clave" className="inline-flex items-center gap-2 mt-12 text-primary-foreground/60 hover:text-primary-foreground transition-colors animate-bounce">
-            <span className="text-sm font-body">Explorar Informe</span>
-            <ChevronDown size={20} />
-          </motion.a>
+          <motion.div variants={fadeUp}>
+            <a
+              href="#cifras-clave"
+              className="inline-flex items-center gap-3 bg-primary/20 backdrop-blur-md border border-primary/50 text-primary-foreground px-8 py-3 rounded-full font-heading font-bold text-base hover:bg-primary/40 transition-all shadow-lg hover:shadow-primary/30"
+            >
+              <Sparkles size={18} className="text-accent" />
+              Explorar con IA
+              <ChevronDown size={18} className="animate-bounce" />
+            </a>
+          </motion.div>
         </motion.div>
       </section>
 
-      {/* ═══ CIFRAS CLAVE (KEY STATS BANNER) ═══ */}
+      {/* ═══ CIFRAS CLAVE ═══ */}
       <div id="cifras-clave" className="bg-card border-y border-border">
         <div className="max-w-7xl mx-auto px-6 py-10">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
-            <motion.p variants={fadeUp} className="text-center font-heading font-bold text-sm uppercase tracking-widest text-primary mb-8">Cifras Clave del Proyecto</motion.p>
+            <motion.p variants={fadeUp} className="text-center font-heading font-bold text-sm uppercase tracking-widest text-primary mb-8">
+              Cifras Clave del Proyecto
+            </motion.p>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 divide-x divide-border">
               <HeroStat value="7,560" label="Encuestas totales" />
               <HeroStat value="420" label="Encuestadores" />
-              <HeroStat value="18" label="Semanas de proyecto" />
-              <HeroStat value="99.5%" label="Uptime objetivo" />
+              <HeroStat value="9" label="Zonas operativas" />
+              <HeroStat value="12" label="Meses de duración" />
               <HeroStat value="42" label="Municipios" />
               <HeroStat value="466K" label="Personas objetivo" />
               <HeroStat value="$943M" label="Presupuesto" />
-              <HeroStat value="14" label="Talleres participativos" />
+              <HeroStat value="9" label="Talleres diferenciales" />
             </div>
           </motion.div>
         </div>
       </div>
 
-      {/* ═══ CONTEXTO ═══ */}
+      {/* ═══ 2. CONTEXTO ═══ */}
       <Section id="contexto">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<FileText size={16} />} label="Sección 1" />
+          <SectionTag icon={<FileText size={16} />} label="Sección 2 — Contexto del Proyecto" />
           <SectionTitle>Contexto del Proyecto</SectionTitle>
           <SectionSummary>
-            Visión general del proyecto: presupuesto, duración, fase actual y enfoques diferenciales que guían la construcción de la política pública de seguridad y soberanía alimentaria.
+            Visión general del proyecto: objetivo general, presupuesto total de $943.381.615, duración de 12 meses (Feb 2026–Ene 2027), Fase III (Factibilidad), con enfoque diferencial por ciclos de vida, género, étnico y campesino.
           </SectionSummary>
           <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <StatCard value="$943M" label="Presupuesto Total" icon={<BarChart3 size={24} />} />
-            <StatCard value="12" label="Meses de Duración" icon={<Calendar size={24} />} color="bg-secondary" />
+            <StatCard value="12" label="Meses Feb 2026–Ene 2027" icon={<Calendar size={24} />} color="bg-secondary" />
             <StatCard value="42" label="Municipios Cubiertos" icon={<MapPin size={24} />} />
-            <StatCard value="Fase III" label="Factibilidad" icon={<Target size={24} />} color="bg-accent" />
+            <StatCard value="Fase III" label="Factibilidad MGA" icon={<Target size={24} />} color="bg-accent" />
           </motion.div>
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-card rounded-2xl border border-border p-6">
-              <h3 className="font-heading font-bold text-lg text-foreground mb-3">Objetivo General</h3>
-              <p className="text-muted-foreground font-body leading-relaxed">
-                Generar estrategia para la garantía progresiva del derecho a la alimentación en el Departamento del Cauca, con enfoque diferencial étnico, de género, ciclo de vida y campesino.
+              <h3 className="font-heading font-bold text-lg text-foreground mb-3 flex items-center gap-2">
+                <Target size={18} className="text-primary" /> Objetivo General
+              </h3>
+              <p className="text-muted-foreground font-body leading-relaxed text-sm">
+                Generar una estrategia para la garantía progresiva del Derecho Humano a la Alimentación Adecuada en el Departamento del Cauca, mediante un diagnóstico participativo, la formulación de la política pública y su seguimiento institucional, con enfoque diferencial étnico, de género, ciclo de vida y campesino.
               </p>
             </div>
             <div className="bg-card rounded-2xl border border-border p-6">
-              <h3 className="font-heading font-bold text-lg text-foreground mb-3">Enfoques Diferenciales</h3>
-              <div className="flex flex-wrap gap-2">
+              <h3 className="font-heading font-bold text-lg text-foreground mb-3 flex items-center gap-2">
+                <Users size={18} className="text-primary" /> Enfoques Diferenciales
+              </h3>
+              <div className="flex flex-wrap gap-2 mb-4">
                 {["Ciclos de Vida", "Género", "Étnico", "Campesino"].map(e => (
                   <span key={e} className="bg-slide-green-light text-primary px-4 py-2 rounded-full font-heading font-semibold text-sm">{e}</span>
                 ))}
               </div>
+              <p className="text-xs text-muted-foreground font-body">
+                Articulación Nación – Departamento – Municipios con cobertura urbana y rural.
+              </p>
               <AIBadge text="Modelos predictivos para monitorear avances" detail="Implementar modelos de series temporales (ARIMA/Prophet) con datos DANE para proyectar indicadores de inseguridad alimentaria por subregión, generando alertas tempranas cuando se identifiquen tendencias de deterioro y permitiendo ajustar las intervenciones en tiempo real." />
             </div>
           </motion.div>
         </motion.div>
       </Section>
 
-      {/* ═══ ANTECEDENTES ═══ */}
+      {/* ═══ 3. ANTECEDENTES ═══ */}
       <div className="bg-muted/50">
-        <Section>
+        <Section id="antecedentes">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Database size={16} />} label="Sección 2" />
+            <SectionTag icon={<Database size={16} />} label="Sección 3 — Antecedentes" />
             <SectionTitle>Antecedentes</SectionTitle>
             <SectionSummary>
-              Contexto histórico de inseguridad alimentaria en el Cauca: datos DANE, brechas rurales y étnicas, y la necesidad de una política pública departamental articulada.
+              Contexto histórico de inseguridad alimentaria en el Cauca, basado en datos del DANE, brechas rurales/étnicas y la contribución de este proceso a la construcción de política pública departamental.
             </SectionSummary>
             <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 {[
-                  "El Cauca presenta altos índices de inseguridad alimentaria, especialmente en zonas rurales y comunidades étnicas (DANE)",
-                  "Brechas significativas entre población urbana y rural en acceso a alimentos nutritivos",
-                  "Ausencia de una política pública departamental que articule esfuerzos institucionales",
-                  "Contribución directa al Plan de Desarrollo Departamental 2024-2027",
-                ].map((t, i) => (
-                  <motion.div key={i} variants={fadeUp} className="flex items-start gap-3 bg-card rounded-xl border border-border p-4">
-                    <span className="w-2 h-2 rounded-full bg-primary mt-2 shrink-0" />
-                    <p className="text-foreground font-body text-sm">{t}</p>
+                  { icon: "📊", text: "El Cauca registra inseguridad alimentaria grave en el 2,8% de su población, con marcadas brechas entre zonas urbanas y rurales (DANE 2023)." },
+                  { icon: "🌿", text: "Las comunidades étnicas e indígenas presentan mayor vulnerabilidad, con acceso limitado a alimentos nutritivos y a servicios de salud nutricional." },
+                  { icon: "🏛️", text: "Históricamente, las acciones institucionales han sido fragmentadas y sin política pública departamental que las articule bajo una visión de largo plazo." },
+                  { icon: "📋", text: "La construcción de esta política pública responde al Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo', meta 149, y a los compromisos internacionales ODS 2." },
+                ].map((item, i) => (
+                  <motion.div key={i} variants={fadeUp} className="flex items-start gap-4 bg-card rounded-xl border border-border p-4">
+                    <span className="text-2xl shrink-0">{item.icon}</span>
+                    <p className="text-foreground font-body text-sm leading-relaxed">{item.text}</p>
                   </motion.div>
                 ))}
               </div>
-              <motion.div variants={scaleIn} className="bg-secondary/10 border-l-4 border-secondary rounded-r-2xl p-6">
-                <p className="font-heading font-bold text-secondary text-lg mb-2">⚠ Alerta</p>
-                <p className="text-foreground font-body text-sm leading-relaxed">
-                  Sin política pública, las acciones permanecen fragmentadas y sin seguimiento articulado. Se requiere un diagnóstico integral con datos DANE actualizados y enfoque territorial diferenciado.
-                </p>
+              <div className="space-y-4">
+                <motion.div variants={scaleIn} className="bg-secondary/10 border-l-4 border-secondary rounded-r-2xl p-6">
+                  <p className="font-heading font-bold text-secondary text-lg mb-2">⚠ Alerta Departamental</p>
+                  <p className="text-foreground font-body text-sm leading-relaxed">
+                    Sin política pública articulada, las acciones permanecen aisladas y sin seguimiento sistemático. La meta es reducir la inseguridad alimentaria grave del <strong>2,8% al 1,8%</strong> mediante intervenciones territoriales diferenciadas.
+                  </p>
+                </motion.div>
+                <motion.div variants={scaleIn} className="bg-primary/5 border border-primary/20 rounded-2xl p-6">
+                  <h4 className="font-heading font-bold text-foreground mb-3">Contribución a Política Pública</h4>
+                  <ul className="space-y-2 text-sm font-body text-muted-foreground">
+                    <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Línea de base territorial con metodología FIES/CARI</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Diagnóstico participativo con 9 zonas operativas</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Articulación con CDSAN y Asamblea Departamental</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Marco técnico para ordenanza departamental SAN</li>
+                  </ul>
+                </motion.div>
                 <AIBadge text="IA para análisis geo-espacial de brechas" detail="Utilizar modelos de clustering geoespacial (K-means sobre datos GPS de hogares encuestados) para identificar zonas de alta concentración de inseguridad alimentaria dentro de cada subregión, combinando capas de datos DANE con imágenes satelitales de cobertura agrícola para priorizar intervenciones." />
-              </motion.div>
-            </motion.div>
-          </motion.div>
-        </Section>
-      </div>
-
-      {/* ═══ JUSTIFICACIÓN Y MARCO LEGAL ═══ */}
-      <Section>
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<FileText size={16} />} label="Sección 3" />
-          <SectionTitle>Justificación y Marco Legal</SectionTitle>
-          <SectionSummary>
-            Fundamento legal y justificación técnica: alineación con el Plan de Desarrollo 2024-2027, normativa nacional (Ley 715, CONPES 113) y estándares internacionales PMA-FAO.
-          </SectionSummary>
-          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <h3 className="font-heading font-bold text-xl text-foreground mb-4">Justificación</h3>
-              <ul className="space-y-3">
-                {[
-                  "Alineación con el Plan de Desarrollo 2024-2027",
-                  "Cumplimiento del derecho humano a la alimentación",
-                  "Articulación con lineamientos PMA-FAO",
-                  "Respuesta a realidades territoriales con enfoque diferencial",
-                ].map((t, i) => (
-                  <li key={i} className="flex items-start gap-3 text-foreground font-body text-sm">
-                    <span className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" />
-                    {t}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-xl text-secondary mb-4">Marco Normativo</h3>
-              <div className="space-y-3">
-                {[
-                  { norm: "Ley 715/2001", desc: "Competencias departamentales" },
-                  { norm: "CONPES 113/2008", desc: "Política Nacional SAN" },
-                  { norm: "PMA-FAO", desc: "Metodologías CARI/FIES" },
-                  { norm: "Derechos Humanos", desc: "Derecho a alimentación" },
-                  { norm: "Plan Desarrollo", desc: "Cauca 2024-2027" },
-                ].map((n, i) => (
-                  <motion.div key={i} variants={fadeUp} className="flex items-center gap-3 bg-slide-green-light rounded-xl px-4 py-3">
-                    <span className="font-heading font-bold text-sm text-primary min-w-[140px]">{n.norm}</span>
-                    <span className="text-sm text-foreground font-body">{n.desc}</span>
-                  </motion.div>
-                ))}
-              </div>
-              <AIBadge text="Compliance legal automatizado" detail="Implementar un sistema de verificación automática que mapee cada actividad del plan de acción contra el marco normativo (Ley 715, CONPES 113, PMA-FAO), generando reportes de cumplimiento en tiempo real y alertando sobre desviaciones normativas antes de que se materialicen." />
-            </div>
-          </motion.div>
-        </motion.div>
-      </Section>
-
-      {/* ═══ ÁRBOL DE PROBLEMAS ═══ */}
-      <div className="bg-muted/50">
-        <Section id="problema">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Network size={16} />} label="Sección 4" />
-            <SectionTitle>Análisis del Problema — Árbol de Problemas</SectionTitle>
-            <SectionSummary>
-              Diagrama interactivo que presenta el problema central, sus causas directas e indirectas, y los efectos sobre la seguridad alimentaria en el departamento.
-            </SectionSummary>
-            <motion.div variants={fadeUp} className="flex flex-col items-center gap-2 mb-8">
-              {/* Effects */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
-                {[
-                  "Brechas sociales y desigualdad alimentaria",
-                  "Políticas sin enfoque diferencial",
-                  "Desarticulación institucional",
-                ].map((e, i) => (
-                  <motion.div key={i} variants={scaleIn} className="bg-secondary/10 border border-secondary rounded-xl p-4 text-center group hover:bg-secondary hover:text-primary-foreground transition-colors cursor-default">
-                    <span className="text-xs font-heading font-semibold text-secondary group-hover:text-primary-foreground uppercase tracking-wide">↑ Efecto</span>
-                    <p className="text-sm mt-1 font-body">{e}</p>
-                  </motion.div>
-                ))}
-              </div>
-              <div className="w-0.5 h-6 bg-secondary" />
-              {/* Central */}
-              <motion.div variants={scaleIn} className="bg-secondary text-primary-foreground rounded-2xl px-8 py-5 text-center max-w-2xl shadow-xl">
-                <span className="text-xs font-heading uppercase tracking-wider opacity-80">Problema Central</span>
-                <p className="text-lg font-heading font-bold mt-2">
-                  Limitada garantía del derecho a la alimentación en el Departamento del Cauca
-                </p>
-              </motion.div>
-              <div className="w-0.5 h-6 bg-primary" />
-              {/* Causes */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
-                {[
-                  "Limitada información diagnóstica territorial",
-                  "Ausencia de política pública departamental SAN",
-                  "Débil seguimiento y evaluación de acciones",
-                ].map((c, i) => (
-                  <motion.div key={i} variants={scaleIn} className="bg-slide-green-light border border-primary rounded-xl p-4 text-center group hover:bg-primary hover:text-primary-foreground transition-colors cursor-default">
-                    <span className="text-xs font-heading font-semibold text-primary group-hover:text-primary-foreground uppercase tracking-wide">↓ Causa</span>
-                    <p className="text-sm mt-1 font-body">{c}</p>
-                  </motion.div>
-                ))}
               </div>
             </motion.div>
           </motion.div>
         </Section>
       </div>
 
-      {/* ═══ POBLACIÓN ═══ */}
-      <Section>
+      {/* ═══ 4. JUSTIFICACIÓN Y MARCO NORMATIVO ═══ */}
+      <Section id="marco">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<MapPin size={16} />} label="Sección 5" />
-          <SectionTitle>Población Objetivo</SectionTitle>
+          <SectionTag icon={<Scale size={16} />} label="Sección 4 — Justificación y Marco Normativo" />
+          <SectionTitle>Justificación y Marco Normativo Ampliado</SectionTitle>
           <SectionSummary>
-            Caracterización demográfica y territorial de los 1.59 millones de habitantes afectados, con foco en las 466 mil personas con inseguridad alimentaria en 42 municipios y 7 subregiones.
+            Fundamento legal, constitucional e internacional que respalda la formulación de la política pública de seguridad y soberanía alimentaria en el Departamento del Cauca.
           </SectionSummary>
-          <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
-            <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<Target size={24} />} color="bg-secondary" />
-            <StatCard value="42" label="Municipios" icon={<MapPin size={24} />} />
-            <StatCard value="7" label="Subregiones" icon={<Network size={24} />} color="bg-accent" />
+
+          {/* Justificación */}
+          <motion.div variants={fadeUp} className="bg-primary/5 border border-primary/20 rounded-2xl p-6 mb-6">
+            <h3 className="font-heading font-bold text-xl text-primary mb-4 flex items-center gap-2">
+              <Lightbulb size={20} /> Justificación
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {[
+                "Alineación directa con el Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo' (meta 149).",
+                "Cumplimiento progresivo del Derecho Humano a la Alimentación Adecuada.",
+                "Articulación con lineamientos internacionales del PMA y FAO (metodologías CARI, FIES, Directrices Voluntarias 2004).",
+                "Respuesta a las realidades territoriales del Cauca con enfoque diferencial (étnico, de género, ciclos de vida y campesino).",
+                "Fortalecimiento de la producción local y reducción de la inseguridad alimentaria grave (de 2,8% a 1,8% según línea base).",
+                "Alcance: garantizar progresivamente el Derecho Humano a la Alimentación Adecuada con cobertura urbana y rural.",
+              ].map((t, i) => (
+                <div key={i} className="flex items-start gap-3 text-sm font-body text-foreground">
+                  <CheckCircle2 size={16} className="text-primary mt-0.5 shrink-0" />
+                  <span>{t}</span>
+                </div>
+              ))}
+            </div>
           </motion.div>
-          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-heading font-bold text-lg mb-4">Subregiones del Cauca</h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {["Sur", "Macizo", "Pacífico", "Norte", "Centro", "Piedemonte", "Oriente"].map(s => (
-                  <span key={s} className="bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm font-heading font-semibold">{s}</span>
+
+          {/* Accordions Marco */}
+          <motion.div variants={stagger} className="space-y-3">
+            <Accordion title="3.1 Fundamento Constitucional" icon={<BookOpen size={18} />} defaultOpen={true} accent="border-primary/30">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { art: "Art. 65", desc: "Protección especial a la producción de alimentos y desarrollo agropecuario." },
+                  { art: "Art. 64", desc: "Acceso progresivo a la tierra y servicios rurales." },
+                  { art: "Art. 49", desc: "Salud como derecho fundamental — incluye control sanitario de alimentos." },
+                  { art: "Art. 366", desc: "Bienestar general y mejora de la calidad de vida — prioriza nutrición." },
+                ].map((a, i) => (
+                  <div key={i} className="bg-slide-green-light rounded-xl p-4 flex gap-3">
+                    <span className="font-heading font-black text-primary text-sm min-w-[60px]">{a.art}</span>
+                    <span className="text-sm font-body text-foreground">{a.desc}</span>
+                  </div>
                 ))}
               </div>
-              <p className="text-muted-foreground text-sm font-body">
-                <strong>50.7%</strong> población femenina — Priorización por vulnerabilidad y acceso alimentario
-              </p>
-              <AIBadge text="Heatmaps IA para focalización territorial" detail="Generar mapas de calor dinámicos cruzando datos de encuestas FIES con variables socioeconómicas (NBI, conflicto armado, acceso vial) para identificar los municipios y veredas con mayor urgencia de intervención alimentaria." />
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-lg mb-4">Caracterización Demográfica</h3>
+            </Accordion>
+
+            <Accordion title="3.2 Marco Legal Nacional" icon={<Scale size={18} />} accent="border-secondary/30">
               <div className="space-y-2">
                 {[
-                  { grupo: "0-14 años", pob: "103.726", pct: 22 },
-                  { grupo: "15-29 años", pob: "112.340", pct: 24 },
-                  { grupo: "30-49 años", pob: "118.950", pct: 26 },
-                  { grupo: "50-64 años", pob: "78.420", pct: 17 },
-                  { grupo: "65+ años", pob: "52.564", pct: 11 },
-                ].map((d, i) => (
-                  <div key={i} className="flex items-center gap-3">
-                    <span className="text-sm font-heading font-semibold min-w-[90px]">{d.grupo}</span>
-                    <div className="flex-1 bg-border rounded-full h-6 overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${d.pct}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: i * 0.1 }}
-                        className="h-full bg-primary rounded-full flex items-center justify-end pr-2"
-                      >
-                        <span className="text-xs text-primary-foreground font-bold">{d.pct}%</span>
-                      </motion.div>
-                    </div>
-                    <span className="text-xs text-muted-foreground min-w-[70px]">{d.pob}</span>
+                  { norm: "Ley 2294/2023", desc: "Plan Nacional de Desarrollo 2022-2026: Sistema Nacional para la Garantía Progresiva del DHA." },
+                  { norm: "Ley 2046/2020", desc: "Participación de pequeños productores en compras públicas." },
+                  { norm: "Ley 2120/2021", desc: "Entornos alimentarios saludables y etiquetado frontal." },
+                  { norm: "Ley 101/1993", desc: "Desarrollo agropecuario y pesquero." },
+                  { norm: "Ley 9/1979", desc: "Código Sanitario Nacional." },
+                  { norm: "Ley 2536/2025", desc: "Medidas estructurales contra el hambre." },
+                  { norm: "Ley 100/1993", desc: "Sistema de Seguridad Social Integral (nutrición y salud)." },
+                  { norm: "CONPES 113/2008", desc: "Política Nacional de Seguridad Alimentaria y Nutricional." },
+                ].map((n, i) => (
+                  <div key={i} className="flex items-center gap-3 bg-muted rounded-xl px-4 py-3 hover:bg-slide-green-light transition-colors">
+                    <span className="font-heading font-bold text-sm text-primary min-w-[130px]">{n.norm}</span>
+                    <span className="text-sm text-foreground font-body">{n.desc}</span>
                   </div>
                 ))}
               </div>
-            </div>
-          </motion.div>
-          {/* Interactive Map */}
-          <motion.div variants={fadeUp} className="mt-8">
-            <CaucaMap />
-          </motion.div>
-        </motion.div>
-      </Section>
+            </Accordion>
 
-      {/* ═══ PARTICIPANTES ═══ */}
-      <div className="bg-muted/50">
-        <Section>
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Users size={16} />} label="Sección 6" />
-            <SectionTitle>Participantes y Análisis de Actores</SectionTitle>
-            <SectionSummary>
-              Mapa de actores clave del proyecto: instituciones ejecutoras, cooperantes internacionales, enlaces territoriales con enfoque diferencial y beneficiarios directos.
-            </SectionSummary>
-            <motion.div variants={fadeUp} className="overflow-x-auto">
-              <table className="w-full text-sm border-collapse">
-                <thead>
-                  <tr className="bg-primary text-primary-foreground">
-                    <th className="px-4 py-3 text-left font-heading font-semibold rounded-tl-xl">Actor</th>
-                    <th className="px-4 py-3 text-left font-heading font-semibold">Rol</th>
-                    <th className="px-4 py-3 text-left font-heading font-semibold rounded-tr-xl">Contribución</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {[
-                    ["Gobernación del Cauca", "Ejecutor principal", "Liderazgo y financiamiento"],
-                    ["Asamblea Departamental", "Aprobador", "Aprobación ordenanza"],
-                    ["PMA / FAO", "Cooperante técnico", "Metodologías CARI/FIES"],
-                    ["Enlace Afro", "Participante diferencial", "Enfoque étnico afrodescendiente"],
-                    ["Enlace Indígena", "Participante diferencial", "Enfoque étnico indígena"],
-                    ["Enlace Campesino", "Participante diferencial", "Enfoque campesino territorial"],
-                    ["Enlace Género", "Participante diferencial", "Enfoque de género"],
-                    ["Adultos Mayores", "Beneficiario", "Priorización ciclo de vida"],
-                    ["Jóvenes", "Beneficiario", "Participación activa"],
-                  ].map(([a, r, c], i) => (
-                    <tr key={i} className={`border-b border-border ${i % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-slide-green-light transition-colors`}>
-                      <td className="px-4 py-3 font-heading font-semibold text-foreground">{a}</td>
-                      <td className="px-4 py-3 text-muted-foreground font-body">{r}</td>
-                      <td className="px-4 py-3 text-muted-foreground font-body">{c}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </motion.div>
-          </motion.div>
-        </Section>
-      </div>
-
-      {/* ═══ OBJETIVOS ═══ */}
-      <Section>
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<Target size={16} />} label="Sección 7" />
-          <SectionTitle>Objetivos — Árbol de Objetivos</SectionTitle>
-          <SectionSummary>
-            Estructura jerárquica de objetivos: desde el general (garantía del derecho a la alimentación) hasta los tres específicos de diagnóstico, formulación y seguimiento con sus indicadores clave.
-          </SectionSummary>
-          <motion.div variants={fadeUp} className="flex flex-col items-center gap-4 mb-8">
-            <div className="bg-primary text-primary-foreground rounded-2xl px-8 py-5 text-center max-w-2xl shadow-xl">
-              <span className="text-xs font-heading uppercase tracking-wider opacity-80">Objetivo General</span>
-              <p className="text-lg font-heading font-bold mt-2">
-                Generar estrategia para la garantía progresiva del derecho a la alimentación en el Cauca
-              </p>
-            </div>
-            <div className="flex gap-8">
-              <div className="w-0.5 h-8 bg-primary" />
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
-              {[
-                { num: "1", title: "Diagnóstico", desc: "Elaborar diagnóstico aprobado por CISAN" },
-                { num: "2", title: "Formulación", desc: "Construir documento técnico de política pública" },
-                { num: "3", title: "Seguimiento", desc: "Aprobación y transferencia metodológica" },
-              ].map((o, i) => (
-                <motion.div key={i} variants={scaleIn} className="bg-slide-green-light border-2 border-primary rounded-xl p-5 text-center hover:shadow-lg transition-shadow">
-                  <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center mx-auto mb-3 font-heading font-bold">
-                    {o.num}
-                  </div>
-                  <h4 className="font-heading font-bold text-lg text-primary mb-2">{o.title}</h4>
-                  <p className="text-sm font-body text-foreground">{o.desc}</p>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-          <motion.div variants={fadeUp} className="bg-accent/20 border border-accent rounded-xl px-6 py-4 flex items-center gap-4 max-w-2xl mx-auto">
-            <span className="text-2xl">📊</span>
-            <div>
-              <span className="font-heading font-bold text-sm">Meta Indicador:</span>
-              <span className="text-sm ml-2 font-body">Reducir inseguridad alimentaria grave al <strong>1.8%</strong></span>
-            </div>
-          </motion.div>
-          <div className="text-center"><AIBadge text="Machine Learning para proyección de indicadores" detail="Entrenar modelos de regresión con datos históricos DANE para proyectar la trayectoria de la meta del 1.8% de inseguridad grave, simulando diferentes escenarios de intervención y su impacto esperado." /></div>
-        </motion.div>
-      </Section>
-
-      {/* ═══ ALTERNATIVA ═══ */}
-      <div className="bg-muted/50">
-        <Section>
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Lightbulb size={16} />} label="Sección 8" />
-            <SectionTitle>Alternativa Seleccionada</SectionTitle>
-            <SectionSummary>
-              Alternativa 1 — Construcción participativa en 7 subregiones. Desglose de costos por actividad: diagnóstico ($571M), elaboración ($228M) y seguimiento ($73M).
-            </SectionSummary>
-            <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="md:col-span-2 bg-card border border-border rounded-2xl p-6">
-                <div className="bg-primary text-primary-foreground rounded-xl px-5 py-2 inline-block mb-4">
-                  <span className="font-heading font-bold text-sm">Alternativa 1 — Construcción Participativa</span>
-                </div>
-                <ul className="space-y-2">
-                  <li className="flex items-start gap-2 text-sm font-body"><span className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" /><strong>Localización:</strong>&nbsp;7 subregiones del Cauca</li>
-                  <li className="flex items-start gap-2 text-sm font-body"><span className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" /><strong>Cadena de Valor:</strong>&nbsp;Insumos → Procesos → Outputs → Política Pública</li>
-                  <li className="flex items-start gap-2 text-sm font-body"><span className="w-2 h-2 rounded-full bg-primary mt-1.5 shrink-0" /><strong>Costo Total:</strong>&nbsp;$943.381.615</li>
-                </ul>
-              </div>
-              <div className="bg-card border border-border rounded-2xl p-6">
-                <h3 className="font-heading font-bold text-lg mb-4">Desglose</h3>
+            <Accordion title="3.3 Marco Internacional" icon={<Globe size={18} />} accent="border-accent/40">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { act: "Diagnóstico", val: "$571M", pct: 61 },
-                  { act: "Elaboración", val: "$228M", pct: 24 },
-                  { act: "Seguimiento", val: "$73M", pct: 8 },
+                  { org: "PIDESC – Art. 11", desc: "Derecho a una alimentación adecuada como derecho económico, social y cultural." },
+                  { org: "Directrices FAO (2004)", desc: "Directrices Voluntarias sobre el Derecho a la Alimentación y Marco Estratégico Mundial CFS." },
+                  { org: "PMA", desc: "Mandato humanitario con principios de neutralidad e imparcialidad en seguridad alimentaria." },
+                  { org: "ODS 2 — Hambre Cero", desc: "Agenda 2030 para el Desarrollo Sostenible — Meta 2.1 y 2.2." },
+                ].map((n, i) => (
+                  <div key={i} className="bg-accent/10 rounded-xl p-4 border border-accent/20">
+                    <p className="font-heading font-bold text-sm text-accent-foreground mb-1">{n.org}</p>
+                    <p className="text-xs font-body text-muted-foreground">{n.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </Accordion>
+
+            <Accordion title="3.4 Marco Territorial del Cauca" icon={<MapPin size={18} />} accent="border-primary/30">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {[
+                  { doc: "Plan Desarrollo 2024-2027", desc: "'La Fuerza del Pueblo' — Meta 149: Formulación política pública SAN." },
+                  { doc: "POD del Cauca", desc: "Plan de Ordenamiento Departamental con enfoque territorial diferencial." },
                 ].map((d, i) => (
-                  <div key={i} className="mb-3">
-                    <div className="flex justify-between text-sm font-heading font-semibold mb-1">
-                      <span>{d.act}</span><span className="text-primary">{d.val}</span>
-                    </div>
-                    <div className="bg-border rounded-full h-3 overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${d.pct}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.8, delay: i * 0.15 }}
-                        className="h-full bg-primary rounded-full"
-                      />
-                    </div>
+                  <div key={i} className="bg-slide-green-light rounded-xl p-4">
+                    <p className="font-heading font-bold text-sm text-primary mb-1">{d.doc}</p>
+                    <p className="text-xs font-body text-foreground">{d.desc}</p>
                   </div>
                 ))}
               </div>
+            </Accordion>
+          </motion.div>
+          <div className="mt-4">
+            <AIBadge text="Compliance legal automatizado" detail="Implementar un sistema de verificación automática que mapee cada actividad del plan de acción contra el marco normativo (Ley 715, CONPES 113, PMA-FAO), generando reportes de cumplimiento en tiempo real y alertando sobre desviaciones normativas antes de que se materialicen." />
+          </div>
+        </motion.div>
+      </Section>
+
+      {/* ═══ 5. POBLACIÓN OBJETIVO – 9 ZONAS ═══ */}
+      <div className="bg-muted/50">
+        <Section id="poblacion">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
+            <SectionTag icon={<MapPin size={16} />} label="Sección 5 — Población Objetivo" />
+            <SectionTitle>Población Objetivo — 7 Subregiones / 9 Zonas</SectionTitle>
+            <SectionSummary>
+              Se intervendrán las 7 subregiones del Cauca, organizadas en 9 zonas operativas para facilitar la ejecución de 1 taller diferencial por zona. Haz clic en cada zona del mapa para ver municipios y actores a convocar.
+            </SectionSummary>
+            <motion.div variants={stagger} className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+              <StatCard value="1.59M" label="Población Afectada" icon={<Users size={24} />} />
+              <StatCard value="466K" label="Con Inseg. Alimentaria" icon={<AlertTriangle size={24} />} color="bg-secondary" />
+              <StatCard value="9" label="Zonas Operativas" icon={<Layers size={24} />} />
+              <StatCard value="9" label="Talleres Participativos" icon={<Users size={24} />} color="bg-accent" />
+            </motion.div>
+            <motion.div variants={fadeUp}>
+              <CaucaMap />
             </motion.div>
           </motion.div>
         </Section>
       </div>
 
-      {/* ═══ PLAN DE ACCIÓN ═══ */}
-      <div className="bg-primary/5 border-y-4 border-primary">
-      <Section id="plan">
+      {/* ═══ 6. CRONOGRAMA GANTT ═══ */}
+      <Section id="cronograma">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<Flag size={16} />} label="Sección 9 — Destacado" />
-          <SectionTitle>🎯 Plan de Acción</SectionTitle>
+          <SectionTag icon={<Calendar size={16} />} label="Sección 6 — Cronograma" />
+          <SectionTitle>Cronograma Detallado — Actividad 1: Diagnóstico (4 meses)</SectionTitle>
           <SectionSummary>
-            Hoja de ruta completa desde la Fase 0 (alistamiento) hasta la Fase 5 (transferencia), con los perfiles profesionales requeridos y la línea temporal de ejecución.
+            Gantt interactivo con las tres fases del diagnóstico: Primera Fase Cuantitativa, Segunda Fase Cualitativa y Tercera Fase de Procesamiento. Pasa el cursor sobre las barras para ver fechas y actores.
           </SectionSummary>
-          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div>
-              <div className="bg-card rounded-2xl border border-border p-6 mb-6">
-                <ul className="space-y-2 text-sm font-body">
-                  <li><strong>Período:</strong> Febrero 2026 — Enero 2027</li>
-                  <li><strong>Propósito:</strong> Hoja de ruta para sincronizar equipo</li>
-                  <li><strong>Estructura:</strong> Fase 0 a Fase 5</li>
-                </ul>
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-3">Equipo Requerido</h3>
-              <div className="flex flex-wrap gap-2">
-                {["Politología", "Nutrición", "Género", "Trabajo Social", "Ingeniería", "Gestión Documental", "Enlaces", "Encuestadores"].map(p => (
-                  <span key={p} className="bg-slide-green-light text-primary px-3 py-1.5 rounded-full text-xs font-heading font-semibold">{p}</span>
-                ))}
-              </div>
-              <AIBadge text="IA para coordinación de equipo" detail="Usar algoritmos de optimización de recursos para asignar perfiles profesionales a las 7 subregiones, considerando expertise, disponibilidad y carga de trabajo, maximizando la cobertura territorial y minimizando tiempos de desplazamiento." />
-            </div>
-            <div className="space-y-3">
-              {[
-                { phase: "Fase 0", title: "Alistamiento", time: "Feb 2026", color: "bg-primary" },
-                { phase: "Fase 1", title: "Diagnóstico", time: "Mar-Jun 2026", color: "bg-primary" },
-                { phase: "Fase 2", title: "Elaboración Doc. Técnico", time: "Jul-Sep 2026", color: "bg-accent" },
-                { phase: "Fase 3", title: "Validación CISAN", time: "Oct 2026", color: "bg-accent" },
-                { phase: "Fase 4", title: "Aprobación Asamblea", time: "Nov-Dic 2026", color: "bg-secondary" },
-                { phase: "Fase 5", title: "Transferencia", time: "Ene 2027", color: "bg-secondary" },
-              ].map((f, i) => (
-                <motion.div key={i} variants={fadeUp} className="flex items-center gap-3">
-                  <div className={`${f.color} text-primary-foreground rounded-xl px-4 py-2 min-w-[90px] text-center font-heading font-bold text-sm`}>
-                    {f.phase}
-                  </div>
-                  <div>
-                    <span className="font-heading font-semibold text-sm">{f.title}</span>
-                    <span className="text-muted-foreground text-xs ml-2">{f.time}</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-        </motion.div>
-      </Section>
-      </div>
-
-      {/* ═══ PRIMEROS 4 MESES ═══ */}
-      <div className="bg-muted/50">
-        <Section>
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Calendar size={16} />} label="Sección 10" />
-            <SectionTitle>Foco: Primeros 4 Meses — Contratación y Alistamiento</SectionTitle>
-            <SectionSummary>
-              Detalle operativo de febrero a mayo 2026: arranque del proyecto, contratación del equipo técnico y 420 encuestadores, e inicio del diagnóstico integral en campo.
-            </SectionSummary>
-            <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <motion.div variants={scaleIn} className="bg-primary text-primary-foreground rounded-2xl p-6 shadow-lg">
-                <h3 className="font-heading font-bold text-lg mb-3">Fase 0 — Feb 2026</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>✓ Reunión de arranque</li>
-                  <li>✓ Validación CARI/FIES</li>
-                  <li>✓ Diseño instrumentos</li>
-                  <li>✓ Capacitación 420 encuestadores</li>
-                  <li>✓ Piloto de prueba</li>
-                </ul>
-              </motion.div>
-              <motion.div variants={scaleIn} className="bg-accent/20 border-2 border-accent rounded-2xl p-6">
-                <h3 className="font-heading font-bold text-lg mb-3">Contratación Equipo</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>📋 Perfiles profesionales clave</li>
-                  <li>📋 Logística de contratación</li>
-                  <li>📋 420 encuestadores (bachiller mín.)</li>
-                  <li>📋 Supervisores de campo</li>
-                  <li>📋 Equipo técnico central</li>
-                </ul>
-              </motion.div>
-              <motion.div variants={scaleIn} className="bg-slide-green-light border-2 border-primary rounded-2xl p-6">
-                <h3 className="font-heading font-bold text-lg text-primary mb-3">Fase 1 — Mar a May</h3>
-                <ul className="space-y-2 text-sm">
-                  <li>🔍 Inicio diagnóstico integral</li>
-                  <li>🔍 Encuestas en 42 municipios</li>
-                  <li>🔍 7.560 encuestas programadas</li>
-                  <li>🔍 Talleres participativos</li>
-                  <li>🔍 Análisis información secundaria</li>
-                </ul>
-              </motion.div>
-            </motion.div>
-            <div className="h-2 bg-gradient-to-r from-primary via-accent to-secondary rounded-full" />
-            <p className="text-center text-muted-foreground text-sm mt-2 font-body">Feb → May 2026</p>
-          </motion.div>
-        </Section>
-      </div>
-
-      {/* ═══ DIAGNÓSTICO ═══ */}
-      <Section>
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<BarChart3 size={16} />} label="Sección 11" />
-          <SectionTitle>Actividad 1: Diagnóstico (4 Meses — $571M)</SectionTitle>
-          <SectionSummary>
-            El diagnóstico combina 7.560 encuestas cuantitativas (CARI/FIES/IPC) con 14 talleres participativos cualitativos para obtener una visión integral de la seguridad alimentaria por subregión.
-          </SectionSummary>
-          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <ExpandableCard title="📊 Componente Cuantitativo" defaultOpen>
-              <ul className="space-y-2 text-sm font-body">
-                <li>• <strong>7.560 encuestas</strong> en 42 municipios</li>
-                <li>• 10 encuestadores por municipio × 3 días</li>
-                <li>• 6 encuestas diarias mínimo por encuestador</li>
-                <li>• Metodologías CARI/FIES/IPC aprobadas por CISAN</li>
-              </ul>
-              <AIBadge text="Dashboard IA para monitoreo en tiempo real" detail="Dashboard con visualización en tiempo real del avance de las 7.560 encuestas por municipio, con indicadores de calidad de datos (completitud, consistencia) y alertas automáticas cuando un municipio presenta rezagos en la recolección." />
-            </ExpandableCard>
-            <ExpandableCard title="🗣️ Componente Cualitativo" defaultOpen>
-              <ul className="space-y-2 text-sm font-body">
-                <li>• <strong>14 talleres</strong> (2 por subregión)</li>
-                <li>• 100 participantes por taller</li>
-                <li>• Enfoques: familia, consumo, prácticas alimentación</li>
-                <li>• Almuerzo completo incluido</li>
-              </ul>
-              <AIBadge text="NLP para análisis cualitativo automatizado" detail="Aplicar procesamiento de lenguaje natural (NLP) a las transcripciones de los 14 talleres para identificar patrones temáticos, sentimientos predominantes y necesidades emergentes, acelerando el análisis cualitativo de semanas a horas." />
-            </ExpandableCard>
-          </motion.div>
+          <GanttChart />
         </motion.div>
       </Section>
 
-      {/* ═══ CRONOGRAMA GANTT ═══ */}
+      {/* ═══ 7. EQUIPO Y RESPONSABILIDADES ═══ */}
       <div className="bg-muted/50">
-        <Section id="cronograma">
+        <Section id="equipo">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Calendar size={16} />} label="Sección 12" />
-            <SectionTitle>Plan de Acción — Cronograma Detallado (Gantt)</SectionTitle>
-            <SectionSummary>
-              Diagrama Gantt del Plan de Acción con las tres fases del diagnóstico, desglose por meses y días específicos de implementación. Selecciona una fase para ver el detalle.
-            </SectionSummary>
-            <GanttChart />
-            <AIBadge text="IA para optimización de cronograma" detail="Algoritmos de programación dinámica para ajustar automáticamente el cronograma ante retrasos, redistribuyendo encuestadores y recursos entre subregiones para mantener las metas de cobertura dentro de los plazos establecidos." />
-          </motion.div>
-        </Section>
-      </div>
-
-      {/* ═══ FLUJO DE FASES ═══ */}
-      <Section>
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<Network size={16} />} label="Sección 13" />
-          <SectionTitle>Flujo de Fases y Responsables</SectionTitle>
-          <SectionSummary>
-            Diagrama de flujo que conecta cada fase del proyecto con sus responsables: desde el diseño de instrumentos hasta la transferencia y cierre final.
-          </SectionSummary>
-          <motion.div variants={fadeUp} className="flex flex-col items-center gap-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-0">
-              {/* Left track */}
-              <div className="flex flex-col items-center gap-0">
-                <PhaseNode phase="F0" title="Diseño de formulario" team="Ingeniería + Nutrición" color="bg-primary" />
-                <PhaseNode phase="F1" title="Aplicación en campo" team="Encuestadores" color="bg-primary" />
-                <PhaseNode phase="F1" title="Análisis de datos" team="Ingeniería + Nutrición" color="bg-primary" isLast />
-              </div>
-              {/* Right track */}
-              <div className="flex flex-col items-center gap-0">
-                <PhaseNode phase="F0" title="Diseño de talleres" team="Trabajo Social" color="bg-accent" />
-                <PhaseNode phase="F1" title="Talleres participativos" team="Trabajo Social + Enlaces" color="bg-accent" />
-                <PhaseNode phase="F1" title="Análisis cualitativo" team="Trabajo Social + Género" color="bg-accent" isLast />
-              </div>
-            </div>
-            <div className="w-0.5 h-8 bg-border" />
-            <PhaseNode phase="F2" title="Formulación de política" team="Politología + Nutrición" color="bg-primary" />
-            <PhaseNode phase="F2" title="Mesas de concertación" team="TODOS + Enlaces" color="bg-primary" />
-            <PhaseNode phase="F2" title="Documento final" team="Politología" color="bg-primary" />
-            <PhaseNode phase="F3" title="Aprobación Asamblea" team="Politología + Coordinación" color="bg-secondary" />
-            <PhaseNode phase="F4" title="Socialización" team="Trabajo Social + Enlaces" color="bg-secondary" />
-            <PhaseNode phase="F4" title="Seguimiento inicial" team="Nutrición" color="bg-secondary" />
-            <PhaseNode phase="F5" title="Transferencia y cierre" team="Gestión Documental + Ing." color="bg-foreground" isLast />
-          </motion.div>
-        </motion.div>
-      </Section>
-
-      {/* ═══ PERFILES ═══ */}
-      <div className="bg-muted/50">
-        <Section>
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Users size={16} />} label="Sección 14" />
+            <SectionTag icon={<Users size={16} />} label="Sección 7 — Equipo y Responsabilidades" />
             <SectionTitle>Perfiles del Equipo y Responsabilidades</SectionTitle>
             <SectionSummary>
-              Matriz de responsabilidades por perfil profesional y fase del proyecto. La contratación de los 420 encuestadores (bachiller mínimo) es prioritaria en los primeros 4 meses.
+              Matriz de perfiles profesionales asignados a cada fase del proyecto, con dedicación horaria y responsabilidades clave para garantizar la ejecución técnica del diagnóstico y la política pública.
             </SectionSummary>
             <motion.div variants={fadeUp} className="overflow-x-auto">
               <table className="w-full text-sm border-collapse">
                 <thead>
                   <tr className="bg-primary text-primary-foreground">
                     <th className="px-4 py-3 text-left font-heading font-semibold rounded-tl-xl">Perfil</th>
-                    <th className="px-4 py-3 text-left font-heading font-semibold">F1 Diagnóstico</th>
-                    <th className="px-4 py-3 text-left font-heading font-semibold">F2 Formulación</th>
-                    <th className="px-4 py-3 text-left font-heading font-semibold rounded-tr-xl">F3 Seguimiento</th>
+                    <th className="px-4 py-3 text-left font-heading font-semibold">Fase(s)</th>
+                    <th className="px-4 py-3 text-left font-heading font-semibold">Responsabilidades Clave</th>
+                    <th className="px-4 py-3 text-center font-heading font-semibold rounded-tr-xl">Dedicación</th>
                   </tr>
                 </thead>
                 <tbody>
                   {[
-                    ["Nutrición", "Lidera análisis cuantitativo", "Apoya formulación SAN", "Validación indicadores"],
-                    ["Politología", "Análisis institucional", "Lidera formulación", "Transferencia política"],
-                    ["Género", "Enfoque diferencial", "Transversalización", "Indicadores de género"],
-                    ["Trabajo Social", "Talleres participativos", "Validación comunitaria", "Socialización"],
-                    ["Ingeniería", "Plataforma encuestas", "Sistematización", "Soporte técnico"],
-                    ["Gestión Documental", "Archivo y trazabilidad", "Edición documento", "Publicación"],
-                    ["420 Encuestadores", "Aplicación terreno", "—", "—"],
-                  ].map(([p, f1, f2, f3], i) => (
+                    ["Politólogo/a – Coordinador/a", "0, 1, 2, 3", "Liderazgo técnico, articulación institucional, coordinación CDSAN", "100%"],
+                    ["Nutricionista/Dietista", "1, 2", "Diseño y validación de instrumento de encuesta FIES/CARI, análisis alimentario", "100%"],
+                    ["Profesional Enfoque Género", "1, 2", "Transversalización género en metodología, talleres diferenciales, análisis cualitativo", "50%"],
+                    ["Trabajador/a Social", "1, 2", "Acercamiento comunitario, facilitación talleres, relatorías y sistematización", "100%"],
+                    ["Ingeniero/a de Sistemas", "1, 3", "Diseño encuesta digital, bases de datos, procesamiento estadístico y geoespacial", "100%"],
+                    ["Gestión Documental", "0, 2, 3", "Organización archivo técnico, redacción informe diagnóstico, gestión documental", "50%"],
+                    ["Enlace Étnico-Afro", "1, 2", "Acercamiento consejos comunitarios, facilitación talleres Pacífico y Norte", "100%"],
+                    ["Enlace Indígena", "1, 2", "Articulación con cabildos, facilitación talleres zonas indígenas", "100%"],
+                    ["Enlace Campesino", "1, 2", "Coordinación con organizaciones campesinas en 9 zonas", "100%"],
+                    ["420 Encuestadores", "1 – Cuantitativa", "Aplicación de 7.560 encuestas en 42 municipios del Cauca", "Por evento"],
+                  ].map(([perfil, fase, resp, ded], i) => (
                     <tr key={i} className={`border-b border-border ${i % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-slide-green-light transition-colors`}>
-                      <td className="px-4 py-3 font-heading font-semibold text-foreground">{p}</td>
-                      <td className="px-4 py-3 text-muted-foreground font-body">{f1}</td>
-                      <td className="px-4 py-3 text-muted-foreground font-body">{f2}</td>
-                      <td className="px-4 py-3 text-muted-foreground font-body">{f3}</td>
+                      <td className="px-4 py-3 font-heading font-semibold text-foreground">{perfil}</td>
+                      <td className="px-4 py-3">
+                        <div className="flex flex-wrap gap-1">
+                          {fase.split(", ").map(f => (
+                            <span key={f} className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs font-heading font-semibold">F{f}</span>
+                          ))}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3 text-muted-foreground font-body text-xs">{resp}</td>
+                      <td className="px-4 py-3 text-center font-heading font-bold text-primary text-sm">{ded}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </motion.div>
+            <AIBadge text="IA para coordinación y optimización de equipo" detail="Usar algoritmos de optimización de recursos para asignar perfiles profesionales a las 9 zonas, considerando expertise, disponibilidad y carga de trabajo, maximizando la cobertura territorial y minimizando tiempos de desplazamiento." />
           </motion.div>
         </Section>
       </div>
 
-      {/* ═══ RIESGOS ═══ */}
+      {/* ═══ 8. RIESGOS Y MITIGACIÓN ═══ */}
       <Section id="riesgos">
         <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<Shield size={16} />} label="Sección 15" />
+          <SectionTag icon={<Shield size={16} />} label="Sección 8 — Riesgos y Mitigación" />
           <SectionTitle>Riesgos y Mitigación</SectionTitle>
           <SectionSummary>
-            Matriz de riesgos operacionales con probabilidad, impacto y medidas de mitigación. El monitoreo quincenal en Comité Técnico garantiza respuesta temprana.
+            Identificación de los principales riesgos operativos, técnicos e institucionales del proyecto, con sus respectivas medidas de mitigación para garantizar la ejecución exitosa.
           </SectionSummary>
-          <motion.div variants={fadeUp} className="space-y-3 mb-6">
-            {[
-              { risk: "Consensos difíciles entre actores", prob: "Alta", impact: "Alto", mit: "Diálogos interculturales previos" },
-              { risk: "Cambios políticos institucionales", prob: "Moderada", impact: "Alto", mit: "Trazabilidad con actas formales" },
-              { risk: "Baja participación comunidades", prob: "Moderada", impact: "Alto", mit: "Convocatoria anticipada (15 días)" },
-              { risk: "Retrasos en contratación", prob: "Alta", impact: "Medio", mit: "Gestión anticipada desde enero" },
-              { risk: "Dificultades logísticas rurales", prob: "Alta", impact: "Medio", mit: "Coordinación con alcaldías" },
-            ].map((r, i) => (
-              <motion.div key={i} variants={fadeUp} className="bg-card rounded-xl border border-border p-4 flex flex-col md:flex-row md:items-center gap-3 hover:shadow-md transition-shadow">
-                <div className="flex-1">
-                  <p className="font-heading font-semibold text-sm text-foreground">{r.risk}</p>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <span className={`px-3 py-1 rounded-full text-xs font-heading font-bold ${r.prob === "Alta" ? "bg-secondary/10 text-secondary" : "bg-accent/20 text-accent-foreground"}`}>
-                    {r.prob}
-                  </span>
-                  <span className={`px-3 py-1 rounded-full text-xs font-heading font-bold ${r.impact === "Alto" ? "bg-secondary/10 text-secondary" : "bg-accent/20 text-accent-foreground"}`}>
-                    {r.impact}
-                  </span>
-                </div>
-                <p className="text-xs text-muted-foreground font-body md:max-w-[200px]">✅ {r.mit}</p>
-              </motion.div>
-            ))}
+          <motion.div variants={fadeUp} className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-secondary text-primary-foreground">
+                  <th className="px-4 py-3 text-left font-heading font-semibold rounded-tl-xl">#</th>
+                  <th className="px-4 py-3 text-left font-heading font-semibold">Riesgo</th>
+                  <th className="px-4 py-3 text-center font-heading font-semibold">Probabilidad</th>
+                  <th className="px-4 py-3 text-center font-heading font-semibold">Impacto</th>
+                  <th className="px-4 py-3 text-left font-heading font-semibold rounded-tr-xl">Medida de Mitigación</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ["1", "Restricciones de acceso territorial por orden público", "Alta", "Alto", "Coordinación con autoridades locales, rutas alternas, protocolos de seguridad"],
+                  ["2", "Baja participación comunitaria en talleres", "Media", "Alto", "Acercamiento previo con líderes, convocatoria con 15 días de anticipación, incentivos simbólicos"],
+                  ["3", "Demoras en contratación de encuestadores (420)", "Media", "Alto", "Proceso de selección iniciado en Feb 2026, banco de hojas de vida preaprobadas"],
+                  ["4", "Problemas técnicos en encuesta digital", "Baja", "Medio", "Prueba piloto en 2 municipios, versión offline disponible, soporte técnico permanente"],
+                  ["5", "Resistencia institucional al proceso", "Media", "Medio", "Acercamiento institucional previo (ICBF, ICA, Secretarías), socialización plan de acción"],
+                  ["6", "Presupuesto insuficiente para logística en zona Pacífico", "Alta", "Alto", "Presupuesto diferenciado para zonas de difícil acceso, gestión con PMA/FAO"],
+                  ["7", "Incumplimiento de plazos en fases", "Media", "Alto", "Cronograma con holguras, reuniones semanales de seguimiento, alertas tempranas CDSAN"],
+                  ["8", "Pérdida o deterioro de datos de encuesta", "Baja", "Alto", "Respaldo automático en nube, validación diaria, supervisión campo permanente"],
+                  ["9", "Cambios en la administración departamental", "Baja", "Alto", "Ordenanza que institucionalice el proceso, transferencia metodológica documentada"],
+                  ["10", "Fatiga participativa en comunidades", "Media", "Medio", "Rotación de metodologías, talleres de máximo 4 horas, resultados devueltos a comunidades"],
+                ].map(([num, riesgo, prob, imp, mit], i) => {
+                  const probColor = prob === "Alta" ? "text-secondary bg-secondary/10" : prob === "Media" ? "text-accent-foreground bg-accent/20" : "text-primary bg-primary/10";
+                  const impColor = imp === "Alto" ? "text-secondary bg-secondary/10" : imp === "Medio" ? "text-accent-foreground bg-accent/20" : "text-primary bg-primary/10";
+                  return (
+                    <tr key={i} className={`border-b border-border ${i % 2 === 0 ? "bg-card" : "bg-muted/30"} hover:bg-slide-red-light transition-colors`}>
+                      <td className="px-4 py-3 font-heading font-bold text-muted-foreground">{num}</td>
+                      <td className="px-4 py-3 font-body text-foreground text-xs">{riesgo}</td>
+                      <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-heading font-semibold ${probColor}`}>{prob}</span></td>
+                      <td className="px-4 py-3 text-center"><span className={`px-2 py-1 rounded-full text-xs font-heading font-semibold ${impColor}`}>{imp}</span></td>
+                      <td className="px-4 py-3 text-muted-foreground font-body text-xs">{mit}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </motion.div>
-          <div className="bg-slide-green-light rounded-xl px-6 py-4 flex items-center gap-3">
-            <span className="text-xl">🔄</span>
-            <span className="text-sm font-body"><strong>Monitoreo quincenal</strong> en Comité Técnico</span>
-          </div>
-          <AIBadge text="Alertas predictivas de riesgo con IA" detail="Sistema de monitoreo continuo que analiza indicadores de riesgo (participación en reuniones, cumplimiento de hitos, cambios institucionales) y genera alertas predictivas al Comité Técnico cuando la probabilidad de materialización de un riesgo supera el 60%." />
+          <AIBadge text="Sistema IA de alertas tempranas de riesgos" detail="Implementar un sistema de monitoreo en tiempo real que cruce datos de avance semanal con umbrales predefinidos por riesgo, generando alertas automáticas al coordinador y al CDSAN cuando se detecten desviaciones que puedan comprometer el cronograma o la calidad del diagnóstico." />
         </motion.div>
       </Section>
 
-      {/* ═══ INDICADORES ═══ */}
+      {/* ═══ 9. INDICADORES DE ÉXITO ═══ */}
       <div className="bg-muted/50">
-        <Section>
+        <Section id="indicadores">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<TrendingUp size={16} />} label="Sección 16" />
+            <SectionTag icon={<TrendingUp size={16} />} label="Sección 9 — Indicadores de Éxito" />
             <SectionTitle>Indicadores de Éxito</SectionTitle>
             <SectionSummary>
-              Métricas de seguimiento del proyecto: ejecución de actividades, aprobación de entregables, cobertura municipal y meta de reducción de inseguridad alimentaria grave.
+              Métricas clave para el seguimiento y evaluación del proyecto, alineadas con los objetivos específicos del diagnóstico participativo, la formulación de la política y su transferencia institucional.
             </SectionSummary>
-            <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-              <StatCard value="≥90%" label="Actividades Ejecutadas" icon={<BarChart3 size={24} />} />
-              <StatCard value="100%" label="Entregables Aprobados" icon={<Target size={24} />} color="bg-primary" />
-              <StatCard value="42/42" label="Cobertura Municipal" icon={<MapPin size={24} />} />
-              <StatCard value="→1.8%" label="Inseg. Grave (Meta)" icon={<TrendingUp size={24} />} color="bg-secondary" />
-            </motion.div>
-            <motion.div variants={fadeUp} className="bg-accent/20 border border-accent rounded-xl px-6 py-4 text-center">
-              <p className="text-sm font-body">📈 Indicadores de <strong>corto, mediano y largo plazo</strong> integrados en la política pública</p>
-            </motion.div>
-            <div className="text-center"><AIBadge text="Dashboard IA para métricas en tiempo real" detail="Panel de control ejecutivo con KPIs actualizados automáticamente: porcentaje de municipios cubiertos, tasa de ejecución presupuestal, avance por fase, y semáforos de alerta temprana para cada indicador de éxito." /></div>
-          </motion.div>
-        </Section>
-      </div>
-
-      {/* ═══ COMUNICACIÓN ═══ */}
-      <Section>
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<MessageSquare size={16} />} label="Sección 17" />
-          <SectionTitle>Protocolo de Comunicación</SectionTitle>
-          <SectionSummary>
-            Estructura de reuniones y canales digitales para la coordinación del proyecto: seguimiento quincenal en Comité Técnico y mensual con CISAN, apoyados por herramientas colaborativas.
-          </SectionSummary>
-          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <h3 className="font-heading font-bold text-lg mb-4">Reuniones</h3>
-              <div className="space-y-4">
-                <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-4">
-                  <div className="w-14 h-14 rounded-xl bg-primary flex items-center justify-center shrink-0">
-                    <span className="text-primary-foreground font-heading font-bold text-sm">2x/mes</span>
-                  </div>
-                  <div>
-                    <p className="font-heading font-bold text-sm">Comité Técnico</p>
-                    <p className="text-xs text-muted-foreground">Seguimiento quincenal</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 bg-card border border-border rounded-xl p-4">
-                  <div className="w-14 h-14 rounded-xl bg-secondary flex items-center justify-center shrink-0">
-                    <span className="text-primary-foreground font-heading font-bold text-sm">1x/mes</span>
-                  </div>
-                  <div>
-                    <p className="font-heading font-bold text-sm">CISAN</p>
-                    <p className="text-xs text-muted-foreground">Comité Intersectorial</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div>
-              <h3 className="font-heading font-bold text-lg mb-4">Canales Digitales</h3>
-              <div className="space-y-3">
-                {[
-                  { tool: "Microsoft Teams", use: "Comunicación diaria" },
-                  { tool: "SharePoint", use: "Repositorio documental" },
-                  { tool: "Correo Institucional", use: "Comunicaciones formales" },
-                  { tool: "Actas Digitales", use: "Registro decisiones" },
-                ].map((c, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-slide-green-light rounded-xl px-4 py-3">
-                    <span className="font-heading font-bold text-xs text-primary min-w-[120px]">{c.tool}</span>
-                    <span className="text-xs text-foreground font-body">{c.use}</span>
-                  </div>
-                ))}
-              </div>
-              <AIBadge text="Chatbots para reportes semanales" detail="Implementar un asistente conversacional en Teams que genere automáticamente reportes semanales de avance, permita consultar el estado de cualquier actividad y envíe recordatorios inteligentes de compromisos pendientes a cada miembro del equipo." />
-            </div>
-          </motion.div>
-        </motion.div>
-      </Section>
-
-      {/* ═══ CONCLUSIÓN ═══ */}
-      <div className="bg-foreground text-primary-foreground py-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-            <SectionTag icon={<Flag size={16} />} label="Sección 18" />
-            <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-primary-foreground mb-4">
-              Conclusión y Siguientes Pasos
-            </h2>
-            <p className="text-primary-foreground/60 font-body text-base leading-relaxed mb-8 max-w-3xl border-l-4 border-primary/30 pl-4">
-              Resumen ejecutivo del orden de implementación y llamado a acción para iniciar la contratación del equipo en febrero 2026, con miras a la aprobación en Asamblea Departamental.
-            </p>
-            <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+            <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {[
-                { num: "1", title: "Contratación Equipo", time: "Febrero 2026", color: "bg-primary" },
-                { num: "2", title: "Alistamiento", time: "Feb — Mar 2026", color: "bg-accent" },
-                { num: "3", title: "Diagnóstico", time: "Mar — Jun 2026", color: "bg-secondary" },
-              ].map((s, i) => (
-                <motion.div key={i} variants={scaleIn} className={`${s.color} text-primary-foreground rounded-2xl p-6 text-center shadow-xl`}>
-                  <div className="w-12 h-12 rounded-full bg-primary-foreground/20 flex items-center justify-center mx-auto mb-3">
-                    <span className="font-heading font-black text-xl">{s.num}</span>
+                { num: "01", label: "Encuestas aplicadas", meta: "7.560", actual: "0", pct: 0, icon: <ClipboardList size={20} />, color: "bg-primary" },
+                { num: "02", label: "Talleres diferenciales realizados", meta: "9 / 9", actual: "0", pct: 0, icon: <Users size={20} />, color: "bg-secondary" },
+                { num: "03", label: "Municipios cubiertos con diagnóstico", meta: "42 / 42", actual: "0", pct: 0, icon: <MapPin size={20} />, color: "bg-primary" },
+                { num: "04", label: "Inseguridad alimentaria grave (meta)", meta: "1,8%", actual: "2,8% (línea base)", pct: 64, icon: <Target size={20} />, color: "bg-secondary" },
+                { num: "05", label: "Informe diagnóstico aprobado por CDSAN", meta: "1 informe", actual: "En proceso", pct: 10, icon: <FileText size={20} />, color: "bg-accent" },
+                { num: "06", label: "Documento técnico política pública", meta: "1 documento", actual: "Pendiente fase 2", pct: 0, icon: <BookOpen size={20} />, color: "bg-primary" },
+                { num: "07", label: "Actores participantes en talleres", meta: "≥900 personas", actual: "0", pct: 0, icon: <Users size={20} />, color: "bg-secondary" },
+                { num: "08", label: "Ejecución presupuestal", meta: "≥90%", actual: "0%", pct: 0, icon: <BarChart3 size={20} />, color: "bg-accent" },
+              ].map((ind, i) => (
+                <motion.div key={i} variants={fadeUp} className="bg-card rounded-2xl border border-border p-5 hover:shadow-md transition-shadow">
+                  <div className="flex items-start gap-4 mb-3">
+                    <div className={`w-10 h-10 ${ind.color} rounded-xl flex items-center justify-center text-primary-foreground shrink-0`}>
+                      {ind.icon}
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-baseline justify-between gap-2 mb-1">
+                        <p className="font-heading font-bold text-sm text-foreground">{ind.label}</p>
+                        <span className="font-heading font-black text-lg text-primary shrink-0">{ind.meta}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground font-body">Estado: {ind.actual}</p>
+                    </div>
                   </div>
-                  <h3 className="font-heading font-bold text-lg mb-1">{s.title}</h3>
-                  <p className="text-sm opacity-80">{s.time}</p>
+                  <div className="bg-border rounded-full h-2 overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      whileInView={{ width: `${ind.pct}%` }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.8, delay: i * 0.1 }}
+                      className={`h-full ${ind.color} rounded-full`}
+                    />
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1 text-right font-heading font-semibold">{ind.pct}%</p>
                 </motion.div>
               ))}
             </motion.div>
-            <motion.div variants={fadeUp} className="bg-primary-foreground/10 border border-primary-foreground/20 rounded-2xl px-8 py-6 text-center">
-              <p className="font-heading font-bold text-xl text-primary-foreground">
-                🏛️ Meta: Aprobación en Asamblea Departamental — Diciembre 2026 a Febrero 2027
-              </p>
-              <p className="text-primary-foreground/60 text-sm mt-2 font-body">
-                Iniciar en febrero 2026 es crítico para cumplir el cronograma establecido
-              </p>
-            </motion.div>
+            <div className="mt-4 text-center">
+              <AIBadge text="Dashboard IA de seguimiento en tiempo real" detail="Integrar un dashboard automatizado que consolide los indicadores del proyecto con fuentes de datos en tiempo real (encuestas digitales, asistencia a talleres, geolocalización de encuestadores), generando reportes automáticos para el CDSAN con visualizaciones interactivas de avance por zona." />
+            </div>
           </motion.div>
-        </div>
+        </Section>
+      </div>
+
+      {/* ═══ 10. CONCLUSIÓN Y SIGUIENTES PASOS ═══ */}
+      <div className="bg-primary/5 border-y-4 border-primary">
+        <Section id="conclusion">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
+            <SectionTag icon={<Flag size={16} />} label="Sección 10 — Conclusión y Siguientes Pasos" />
+            <SectionTitle>🎯 Conclusión y Siguientes Pasos</SectionTitle>
+            <SectionSummary>
+              Orden de ejecución: Contratación → Alistamiento → Diagnóstico. El proyecto está listo para iniciar en febrero 2026. Se requiere la activación inmediata del equipo y la coordinación con el CDSAN.
+            </SectionSummary>
+
+            {/* Pasos */}
+            <motion.div variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-10">
+              {[
+                {
+                  paso: "Paso 1",
+                  titulo: "Contratación del Equipo",
+                  tiempo: "Febrero 2026 — Semana 1-2",
+                  color: "bg-primary",
+                  icon: <Users size={24} />,
+                  items: [
+                    "Contratación coordinador/a y equipo técnico (9 perfiles)",
+                    "Proceso de selección de 420 encuestadores",
+                    "Firma de contratos y actas de inicio",
+                    "Reunión de arranque con todo el equipo",
+                  ],
+                },
+                {
+                  paso: "Paso 2",
+                  titulo: "Alistamiento",
+                  tiempo: "Febrero 2026 — Semana 2-4",
+                  color: "bg-accent",
+                  icon: <ClipboardList size={24} />,
+                  items: [
+                    "Socialización plan de acción ante CDSAN",
+                    "Acercamiento institucional (ICBF, ICA, Secretarías)",
+                    "Diseño y validación de encuesta digital",
+                    "Definición de rutas y logística por zona",
+                  ],
+                },
+                {
+                  paso: "Paso 3",
+                  titulo: "Diagnóstico",
+                  tiempo: "Marzo – Junio 2026",
+                  color: "bg-secondary",
+                  icon: <Activity size={24} />,
+                  items: [
+                    "Aplicación de 7.560 encuestas en 42 municipios",
+                    "9 talleres diferenciales (1 por zona operativa)",
+                    "Procesamiento y análisis cuanti-cualitativo",
+                    "Presentación informe diagnóstico al CDSAN",
+                  ],
+                },
+              ].map((p, i) => (
+                <motion.div key={i} variants={scaleIn} className="bg-card rounded-2xl border border-border p-6 hover:shadow-xl transition-all">
+                  <div className={`${p.color} text-primary-foreground rounded-xl px-4 py-3 flex items-center gap-3 mb-4`}>
+                    {p.icon}
+                    <div>
+                      <p className="font-heading font-bold text-base">{p.titulo}</p>
+                      <p className="text-xs opacity-80">{p.tiempo}</p>
+                    </div>
+                  </div>
+                  <ul className="space-y-2">
+                    {p.items.map((item, j) => (
+                      <li key={j} className="flex items-start gap-2 text-sm font-body text-foreground">
+                        <ArrowRight size={14} className="text-primary mt-0.5 shrink-0" />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </motion.div>
+              ))}
+            </motion.div>
+
+            {/* Llamado a acción */}
+            <motion.div variants={fadeUp} className="bg-primary rounded-3xl p-8 text-center shadow-2xl">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <img src={escudoCauca} alt="Escudo" className="h-14 w-auto brightness-200" />
+                <img src={secretariaLogo} alt="Secretaría" className="h-14 w-auto brightness-200" />
+              </div>
+              <h3 className="font-heading font-black text-2xl md:text-3xl text-primary-foreground mb-3">
+                ¡Iniciar en Febrero 2026!
+              </h3>
+              <p className="text-primary-foreground/80 font-body mb-6 max-w-2xl mx-auto">
+                La Secretaría de Agricultura y Desarrollo Rural del Cauca hace un llamado urgente a la acción institucional coordinada para garantizar el inicio del proceso de construcción de la Política Pública de Seguridad y Soberanía Alimentaria en el mes de febrero de 2026.
+              </p>
+              <div className="flex flex-wrap justify-center gap-4">
+                <div className="bg-primary-foreground/10 rounded-2xl px-6 py-3 text-primary-foreground text-center">
+                  <p className="font-heading font-black text-2xl">$943M</p>
+                  <p className="text-xs opacity-70">Presupuesto disponible</p>
+                </div>
+                <div className="bg-primary-foreground/10 rounded-2xl px-6 py-3 text-primary-foreground text-center">
+                  <p className="font-heading font-black text-2xl">12 meses</p>
+                  <p className="text-xs opacity-70">Feb 2026 – Ene 2027</p>
+                </div>
+                <div className="bg-primary-foreground/10 rounded-2xl px-6 py-3 text-primary-foreground text-center">
+                  <p className="font-heading font-black text-2xl">42 municipios</p>
+                  <p className="text-xs opacity-70">Cobertura departamental</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <div className="text-center mt-6">
+              <AIBadge text="IA para transferencia metodológica y escalabilidad" detail="Diseñar un modelo de IA que documente automáticamente las lecciones aprendidas del proceso, genere recomendaciones para la formulación de la política pública basadas en los hallazgos del diagnóstico, y facilite la transferencia metodológica a otros departamentos del país." />
+            </div>
+          </motion.div>
+        </Section>
       </div>
 
       <ReportFooter />

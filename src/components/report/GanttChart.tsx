@@ -55,7 +55,7 @@ const phases: GanttPhase[] = [
       { id: "c1", label: "Análisis información secundaria", start: 0, dur: 3, dias: "Feb 2–20 · 15 días", hito: false },
       { id: "c2", label: "Acercamiento institucional", start: 2, dur: 3, dias: "Feb 16 – Mar 6 · 18 días", hito: false, dependsOn: "c1" },
       { id: "c3", label: "Definición herramienta encuesta", start: 4, dur: 2, dias: "Mar 2–13 · 10 días", hito: false, dependsOn: "c2" },
-      { id: "c4", label: "Validación y aprobación CISAN", start: 5, dur: 2, dias: "Mar 9–20 · 10 días", hito: true, dependsOn: "c3" },
+      { id: "c4", label: "Socialización del plan de acción", start: 5, dur: 2, dias: "Mar 9–20 · 10 días", hito: true, dependsOn: "c3" },
       { id: "c5", label: "Desarrollo encuesta digital", start: 6, dur: 2, dias: "Mar 16–27 · 10 días", hito: false, dependsOn: "c4" },
       { id: "c6", label: "Prueba piloto (2 municipios)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: true, dependsOn: "c5" },
       { id: "c7", label: "Ajustes post-piloto", start: 9, dur: 1, dias: "Abr 6–10 · 5 días", hito: false, dependsOn: "c6" },
@@ -103,7 +103,7 @@ const phases: GanttPhase[] = [
       { id: "p2", label: "Procesamiento estadístico", start: 15, dur: 2, dias: "May 18–29 · 10 días", hito: false, dependsOn: "p1" },
       { id: "p3", label: "Análisis cruzado cuanti-cuali", start: 16, dur: 2, dias: "Jun 1–12 · 10 días", hito: false, dependsOn: "p2" },
       { id: "p4", label: "Redacción informe diagnóstico", start: 17, dur: 2, dias: "Jun 8–19 · 10 días", hito: false, dependsOn: "p3" },
-      { id: "p5", label: "Revisión y aprobación CISAN", start: 19, dur: 2, dias: "Jun 15–26 · 10 días", hito: true, dependsOn: "p4" },
+      { id: "p5", label: "Presentación CDSAN", start: 19, dur: 2, dias: "Jun 15–26 · 10 días", hito: true, dependsOn: "p4" },
     ],
   },
 ];
@@ -148,7 +148,7 @@ const calendarTasks: CalendarTaskEntry[] = [
   { label: "Análisis info. secundaria", startDate: [1, 2], endDate: [1, 20], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
   { label: "Acercamiento institucional", startDate: [1, 16], endDate: [2, 6], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
   { label: "Definición herramienta", startDate: [2, 2], endDate: [2, 13], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
-  { label: "Aprobación CISAN", startDate: [2, 9], endDate: [2, 20], phase: "cuantitativa", colorBg: "bg-primary/30", hito: true },
+  { label: "Socialización del plan de acción", startDate: [2, 9], endDate: [2, 20], phase: "cuantitativa", colorBg: "bg-primary/30", hito: true },
   { label: "Encuesta digital", startDate: [2, 16], endDate: [2, 27], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
   { label: "Prueba piloto", startDate: [2, 30], endDate: [3, 3], phase: "cuantitativa", colorBg: "bg-primary/30", hito: true },
   { label: "Ajustes post-piloto", startDate: [3, 6], endDate: [3, 10], phase: "cuantitativa", colorBg: "bg-primary/20", hito: false },
@@ -168,7 +168,7 @@ const calendarTasks: CalendarTaskEntry[] = [
   { label: "Proc. estadístico", startDate: [4, 18], endDate: [4, 29], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
   { label: "Análisis cruzado", startDate: [5, 1], endDate: [5, 12], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
   { label: "Redacción informe", startDate: [5, 8], endDate: [5, 19], phase: "procesamiento", colorBg: "bg-accent/20", hito: false },
-  { label: "Aprobación CISAN", startDate: [5, 15], endDate: [5, 26], phase: "procesamiento", colorBg: "bg-accent/30", hito: true },
+  { label: "Presentación CDSAN", startDate: [5, 15], endDate: [5, 26], phase: "procesamiento", colorBg: "bg-accent/30", hito: true },
 ];
 
 function getDaysInMonth(year: number, month: number) {
@@ -310,6 +310,20 @@ const DependencyArrows: React.FC<{ tasks: GanttTask[]; colorClass: string }> = (
   );
 };
 
+// ─── Popup content for special tasks ─────────
+const ACERCAMIENTO_INSTITUCIONAL = [
+  "ICBF", "ICA", "Emcaservicios", "Secretaría de Salud",
+  "Secretaría de Ambiente", "Secretaría de Agricultura",
+];
+
+const ACERCAMIENTO_LIDERES = [
+  "Campesinos (por municipio)", "Consejos comunitarios", "Indígenas",
+  "Personas con discapacidad", "Adulto mayor", "Jóvenes (PANES, Consejos de juventudes)",
+  "Mujeres gestantes", "Institucional (salud, educación, alcaldías)",
+  "Comunidad LGTBI", "OAC", "ICA", "ICBF", "PAE Educación", "FAO", "PMA",
+  "Diputados (CDSAN)", "Salud departamental", "Ministerio de la Igualdad",
+];
+
 // ─── Gantt Row with Tooltip ──────────────────
 const GanttRow: React.FC<{
   item: GanttTask;
@@ -320,6 +334,8 @@ const GanttRow: React.FC<{
   colorDot: string;
 }> = ({ item, index, colorBar, colorBg, colorRing, colorDot }) => {
   const [hovered, setHovered] = useState(false);
+  const popupItems = item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL
+    : item.id === "q2" ? ACERCAMIENTO_LIDERES : null;
 
   return (
     <div className="flex items-center h-9 group relative"
@@ -341,13 +357,29 @@ const GanttRow: React.FC<{
           style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
         />
         {/* Tooltip above the bar */}
-        {hovered && (
+        {hovered && !popupItems && (
           <div
             className="absolute -top-8 z-20 bg-foreground text-background text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none"
             style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
           >
             {item.dias}
             <div className="absolute left-3 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-foreground" />
+          </div>
+        )}
+        {/* Popup for special tasks */}
+        {hovered && popupItems && (
+          <div
+            className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-3 py-2 rounded-xl shadow-xl pointer-events-none max-w-[260px]"
+            style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
+          >
+            <p className="font-heading font-bold text-[11px] mb-1">{item.label}</p>
+            <p className="text-background/70 mb-1.5">{item.dias}</p>
+            {popupItems.map((p, i) => (
+              <div key={i} className="flex items-center gap-1.5 py-0.5">
+                <span className="w-1 h-1 rounded-full bg-accent shrink-0" />
+                <span>{p}</span>
+              </div>
+            ))}
           </div>
         )}
       </div>
