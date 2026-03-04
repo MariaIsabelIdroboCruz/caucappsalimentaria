@@ -7,7 +7,6 @@ const ReportFooter: React.FC = () => (
     <div className="max-w-7xl mx-auto px-6">
       <div className="flex flex-col md:flex-row items-center justify-between gap-8">
         <div className="flex items-center gap-4">
-          <img src={escudoCauca} alt="Escudo" className="h-12 w-auto brightness-200" />
           <img src={secretariaLogo} alt="Secretaría" className="h-12 w-auto brightness-200" />
         </div>
         <div className="text-center md:text-right">
