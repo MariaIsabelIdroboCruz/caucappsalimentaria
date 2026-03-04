@@ -94,8 +94,8 @@ const phases: GanttPhase[] = [
       { id: "p1", label: "Limpieza y validación datos", start: 14, dur: 2, dias: "May 11–22 · 10 días", hito: false },
       { id: "p2", label: "Procesamiento estadístico", start: 15, dur: 2, dias: "May 18–29 · 10 días", hito: false, dependsOn: "p1" },
       { id: "p3", label: "Análisis cruzado cuanti-cuali", start: 16, dur: 2, dias: "Jun 1–12 · 10 días", hito: false, dependsOn: "p2" },
-      { id: "p4", label: "Redacción informe diagnóstico", start: 17, dur: 2, dias: "Jun 8–19 · 10 días", hito: false, dependsOn: "p3" },
-      { id: "p5", label: "Presentación CDSAN", start: 19, dur: 2, dias: "Jun 15–26 · 10 días", hito: true, dependsOn: "p4" },
+      { id: "p4", label: "Redacción informe diagnóstico", start: 17, dur: 2, dias: "Jun 8–19 · 10 días", hito: true, dependsOn: "p3" },
+      { id: "p5", label: "Presentación CDSAN", start: 19, dur: 1, dias: "Jun 22–26 · 5 días", hito: false, dependsOn: "p4" },
     ],
   },
 ];
