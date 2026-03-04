@@ -55,14 +55,11 @@ const phases: GanttPhase[] = [
       { id: "c1", label: "Análisis información secundaria", start: 0, dur: 3, dias: "Feb 2–20 · 15 días", hito: false },
       { id: "c2", label: "Acercamiento institucional", start: 2, dur: 3, dias: "Feb 16 – Mar 6 · 18 días", hito: false, dependsOn: "c1" },
       { id: "c3", label: "Definición herramienta encuesta", start: 4, dur: 2, dias: "Mar 2–13 · 10 días", hito: false, dependsOn: "c2" },
-      { id: "c4", label: "Socialización del plan de acción", start: 5, dur: 2, dias: "Mar 9–20 · 10 días", hito: true, dependsOn: "c3" },
-      { id: "c5", label: "Desarrollo encuesta digital", start: 6, dur: 2, dias: "Mar 16–27 · 10 días", hito: false, dependsOn: "c4" },
-      { id: "c6", label: "Prueba piloto (2 municipios)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: true, dependsOn: "c5" },
+      { id: "c4", label: "Socialización del plan de acción", start: 5, dur: 2, dias: "Mar 9–20 · 10 días", hito: false, dependsOn: "c3" },
+      { id: "c5", label: "Elaborar encuesta digital", start: 6, dur: 2, dias: "Mar 16–27 · 10 días", hito: true, dependsOn: "c4" },
+      { id: "c6", label: "Prueba piloto (2 municipios)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: false, dependsOn: "c5" },
       { id: "c7", label: "Ajustes post-piloto", start: 9, dur: 1, dias: "Abr 6–10 · 5 días", hito: false, dependsOn: "c6" },
-      { id: "c8", label: "Logística y contratación 420 enc.", start: 7, dur: 3, dias: "Mar 23 – Abr 10 · 15 días", hito: false, dependsOn: "c4" },
-      { id: "c9", label: "Capacitación encuestadores", start: 10, dur: 2, dias: "Abr 13–24 · 10 días", hito: false, dependsOn: "c7" },
-      { id: "c10", label: "Aplicación encuestas — 7.560", start: 12, dur: 4, dias: "Abr 27 – May 22 · 20 días", hito: false, dependsOn: "c9" },
-      { id: "c11", label: "Supervisión y control calidad", start: 12, dur: 4, dias: "Abr 27 – May 22 · 20 días", hito: false, dependsOn: "c9" },
+      { id: "c8", label: "Aplicación encuestas — 7.560", start: 10, dur: 4, dias: "Abr 13 – May 8 · 20 días", hito: false, dependsOn: "c7" },
     ],
   },
   {
@@ -117,7 +114,7 @@ const MONTHS = [
   { mes: "Jun 2026", semanas: 4 },
 ];
 
-type ViewMode = "general" | "cuantitativa" | "cualitativa" | "procesamiento" | "calendario";
+type ViewMode = "general" | "cuantitativa" | "cualitativa" | "procesamiento";
 
 // ─── Calendar Data ──────────────────────────
 type CalendarDay = {
@@ -312,8 +309,11 @@ const DependencyArrows: React.FC<{ tasks: GanttTask[]; colorClass: string }> = (
 
 // ─── Popup content for special tasks ─────────
 const ACERCAMIENTO_INSTITUCIONAL = [
-  "ICBF", "ICA", "Emcaservicios", "Secretaría de Salud",
-  "Secretaría de Ambiente", "Secretaría de Agricultura",
+  "ICBF",
+  "ICA Servicios",
+  "Secretaría de Salud",
+  "Secretaría de Ambiente",
+  "Secretaría de Agricultura",
 ];
 
 const ACERCAMIENTO_LIDERES = [
@@ -445,7 +445,6 @@ const GanttChart: React.FC = () => {
     { key: "cuantitativa", label: "📊 Cuantitativa" },
     { key: "cualitativa", label: "🗣️ Cualitativa" },
     { key: "procesamiento", label: "⚙️ Procesamiento" },
-    { key: "calendario", label: "📅 Calendario" },
   ];
 
   const visiblePhases = view === "general"
@@ -502,32 +501,9 @@ const GanttChart: React.FC = () => {
         ))}
       </div>
 
-      {/* ── Gantt Chart or Calendar ── */}
-      {view === "calendario" ? (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {calendarMonths.map((m) => (
-              <CalendarMonth key={m.name} name={m.name} year={m.year} month={m.month} />
-            ))}
-          </div>
-          <div className="flex flex-wrap items-center gap-4 mt-4 pt-4 border-t border-border">
-            <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-              <div className="w-3 h-3 rounded-sm bg-primary/20 border border-primary/30" /> Día con actividad
-            </div>
-            <div className="flex items-center gap-2 text-xs font-body text-muted-foreground">
-              <div className="w-3 h-3 rounded-sm bg-primary/30 ring-1 ring-primary/50" /> Hito clave
-            </div>
-            <div className="text-xs text-muted-foreground ml-auto font-body italic">
-              Pasa el cursor sobre un día para ver las actividades
-            </div>
-          </div>
-        </motion.div>
-      ) : (
-        <>
-          <motion.div variants={fadeUp} className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
+      {/* ── Gantt Chart ── */}
+      <>
+        <motion.div variants={fadeUp} className="bg-card rounded-2xl border border-border p-6 overflow-x-auto">
             <div className="min-w-[900px]">
               <WeekHeaders />
               {visiblePhases.map((phase) => (
@@ -601,7 +577,6 @@ const GanttChart: React.FC = () => {
             </motion.div>
           )}
         </>
-      )}
     </div>
   );
 };
