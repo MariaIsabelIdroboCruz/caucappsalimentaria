@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Open+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
 
 @layer base {
   :root {
@@ -93,19 +93,94 @@
   * {
     @apply border-border;
   }
+
+  html {
+    /* Smooth scroll for all anchor navigation */
+    scroll-behavior: smooth;
+    scroll-padding-top: 72px; /* header height compensation */
+    -webkit-text-size-adjust: 100%;
+  }
+
   body {
     @apply bg-background text-foreground;
     font-family: 'Open Sans', Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Montserrat', Arial, sans-serif;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  /* Global focus ring — visible for keyboard users */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 3px;
+    border-radius: 6px;
+  }
+
+  /* Remove default focus for mouse users */
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Improve link tap targets */
+  a, button {
+    min-height: 40px;
+    display: inline-flex;
+    align-items: center;
+  }
+  nav a {
+    display: inline-flex;
+  }
+
+  /* Accessible selection highlight */
+  ::selection {
+    background: hsl(var(--primary) / 0.2);
+    color: hsl(var(--foreground));
   }
 }
 
-/* Slide content font scaling */
+/* ── Custom scrollbar (Webkit) ─────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.45);
+  border-radius: 99px;
+  border: 2px solid hsl(var(--muted));
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.7);
+}
+
+/* ── Slide content ─────────────────────────── */
 .slide-content {
   font-family: 'Open Sans', Arial, sans-serif;
 }
+.slide-content h1,
+.slide-content h2,
+.slide-content h3,
+.slide-content h4 {
+  font-family: 'Montserrat', Arial, sans-serif;
+}
+
+/* ── Progress bar for long pages ──────────── */
+@property --scroll-pct {
+  syntax: '<percentage>';
+  inherits: true;
+  initial-value: 0%;
+}
+
 /* ===== PRINT / PDF EXPORT ===== */
 @media print {
   @page {
@@ -119,7 +194,6 @@
     font-size: 11pt;
   }
 
-  /* Hide non-printable UI */
   .print\:hidden,
   header,
   nav,
@@ -127,13 +201,11 @@
     display: none !important;
   }
 
-  /* Force all sections to expand */
   [data-state="closed"] > [data-radix-collapsible-content] {
     display: block !important;
     height: auto !important;
   }
 
-  /* Avoid breaking cards/sections across pages */
   section,
   .print-section,
   article {
@@ -141,18 +213,15 @@
     break-inside: avoid;
   }
 
-  /* Make backgrounds & colors print */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
 
-  /* Remove sticky positioning */
   .sticky {
     position: relative !important;
   }
 
-  /* Expand max-width to fill page */
   .max-w-7xl,
   .max-w-5xl,
   .max-w-4xl,
@@ -161,13 +230,11 @@
     max-width: 100% !important;
   }
 
-  /* Gantt chart should not clip */
   .overflow-x-auto,
   .overflow-hidden {
     overflow: visible !important;
   }
 
-  /* Framer motion — remove transforms that can crop content */
   [style*="transform"],
   [style*="opacity"] {
     transform: none !important;
@@ -175,9 +242,14 @@
   }
 }
 
-.slide-content h1,
-.slide-content h2,
-.slide-content h3,
-.slide-content h4 {
-  font-family: 'Montserrat', Arial, sans-serif;
+/* ── Reduce motion for accessibility ────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
