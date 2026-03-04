@@ -76,12 +76,7 @@ const phases: GanttPhase[] = [
     tasks: [
       { id: "q1", label: "Revisión info. secundaria cualitativa", start: 8, dur: 2, dias: "Abr 6–17 · 10 días", hito: false },
       { id: "q2", label: "Acercamiento líderes y actores", start: 9, dur: 3, dias: "Abr 13 – May 1 · 15 días", hito: false, dependsOn: "q1" },
-      { id: "q3", label: "Diseño metodológico talleres", start: 10, dur: 2, dias: "Abr 20 – May 1 · 10 días", hito: false, dependsOn: "q1" },
-      { id: "q4", label: "Logística talleres (7 sedes × 2)", start: 11, dur: 2, dias: "May 4–15 · 10 días", hito: false, dependsOn: "q3" },
-      { id: "q5", label: "Talleres Sur y Macizo", start: 13, dur: 1.5, dias: "May 18–27 · 8 días", hito: true, dependsOn: "q4" },
-      { id: "q6", label: "Talleres Pacífico y Norte", start: 14.5, dur: 1.5, dias: "May 28 – Jun 5 · 7 días", hito: true, dependsOn: "q5" },
-      { id: "q7", label: "Talleres Centro, Oriente, Bota", start: 16, dur: 1.5, dias: "Jun 5–12 · 7 días", hito: true, dependsOn: "q6" },
-      { id: "q8", label: "Relatorías y sistematización", start: 13, dur: 5, dias: "May 18 – Jun 12 · 22 días", hito: false, dependsOn: "q4" },
+      { id: "q3", label: "Talleres diferenciales — 7 subregiones / 9 zonas", start: 12, dur: 6, dias: "May 4 – Jun 12 · 40 días", hito: true, dependsOn: "q2" },
     ],
   },
   {
@@ -316,12 +311,53 @@ const ACERCAMIENTO_INSTITUCIONAL = [
   "Secretaría de Agricultura",
 ];
 
-const ACERCAMIENTO_LIDERES = [
-  "Campesinos (por municipio)", "Consejos comunitarios", "Indígenas",
-  "Personas con discapacidad", "Adulto mayor", "Jóvenes (PANES, Consejos de juventudes)",
-  "Mujeres gestantes", "Institucional (salud, educación, alcaldías)",
-  "Comunidad LGTBI", "OAC", "ICA", "ICBF", "PAE Educación", "FAO", "PMA",
-  "Diputados (CDSAN)", "Salud departamental", "Ministerio de la Igualdad",
+const ACERCAMIENTO_LIDERES_GRUPOS = [
+  {
+    grupo: "Actores Institucionales",
+    items: ["ICA", "ICBF", "PAE – Educación", "Proveedores PAE", "Galpones", "Ganaderos", "Cámara de Comercio", "EMCASERVICIOS", "CRC", "Acueducto de Popayán", "Ministerio de la Igualdad"],
+  },
+  {
+    grupo: "Actores Famas y comerciantes de alimentos",
+    items: ["Famas y comerciantes de alimentos"],
+  },
+  {
+    grupo: "Actores Políticos",
+    items: ["Diputados – POPAYÁN CDSAN"],
+  },
+  {
+    grupo: "Actores PAEs y PANEs",
+    items: ["PAEs y PANEs"],
+  },
+  {
+    grupo: "Organismos Internacionales",
+    items: ["FAO", "PMA"],
+  },
+  {
+    grupo: "Actores Salud",
+    items: ["Salud Departamental"],
+  },
+  {
+    grupo: "Actores Comunitarios",
+    items: ["Campesinos (por municipio)", "Consejos comunitarios", "Actores indígenas"],
+  },
+  {
+    grupo: "Poblaciones diferenciales",
+    items: [
+      "Personas con discapacidad",
+      "Adulto mayor – Gestión Social, Secretarías de Salud, programas adultos mayores",
+      "Jóvenes – Instituciones educativas, PANES, Consejos departamentales y municipales de juventudes, Salud departamental",
+      "Mujeres gestantes",
+      "Comunidad LGTBI",
+    ],
+  },
+  {
+    grupo: "Actores Institucional territorial",
+    items: ["Salud", "Educación", "Alcaldías"],
+  },
+  {
+    grupo: "Otros actores",
+    items: ["OAC"],
+  },
 ];
 
 // ─── Gantt Row with Tooltip ──────────────────
@@ -334,8 +370,8 @@ const GanttRow: React.FC<{
   colorDot: string;
 }> = ({ item, index, colorBar, colorBg, colorRing, colorDot }) => {
   const [hovered, setHovered] = useState(false);
-  const popupItems = item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL
-    : item.id === "q2" ? ACERCAMIENTO_LIDERES : null;
+  const popupItems = item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL : null;
+  const popupGrupos = item.id === "q2" ? ACERCAMIENTO_LIDERES_GRUPOS : null;
 
   return (
     <div className="flex items-center h-9 group relative"
@@ -357,7 +393,7 @@ const GanttRow: React.FC<{
           style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
         />
         {/* Tooltip above the bar */}
-        {hovered && !popupItems && (
+        {hovered && !popupItems && !popupGrupos && (
           <div
             className="absolute -top-8 z-20 bg-foreground text-background text-[10px] font-semibold px-2.5 py-1 rounded-md shadow-lg whitespace-nowrap pointer-events-none"
             style={{ left: `${(item.start / TOTAL_WEEKS) * 100}%` }}
@@ -366,7 +402,7 @@ const GanttRow: React.FC<{
             <div className="absolute left-3 top-full w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-foreground" />
           </div>
         )}
-        {/* Popup for special tasks */}
+        {/* Popup for institucional (flat list) */}
         {hovered && popupItems && (
           <div
             className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-3 py-2 rounded-xl shadow-xl pointer-events-none max-w-[260px]"
@@ -380,6 +416,29 @@ const GanttRow: React.FC<{
                 <span>{p}</span>
               </div>
             ))}
+          </div>
+        )}
+        {/* Popup for líderes y actores (grouped) */}
+        {hovered && popupGrupos && (
+          <div
+            className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-3 py-2 rounded-xl shadow-xl pointer-events-none max-w-[320px]"
+            style={{ left: `${Math.min((item.start / TOTAL_WEEKS) * 100, 40)}%` }}
+          >
+            <p className="font-heading font-bold text-[11px] mb-2">{item.label}</p>
+            <p className="text-background/70 mb-2">{item.dias}</p>
+            <div className="space-y-2 max-h-[260px] overflow-auto">
+              {popupGrupos.map((g, gi) => (
+                <div key={gi}>
+                  <p className="font-heading font-semibold text-[10px] text-accent mb-0.5 uppercase tracking-wide">{g.grupo}</p>
+                  {g.items.map((it, ii) => (
+                    <div key={ii} className="flex items-start gap-1.5 py-0.5">
+                      <span className="w-1 h-1 rounded-full bg-accent shrink-0 mt-1" />
+                      <span className="leading-snug">{it}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
