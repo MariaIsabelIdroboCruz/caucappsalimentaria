@@ -75,7 +75,7 @@ const phases: GanttPhase[] = [
     colorBg: "bg-secondary/80",
     colorRing: "ring-secondary/30",
     colorDot: "text-secondary",
-    summary: ["14 talleres", "1.400 participantes", "7 subregiones"],
+    summary: ["20 talleres", "2.000 participantes", "9 zonas operativas"],
     tasks: [
       { id: "q1", label: "Revisión info. secundaria cualitativa", start: 8, dur: 2, dias: "Abr 6–17 · 10 días", hito: false },
       { id: "q2", label: "Acercamiento líderes y actores", start: 9, dur: 3, dias: "Abr 13 – May 1 · 15 días", hito: false, dependsOn: "q1" },
