@@ -291,11 +291,15 @@ const zonePaths: Record<string, string> = {
 
 // ─── Main Component ──────────────────────────
 const CaucaMap: React.FC = () => {
-  const [active, setActive] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [hovered, setHovered] = useState<string | null>(null);
 
-  const focusedId = selected ?? active;
+  const focusedId = selected ?? hovered;
   const focusedData = zonas.find((z) => z.id === focusedId);
+
+  const handleZoneClick = (id: string) => {
+    setSelected(prev => prev === id ? null : id);
+  };
 
   return (
     <motion.div
@@ -306,13 +310,23 @@ const CaucaMap: React.FC = () => {
       className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
     >
       {/* Header */}
-      <div className="px-6 pt-5 pb-2">
-        <h3 className="font-heading font-bold text-lg text-foreground">
-          Mapa Interactivo del Cauca — 7 Subregiones / 9 Zonas
-        </h3>
-        <p className="text-xs text-muted-foreground font-body mt-1">
-          Haz clic en una zona coloreada para ver municipios y actores a convocar · 1 taller diferencial por zona
-        </p>
+      <div className="px-6 pt-5 pb-3 border-b border-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h3 className="font-heading font-bold text-lg text-foreground">
+            Mapa Interactivo del Cauca
+          </h3>
+          <p className="text-xs text-muted-foreground font-body mt-0.5">
+            7 Subregiones · 9 Zonas operativas · 1 taller diferencial por zona
+          </p>
+        </div>
+        {selected && (
+          <button
+            onClick={() => setSelected(null)}
+            className="flex items-center gap-1.5 text-xs font-heading font-semibold text-primary hover:text-primary/80 transition-colors bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-full self-start sm:self-auto"
+          >
+            ← Ver todas las zonas
+          </button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
@@ -325,35 +339,44 @@ const CaucaMap: React.FC = () => {
               role="img"
               aria-label="Mapa interactivo del Departamento del Cauca con 9 zonas operativas"
             >
-
               {/* Zone fills */}
               {zonas.map((zona) => {
-                const isFocused = focusedId === zona.id;
-                const isDimmed = focusedId !== null && !isFocused;
+                const isSelected = selected === zona.id;
+                const isHovered = hovered === zona.id && !selected;
+                const isActive = isSelected || isHovered;
+                // All zones always visible — only dim non-selected when one is selected
+                const opacity = selected
+                  ? isSelected ? 0.9 : 0.3
+                  : isHovered ? 0.85 : 0.65;
+
                 return (
                   <path
                     key={zona.id}
                     d={zonePaths[zona.id]}
                     fill={zona.color}
-                    fillOpacity={isFocused ? 0.82 : isDimmed ? 0.18 : 0.58}
+                    fillOpacity={opacity}
                     stroke="white"
-                    strokeWidth={isFocused ? 2.5 : 1.2}
-                    strokeOpacity={isFocused ? 1 : 0.6}
-                    className="cursor-pointer transition-all duration-300"
+                    strokeWidth={isActive ? 2.8 : 1.4}
+                    strokeOpacity={isActive ? 1 : 0.7}
+                    className="cursor-pointer transition-all duration-200"
                     style={{
-                      filter: isFocused ? `drop-shadow(0 0 6px ${zona.color}88)` : "none",
+                      filter: isActive ? `drop-shadow(0 0 7px ${zona.color}99)` : "none",
                     }}
-                    onMouseEnter={() => !selected && setActive(zona.id)}
-                    onMouseLeave={() => !selected && setActive(null)}
-                    onClick={() => setSelected(selected === zona.id ? null : zona.id)}
+                    onMouseEnter={() => setHovered(zona.id)}
+                    onMouseLeave={() => setHovered(null)}
+                    onClick={() => handleZoneClick(zona.id)}
+                    role="button"
+                    aria-label={`${zona.name} — ${zona.subregion}`}
+                    tabIndex={0}
+                    onKeyDown={e => e.key === "Enter" && handleZoneClick(zona.id)}
                   />
                 );
               })}
 
-              {/* Zone labels */}
+              {/* Zone labels — always readable */}
               {zonas.map((zona) => {
-                const isFocused = focusedId === zona.id;
-                const isDimmed = focusedId !== null && !isFocused;
+                const isActive = selected === zona.id || (!selected && hovered === zona.id);
+                const isDimmed = selected && selected !== zona.id;
                 return (
                   <g key={`label-${zona.id}`} className="pointer-events-none select-none">
                     <text
@@ -362,175 +385,182 @@ const CaucaMap: React.FC = () => {
                       textAnchor="middle"
                       dominantBaseline="central"
                       fill="white"
-                      fontSize={isFocused ? 13 : 11}
+                      fontSize={isActive ? 13 : 11}
                       fontWeight="bold"
-                      opacity={isDimmed ? 0.3 : 1}
-                      style={{ textShadow: `0 1px 4px rgba(0,0,0,0.8)` }}
+                      opacity={isDimmed ? 0.4 : 1}
+                      style={{ filter: "drop-shadow(0 1px 3px rgba(0,0,0,0.9))" }}
                     >
                       {zona.name}
                     </text>
                   </g>
                 );
               })}
-
-              {/* Click-to-deselect hint */}
-              {selected && (
-                <text x="405" y="670" textAnchor="middle" fill="#666" fontSize="10" className="pointer-events-none">
-                  Clic en la zona para deseleccionar
-                </text>
-              )}
             </svg>
+            <p className="text-center text-[11px] text-muted-foreground font-body mt-1">
+              {selected ? "Clic en otra zona para navegar · Clic en la zona activa para deseleccionar" : "Clic o hover en una zona para explorar"}
+            </p>
           </div>
         </div>
 
         {/* ── INFO PANEL ── */}
-        <div className="lg:col-span-2 border-t lg:border-t-0 lg:border-l border-border">
-          <AnimatePresence mode="wait">
-            {focusedData ? (
-              <motion.div
-                key={focusedData.id}
-                initial={{ opacity: 0, x: 18 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -18 }}
-                transition={{ duration: 0.22 }}
-                className="p-5 h-full"
-              >
-                {/* Zone header */}
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
+        <div className="lg:col-span-2 border-t lg:border-t-0 lg:border-l border-border flex flex-col">
+
+          {/* Zone list — always visible as quick nav */}
+          <div className="px-4 pt-3 pb-2 border-b border-border/60 bg-muted/20">
+            <p className="text-[10px] font-heading font-semibold text-muted-foreground uppercase tracking-widest mb-2">
+              Navegar por zona
+            </p>
+            <div className="flex flex-wrap gap-1.5">
+              {zonas.map((z) => (
+                <button
+                  key={z.id}
+                  onClick={() => handleZoneClick(z.id)}
+                  onMouseEnter={() => setHovered(z.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-heading font-semibold border transition-all ${
+                    selected === z.id
+                      ? "text-white shadow-sm scale-105"
+                      : "text-foreground bg-background hover:scale-105 border-border/60 hover:shadow-sm"
+                  }`}
+                  style={
+                    selected === z.id
+                      ? { backgroundColor: z.color, borderColor: z.color }
+                      : { borderColor: `${z.color}55` }
+                  }
+                  aria-pressed={selected === z.id}
+                  title={z.subregion}
+                >
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: z.color }}
+                  />
+                  {z.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Detail panel */}
+          <div className="flex-1 overflow-y-auto">
+            <AnimatePresence mode="wait">
+              {focusedData ? (
+                <motion.div
+                  key={focusedData.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.18 }}
+                  className="p-5"
+                >
+                  {/* Zone header */}
+                  <div className="flex items-center gap-3 mb-3">
                     <div
-                      className="w-5 h-5 rounded-md shrink-0 shadow-sm"
+                      className="w-4 h-10 rounded-full shrink-0"
                       style={{ backgroundColor: focusedData.color }}
                     />
                     <div>
-                      <h4 className="font-heading font-bold text-lg text-foreground leading-tight">
+                      <h4 className="font-heading font-bold text-base text-foreground leading-tight">
                         {focusedData.name}
                       </h4>
                       <p className="text-xs text-muted-foreground font-body">{focusedData.subregion}</p>
                     </div>
                   </div>
-                  {selected && (
-                    <button
-                      onClick={() => setSelected(null)}
-                      className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
-                    >
-                      <X size={15} />
-                    </button>
-                  )}
-                </div>
 
-                {/* Taller badge */}
-                <div
-                  className="rounded-xl px-4 py-2 mb-4 border"
-                  style={{
-                    backgroundColor: `${focusedData.color}15`,
-                    borderColor: `${focusedData.color}40`,
-                  }}
-                >
-                  <p className="text-xs font-heading font-semibold" style={{ color: focusedData.color }}>
-                    📍 {focusedData.taller}
-                  </p>
-                </div>
-
-                {/* Municipios */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MapPin size={13} className="text-muted-foreground" />
-                    <p className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wide">
-                      Municipios ({focusedData.municipios.length})
+                  {/* Taller badge */}
+                  <div
+                    className="rounded-xl px-4 py-2 mb-4 border"
+                    style={{
+                      backgroundColor: `${focusedData.color}15`,
+                      borderColor: `${focusedData.color}40`,
+                    }}
+                  >
+                    <p className="text-xs font-heading font-semibold" style={{ color: focusedData.color }}>
+                      📍 {focusedData.taller}
                     </p>
                   </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {focusedData.municipios.map((m) => (
-                      <span
-                        key={m}
-                        className="px-2.5 py-1 rounded-lg text-xs font-body font-medium border"
-                        style={{
-                          backgroundColor: `${focusedData.color}12`,
-                          borderColor: `${focusedData.color}35`,
-                          color: focusedData.color,
-                        }}
-                      >
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                </div>
 
-                {/* Actores */}
-                <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Users size={13} className="text-muted-foreground" />
-                    <p className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wide">
-                      Actores a Convocar ({focusedData.actores.length})
-                    </p>
-                  </div>
-                  <div className="max-h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
-                    {focusedData.actores.map((a, i) => (
-                      <div key={i} className="flex items-start gap-2 text-xs font-body text-foreground">
+                  {/* Municipios */}
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <MapPin size={13} className="text-muted-foreground" />
+                      <p className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wide">
+                        Municipios ({focusedData.municipios.length})
+                      </p>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5">
+                      {focusedData.municipios.map((m) => (
                         <span
-                          className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
-                          style={{ backgroundColor: focusedData.color }}
-                        />
-                        <span className="leading-relaxed">{a}</span>
-                      </div>
-                    ))}
+                          key={m}
+                          className="px-2.5 py-1 rounded-lg text-xs font-body font-medium border"
+                          style={{
+                            backgroundColor: `${focusedData.color}12`,
+                            borderColor: `${focusedData.color}35`,
+                            color: focusedData.color,
+                          }}
+                        >
+                          {m}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="placeholder"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="p-5 h-full flex flex-col"
-              >
-                <p className="text-muted-foreground font-body text-sm text-center mb-5 mt-2">
-                  👆 Selecciona una zona del mapa
-                </p>
-                <div className="space-y-1.5 overflow-y-auto">
-                  {zonas.map((z) => (
-                    <button
-                      key={z.id}
-                      onMouseEnter={() => setActive(z.id)}
-                      onMouseLeave={() => setActive(null)}
-                      onClick={() => setSelected(z.id)}
-                      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-muted transition-colors text-left group"
-                    >
-                      <div
-                        className="w-3.5 h-3.5 rounded shrink-0 transition-transform group-hover:scale-125"
-                        style={{ backgroundColor: z.color }}
-                      />
-                      <div className="flex-1 min-w-0">
-                        <span className="text-xs font-heading font-bold text-foreground">{z.name}</span>
-                        <span className="text-xs text-muted-foreground font-body ml-1.5 truncate">{z.subregion}</span>
-                      </div>
-                      <span className="text-[10px] text-muted-foreground shrink-0">{z.municipios.length} mun.</span>
-                    </button>
-                  ))}
-                </div>
 
-                {/* Legend */}
-                <div className="mt-4 pt-4 border-t border-border">
-                  <p className="text-[10px] font-heading font-semibold text-muted-foreground uppercase tracking-wide mb-2">Leyenda</p>
-                  <div className="grid grid-cols-2 gap-1">
-                    {[
-                      { label: "7 Subregiones", val: "geográficas" },
-                      { label: "9 Zonas", val: "operativas" },
-                      { label: "1 Taller", val: "por zona" },
-                      { label: "42 Municipios", val: "intervenidos" },
-                    ].map((l, i) => (
-                      <div key={i} className="bg-muted/50 rounded-lg px-2 py-1.5 text-center">
-                        <p className="font-heading font-bold text-xs text-foreground">{l.label}</p>
-                        <p className="text-[10px] text-muted-foreground">{l.val}</p>
-                      </div>
-                    ))}
+                  {/* Actores */}
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Users size={13} className="text-muted-foreground" />
+                      <p className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wide">
+                        Actores a Convocar ({focusedData.actores.length})
+                      </p>
+                    </div>
+                    <div className="space-y-1">
+                      {focusedData.actores.map((a, i) => (
+                        <div key={i} className="flex items-start gap-2 text-xs font-body text-foreground">
+                          <span
+                            className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                            style={{ backgroundColor: focusedData.color }}
+                          />
+                          <span className="leading-relaxed">{a}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="p-5 flex flex-col items-center justify-center h-48 text-center"
+                >
+                  <div className="text-3xl mb-3">🗺️</div>
+                  <p className="text-muted-foreground font-body text-sm font-medium">
+                    Selecciona una zona
+                  </p>
+                  <p className="text-muted-foreground font-body text-xs mt-1">
+                    Usa los botones de arriba o haz clic en el mapa
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Footer stats */}
+          <div className="border-t border-border px-4 py-3 bg-muted/20">
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                { label: "Subregiones", val: "7" },
+                { label: "Zonas", val: "9" },
+                { label: "Talleres", val: "20" },
+                { label: "Municipios", val: "42" },
+              ].map((l, i) => (
+                <div key={i} className="text-center">
+                  <p className="font-heading font-black text-sm text-primary">{l.val}</p>
+                  <p className="text-[10px] text-muted-foreground font-body leading-tight">{l.label}</p>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </motion.div>
