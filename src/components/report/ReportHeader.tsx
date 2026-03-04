@@ -26,10 +26,11 @@ const ReportHeader: React.FC = () => {
         <div className="flex items-center gap-4">
           <nav className="hidden lg:flex items-center gap-6 text-sm font-body text-muted-foreground">
             <a href="#contexto" className="hover:text-primary transition-colors">Contexto</a>
-            <a href="#problema" className="hover:text-primary transition-colors">Problema</a>
-            <a href="#plan" className="text-primary font-semibold hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1 rounded-full">Plan de Acción</a>
-            <a href="#cronograma" className="hover:text-primary transition-colors">Cronograma</a>
+            <a href="#marco" className="hover:text-primary transition-colors">Marco Legal</a>
+            <a href="#poblacion" className="hover:text-primary transition-colors">Población</a>
+            <a href="#cronograma" className="text-primary font-semibold hover:text-primary/80 transition-colors bg-primary/10 px-3 py-1 rounded-full">Cronograma</a>
             <a href="#riesgos" className="hover:text-primary transition-colors">Riesgos</a>
+            <a href="#conclusion" className="hover:text-primary transition-colors">Conclusión</a>
           </nav>
           <button
             onClick={handleExportPDF}
