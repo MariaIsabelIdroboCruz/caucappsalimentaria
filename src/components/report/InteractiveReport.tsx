@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield,
@@ -114,47 +114,115 @@ const Accordion: React.FC<{ title: string; icon?: React.ReactNode; children: Rea
   );
 };
 
+// ─── Reading Progress Bar ───────────────────────
+const ReadingProgress: React.FC = () => {
+  const [progress, setProgress] = React.useState(0);
+  useEffect(() => {
+    const onScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  return (
+    <div className="fixed top-0 left-0 right-0 z-[60] h-1 bg-border/40 print:hidden">
+      <motion.div
+        className="h-full bg-primary origin-left"
+        style={{ scaleX: progress / 100 }}
+        transition={{ type: "spring", stiffness: 200, damping: 30 }}
+      />
+    </div>
+  );
+};
+
 // ─── MAIN COMPONENT ─────────────────────────────
 const InteractiveReport: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
+      <ReadingProgress />
       <ReportHeader />
 
       {/* ═══ 1. HERO / PORTADA ═══ */}
-      <section id="hero" className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
-        <img src={heroCauca} alt="Cauca" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/75 to-foreground/20" />
-        <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10 text-center px-6 max-w-5xl">
-          <motion.div variants={fadeUp} className="h-1 w-24 bg-primary rounded mx-auto mb-6" />
-          <motion.h1 variants={fadeUp} className="font-heading font-black text-4xl md:text-6xl text-primary-foreground leading-tight mb-6">
+      <section
+        id="hero"
+        aria-label="Portada del proyecto"
+        className="relative min-h-[92vh] flex items-center justify-center overflow-hidden"
+      >
+        <img
+          src={heroCauca}
+          alt="Paisaje del Departamento del Cauca, Colombia"
+          className="absolute inset-0 w-full h-full object-cover"
+          loading="eager"
+        />
+        {/* Stronger gradient for better text contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-foreground/95 via-foreground/70 to-foreground/25" />
+
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={stagger}
+          className="relative z-10 text-center px-6 max-w-4xl"
+        >
+          <motion.div variants={fadeUp} className="h-1 w-20 bg-primary rounded mx-auto mb-8" />
+          <motion.h1
+            variants={fadeUp}
+            className="font-heading font-black text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5 drop-shadow-lg"
+          >
             Construcción de la Política Pública de{" "}
             <span className="text-accent">Seguridad y Soberanía Alimentaria</span>{" "}
             en el Cauca
           </motion.h1>
-          <motion.p variants={fadeUp} className="text-xl text-primary-foreground/80 font-body mb-4">
+          <motion.p variants={fadeUp} className="text-lg md:text-xl text-white/85 font-body mb-3 leading-relaxed">
             Plan de Acción Pre-Fases y Cronograma de Implementación
           </motion.p>
-          <motion.p variants={fadeUp} className="text-sm text-primary-foreground/60 font-body mb-8">
+          <motion.p variants={fadeUp} className="text-sm text-white/60 font-body mb-10">
             Secretaría de Agricultura y Desarrollo Rural · Febrero 2026
           </motion.p>
+          {/* Scroll CTA */}
+          <motion.a
+            variants={fadeUp}
+            href="#cifras-clave"
+            aria-label="Ver cifras clave del proyecto"
+            className="inline-flex flex-col items-center gap-2 text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg p-2"
+          >
+            <span className="text-xs font-heading font-semibold uppercase tracking-widest">Explorar</span>
+            <motion.div
+              animate={{ y: [0, 6, 0] }}
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <ChevronDown size={24} />
+            </motion.div>
+          </motion.a>
         </motion.div>
       </section>
 
       {/* ═══ CIFRAS CLAVE ═══ */}
       <div id="cifras-clave" className="bg-card border-y border-border">
-        <div className="max-w-7xl mx-auto px-6 py-10">
+        <div className="max-w-7xl mx-auto px-6 py-12">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger}>
             <motion.p variants={fadeUp} className="text-center font-heading font-bold text-sm uppercase tracking-widest text-primary mb-8">
               Cifras Clave del Proyecto
             </motion.p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-4 divide-x divide-border">
-              <HeroStat value="7,560" label="Encuestas totales" />
-              <HeroStat value="420" label="Encuestadores" />
-              <HeroStat value="9" label="Zonas operativas" />
-              <HeroStat value="12" label="Meses de duración" />
-              <HeroStat value="42" label="Municipios" />
-              <HeroStat value="466K" label="Personas objetivo" />
-              <HeroStat value="20" label="Talleres diferenciales" />
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6">
+              {[
+                { value: "7.560", label: "Encuestas totales" },
+                { value: "420",   label: "Encuestadores" },
+                { value: "9",     label: "Zonas" },
+                { value: "12",    label: "Meses de duración" },
+                { value: "42",    label: "Municipios" },
+                { value: "466K",  label: "Personas objeto" },
+                { value: "20",    label: "Talleres diferenciales" },
+              ].map((s, i) => (
+                <motion.div
+                  key={i}
+                  variants={scaleIn}
+                  className="text-center px-3 py-4 rounded-xl hover:bg-muted/50 transition-colors"
+                >
+                  <p className="font-heading font-black text-3xl md:text-4xl text-primary leading-none">{s.value}</p>
+                  <p className="text-muted-foreground text-xs md:text-sm mt-2 font-body leading-snug">{s.label}</p>
+                </motion.div>
+              ))}
             </div>
           </motion.div>
         </div>
