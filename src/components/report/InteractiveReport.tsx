@@ -173,8 +173,7 @@ const InteractiveReport: React.FC = () => {
               <HeroStat value="12" label="Meses de duración" />
               <HeroStat value="42" label="Municipios" />
               <HeroStat value="466K" label="Personas objetivo" />
-              <HeroStat value="$943M" label="Presupuesto" />
-              <HeroStat value="9" label="Talleres diferenciales" />
+              <HeroStat value="20" label="Talleres diferenciales" />
             </div>
           </motion.div>
         </div>
@@ -188,12 +187,6 @@ const InteractiveReport: React.FC = () => {
           <SectionSummary>
             Visión general del proyecto: objetivo general, presupuesto total de $943.381.615, duración de 12 meses (Feb 2026–Ene 2027), Fase III (Factibilidad), con enfoque diferencial por ciclos de vida, género, étnico y campesino.
           </SectionSummary>
-          <motion.div variants={stagger} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-            <StatCard value="$943M" label="Presupuesto Total" icon={<BarChart3 size={24} />} />
-            <StatCard value="12" label="Meses Feb 2026–Ene 2027" icon={<Calendar size={24} />} color="bg-secondary" />
-            <StatCard value="42" label="Municipios Cubiertos" icon={<MapPin size={24} />} />
-            <StatCard value="Fase III" label="Factibilidad MGA" icon={<Target size={24} />} color="bg-accent" />
-          </motion.div>
           <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-card rounded-2xl border border-border p-6">
               <h3 className="font-heading font-bold text-lg text-foreground mb-3 flex items-center gap-2">
