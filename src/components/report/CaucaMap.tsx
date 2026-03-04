@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X } from "lucide-react";
+import { X, MapPin, Users } from "lucide-react";
+import caucaBase from "@/assets/mapa-cauca-base.png";
 
-// ─── Types ──────────────────────────────────
 interface ZonaData {
   id: string;
   name: string;
@@ -10,21 +10,21 @@ interface ZonaData {
   municipios: string[];
   taller: string;
   color: string;
-  cx: number;
-  cy: number;
+  labelX: number;
+  labelY: number;
   actores: string[];
 }
 
-// ─── Zones Data ──────────────────────────────────
+// ─── Zone Data ────────────────────────────────
 const zonas: ZonaData[] = [
   {
     id: "zona1",
     name: "Zona 1",
-    subregion: "Centro (Piendamó)",
+    subregion: "Centro — Piendamó",
     municipios: ["Piendamó", "Cajibío", "Morales", "Silvia"],
-    taller: "1 taller participativo en Piendamó",
-    color: "hsl(145, 63%, 32%)",
-    cx: 310, cy: 210,
+    taller: "1 taller participativo — sede Piendamó",
+    color: "#1a7a3e",
+    labelX: 415, labelY: 295,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Indígenas",
@@ -40,11 +40,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona2",
     name: "Zona 2",
-    subregion: "Norte (Santander de Quilichao)",
+    subregion: "Norte — Santander de Quilichao",
     municipios: ["Santander de Quilichao", "Caldono", "Buenos Aires", "Caloto", "Jambaló"],
-    taller: "1 taller participativo en Santander de Quilichao",
-    color: "hsl(145, 50%, 42%)",
-    cx: 370, cy: 110,
+    taller: "1 taller participativo — sede Santander de Quilichao",
+    color: "#2d9e5a",
+    labelX: 510, labelY: 195,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -61,11 +61,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona3",
     name: "Zona 3",
-    subregion: "Oriente (Inzá)",
+    subregion: "Oriente — Inzá",
     municipios: ["Inzá", "Páez (Belalcázar)", "Totoró"],
-    taller: "1 taller participativo en Inzá",
-    color: "hsl(30, 70%, 50%)",
-    cx: 450, cy: 175,
+    taller: "1 taller participativo — sede Inzá",
+    color: "#c97a1a",
+    labelX: 630, labelY: 255,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Indígenas",
@@ -81,11 +81,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona4",
     name: "Zona 4",
-    subregion: "Pacífico (Guapi)",
+    subregion: "Pacífico — Guapi",
     municipios: ["Guapi", "López de Micay", "Timbiquí"],
-    taller: "1 taller participativo en Guapi",
-    color: "hsl(200, 60%, 45%)",
-    cx: 100, cy: 240,
+    taller: "1 taller participativo — sede Guapi",
+    color: "#1a6ea0",
+    labelX: 175, labelY: 320,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -102,11 +102,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona5",
     name: "Zona 5",
-    subregion: "Sur (Bolívar - El Bordo)",
+    subregion: "Sur — Bolívar / El Bordo",
     municipios: ["El Bordo (Patía)", "Mercaderes", "Bolívar", "Florencia", "Sucre", "Balboa", "Argelia"],
-    taller: "1 taller participativo en El Bordo",
-    color: "hsl(0, 65%, 50%)",
-    cx: 270, cy: 390,
+    taller: "1 taller participativo — sede El Bordo",
+    color: "#b02828",
+    labelX: 320, labelY: 510,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -123,11 +123,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona6",
     name: "Zona 6",
-    subregion: "Centro (Popayán - Capital)",
+    subregion: "Centro Capital — Popayán",
     municipios: ["Popayán"],
-    taller: "1 taller participativo en Popayán",
-    color: "hsl(260, 50%, 50%)",
-    cx: 285, cy: 285,
+    taller: "1 taller participativo — sede Popayán",
+    color: "#6a3db8",
+    labelX: 420, labelY: 368,
     actores: [
       "ICA", "ICBF", "PAE Educación", "Proveedores PAE", "Galpones Ganaderos",
       "Cámara de Comercio", "Emcaservicios", "CRC", "Acueducto de Popayán",
@@ -145,11 +145,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona7",
     name: "Zona 7",
-    subregion: "Centro (Timbío - Rosas)",
+    subregion: "Centro Sur — Timbío / Rosas",
     municipios: ["Timbío", "Rosas", "La Sierra", "Sotará"],
-    taller: "1 taller participativo en Timbío",
-    color: "hsl(340, 55%, 50%)",
-    cx: 330, cy: 320,
+    taller: "1 taller participativo — sede Timbío",
+    color: "#c0404a",
+    labelX: 455, labelY: 440,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -166,11 +166,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona8",
     name: "Zona 8",
-    subregion: "Macizo (La Vega)",
+    subregion: "Macizo — La Vega",
     municipios: ["La Vega", "San Sebastián", "Almaguer"],
-    taller: "1 taller participativo en La Vega",
-    color: "hsl(280, 45%, 50%)",
-    cx: 390, cy: 360,
+    taller: "1 taller participativo — sede La Vega",
+    color: "#7a3daa",
+    labelX: 530, labelY: 490,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -187,11 +187,11 @@ const zonas: ZonaData[] = [
   {
     id: "zona9",
     name: "Zona 9",
-    subregion: "Bota Caucana (Piamonte)",
+    subregion: "Bota Caucana — Piamonte",
     municipios: ["Santa Rosa", "Piamonte"],
-    taller: "1 taller participativo en Piamonte",
-    color: "hsl(170, 55%, 38%)",
-    cx: 460, cy: 450,
+    taller: "1 taller participativo — sede Piamonte",
+    color: "#1a8a7a",
+    labelX: 580, labelY: 610,
     actores: [
       "Campesinos (se aterriza en cada municipio)",
       "Consejos comunitarios",
@@ -207,23 +207,96 @@ const zonas: ZonaData[] = [
   },
 ];
 
-// ─── Approximate region paths grouped by zone ──────────────────
-const zonasPaths: Record<string, string> = {
-  zona1: "M 240 175 L 300 165 L 345 185 L 355 230 L 325 255 L 265 250 L 235 220 Z",
-  zona2: "M 290 55 L 400 40 L 430 90 L 415 145 L 360 160 L 310 150 L 275 110 L 270 70 Z",
-  zona3: "M 415 145 L 485 115 L 510 165 L 500 225 L 450 250 L 405 230 L 390 185 Z",
-  zona4: "M 50 150 L 150 120 L 195 170 L 200 240 L 210 290 L 170 340 L 100 310 L 55 250 Z",
-  zona5: "M 175 355 L 275 330 L 310 360 L 325 415 L 295 455 L 225 460 L 175 435 L 150 390 Z",
-  zona6: "M 240 250 L 325 255 L 350 290 L 340 335 L 295 345 L 250 335 L 225 300 Z",
-  zona7: "M 295 345 L 365 330 L 395 360 L 380 405 L 345 415 L 310 400 L 295 370 Z",
-  zona8: "M 365 330 L 430 320 L 460 365 L 445 415 L 400 430 L 360 415 L 355 380 Z",
-  zona9: "M 445 415 L 510 400 L 530 455 L 510 500 L 455 510 L 415 480 L 420 445 Z",
+/**
+ * SVG zone paths traced to match the real Cauca department map.
+ * ViewBox: 0 0 810 685  (matches the reference map image proportions)
+ *
+ * Zone layout (approximate geographic areas):
+ *  Z1 Centro-Piendamó    — center cluster
+ *  Z2 Norte              — northeast quadrant
+ *  Z3 Oriente            — far right bulge
+ *  Z4 Pacífico           — entire left/west coast strip
+ *  Z5 Sur                — lower-center left
+ *  Z6 Popayán capital    — small center node
+ *  Z7 Timbío-Rosas       — center-south cluster
+ *  Z8 Macizo             — south-center-right
+ *  Z9 Bota Caucana       — far south-east peninsula
+ */
+const zonePaths: Record<string, string> = {
+  // ZONA 4 — Pacífico (large western coast, painted first / underneath)
+  zona4:
+    "M 95 115 L 150 85 L 200 95 L 245 115 L 280 145 L 300 185 L 310 235 " +
+    "L 305 285 L 290 325 L 275 365 L 260 405 L 240 440 L 215 470 L 185 490 " +
+    "L 155 500 L 125 490 L 100 465 L 78 430 L 65 390 L 58 345 L 60 295 " +
+    "L 68 245 L 75 195 L 82 155 Z",
+
+  // ZONA 2 — Norte (north/northeast cluster, complex border)
+  zona2:
+    "M 355 48 L 400 40 L 440 44 L 475 52 L 510 58 L 545 68 L 570 82 " +
+    "L 590 100 L 600 118 L 595 138 L 575 155 L 555 170 L 528 182 " +
+    "L 500 190 L 470 195 L 445 200 L 415 205 L 395 215 L 375 228 " +
+    "L 355 238 L 335 230 L 315 220 L 300 210 L 295 195 L 300 180 " +
+    "L 310 165 L 320 148 L 330 128 L 340 108 L 348 78 Z",
+
+  // ZONA 3 — Oriente (right bulge)
+  zona3:
+    "M 570 82 L 610 72 L 650 68 L 685 75 L 710 92 L 725 115 L 730 140 " +
+    "L 725 168 L 710 195 L 690 215 L 668 232 L 645 245 L 620 255 " +
+    "L 598 258 L 575 255 L 555 240 L 540 220 L 528 200 L 528 182 " +
+    "L 545 168 L 565 155 L 580 138 L 595 118 L 590 100 Z",
+
+  // ZONA 1 — Centro-Piendamó (center area, smallish)
+  zona1:
+    "M 300 185 L 335 175 L 355 168 L 375 175 L 395 185 L 415 192 " +
+    "L 435 198 L 445 200 L 415 205 L 395 215 L 375 228 L 355 238 " +
+    "L 335 248 L 320 258 L 305 270 L 295 285 L 290 300 L 292 318 " +
+    "L 295 335 L 300 350 L 295 365 " +
+    "L 285 370 L 275 365 L 275 345 L 280 325 L 285 305 L 290 285 " +
+    "L 295 265 L 300 245 L 305 225 L 305 205 L 300 185 Z",
+
+  // ZONA 6 — Popayán capital (center, small)
+  zona6:
+    "M 358 345 L 380 338 L 398 340 L 415 348 L 425 360 L 422 375 " +
+    "L 408 385 L 390 390 L 370 386 L 355 375 L 352 360 Z",
+
+  // ZONA 7 — Timbío-Rosas (center-south)
+  zona7:
+    "M 395 390 L 428 382 L 450 385 L 468 395 L 480 410 L 485 428 " +
+    "L 478 448 L 462 460 L 442 465 L 420 460 L 405 448 L 395 430 " +
+    "L 390 410 Z",
+
+  // ZONA 5 — Sur (lower-left, large)
+  zona5:
+    "M 295 365 L 300 350 L 320 355 L 345 358 L 358 345 " +
+    "L 352 360 L 355 375 L 370 386 L 390 390 " +
+    "L 390 410 L 395 430 L 405 448 L 420 460 L 442 465 " +
+    "L 445 480 L 440 500 L 428 518 L 412 530 L 390 538 " +
+    "L 368 538 L 348 528 L 328 515 L 310 498 L 292 480 " +
+    "L 278 460 L 265 440 L 253 418 L 248 395 L 248 370 " +
+    "L 255 355 L 268 348 L 285 348 Z",
+
+  // ZONA 8 — Macizo (south center-right)
+  zona8:
+    "M 468 395 L 490 390 L 512 392 L 532 400 L 548 415 " +
+    "L 555 435 L 550 455 L 538 472 L 520 482 L 500 488 " +
+    "L 480 482 L 462 468 L 462 460 L 478 448 L 485 428 " +
+    "L 480 410 Z",
+
+  // ZONA 9 — Bota Caucana (southeast peninsula)
+  zona9:
+    "M 548 415 L 565 410 L 585 408 L 608 412 L 628 422 " +
+    "L 642 438 L 650 458 L 652 480 L 646 500 L 634 518 " +
+    "L 618 532 L 600 540 L 580 542 L 562 535 L 550 520 " +
+    "L 542 502 L 538 482 L 538 460 L 540 438 L 544 420 Z",
 };
 
+// ─── Main Component ──────────────────────────
 const CaucaMap: React.FC = () => {
   const [active, setActive] = useState<string | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
-  const activeData = zonas.find((z) => z.id === (selected || active));
+
+  const focusedId = selected ?? active;
+  const focusedData = zonas.find((z) => z.id === focusedId);
 
   return (
     <motion.div
@@ -231,124 +304,184 @@ const CaucaMap: React.FC = () => {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6 }}
-      className="bg-card rounded-2xl border border-border p-6 shadow-sm"
+      className="bg-card rounded-2xl border border-border shadow-sm overflow-hidden"
     >
-      <h3 className="font-heading font-bold text-lg mb-1 text-center">
-        Mapa Interactivo del Cauca — 7 Subregiones / 9 Zonas Operativas
-      </h3>
-      <p className="text-center text-xs text-muted-foreground mb-4 font-body">
-        Haz clic en una zona para ver detalle de municipios y actores · 1 taller diferencial por zona
-      </p>
+      {/* Header */}
+      <div className="px-6 pt-5 pb-2">
+        <h3 className="font-heading font-bold text-lg text-foreground">
+          Mapa Interactivo del Cauca — 7 Subregiones / 9 Zonas Operativas
+        </h3>
+        <p className="text-xs text-muted-foreground font-body mt-1">
+          Haz clic en una zona coloreada para ver municipios y actores a convocar · 1 taller diferencial por zona
+        </p>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Map SVG */}
-        <div className="lg:col-span-3 flex justify-center relative">
-          <svg
-            viewBox="0 0 560 540"
-            className="w-full max-w-[440px]"
-            role="img"
-            aria-label="Mapa del Departamento del Cauca — 9 Zonas Operativas"
-          >
-            <defs>
-              <filter id="shadow-zone" x="-8%" y="-8%" width="116%" height="116%">
-                <feDropShadow dx="0" dy="3" stdDeviation="4" floodOpacity="0.2" />
-              </filter>
-            </defs>
+      <div className="grid grid-cols-1 lg:grid-cols-5 gap-0">
+        {/* ── MAP ── */}
+        <div className="lg:col-span-3 p-4 flex items-center justify-center bg-muted/20">
+          <div className="relative w-full max-w-[540px]">
+            <svg
+              viewBox="0 0 810 685"
+              className="w-full h-auto"
+              role="img"
+              aria-label="Mapa interactivo del Departamento del Cauca con 9 zonas operativas"
+            >
+              {/* Base map image */}
+              <image
+                href={caucaBase}
+                x="0" y="0"
+                width="810" height="685"
+                preserveAspectRatio="xMidYMid meet"
+                opacity="0.35"
+              />
 
-            {zonas.map((zona) => (
-              <g key={zona.id}>
-                <path
-                  d={zonasPaths[zona.id]}
-                  fill={zona.color}
-                  stroke="white"
-                  strokeWidth={(selected === zona.id || active === zona.id) ? 3 : 1.5}
-                  opacity={(!active && !selected) || active === zona.id || selected === zona.id ? 1 : 0.35}
-                  className="cursor-pointer transition-all duration-300"
-                  onMouseEnter={() => !selected && setActive(zona.id)}
-                  onMouseLeave={() => !selected && setActive(null)}
-                  onClick={() => setSelected(selected === zona.id ? null : zona.id)}
-                  filter={(selected === zona.id || active === zona.id) ? "url(#shadow-zone)" : undefined}
-                />
-                <text
-                  x={zona.cx}
-                  y={zona.cy - 6}
-                  textAnchor="middle"
-                  className="pointer-events-none select-none"
-                  fill="white"
-                  fontSize={10}
-                  fontWeight="bold"
-                >
-                  {zona.name}
+              {/* Zone fills */}
+              {zonas.map((zona) => {
+                const isFocused = focusedId === zona.id;
+                const isDimmed = focusedId !== null && !isFocused;
+                return (
+                  <path
+                    key={zona.id}
+                    d={zonePaths[zona.id]}
+                    fill={zona.color}
+                    fillOpacity={isFocused ? 0.82 : isDimmed ? 0.18 : 0.58}
+                    stroke="white"
+                    strokeWidth={isFocused ? 2.5 : 1.2}
+                    strokeOpacity={isFocused ? 1 : 0.6}
+                    className="cursor-pointer transition-all duration-300"
+                    style={{
+                      filter: isFocused ? `drop-shadow(0 0 6px ${zona.color}88)` : "none",
+                    }}
+                    onMouseEnter={() => !selected && setActive(zona.id)}
+                    onMouseLeave={() => !selected && setActive(null)}
+                    onClick={() => setSelected(selected === zona.id ? null : zona.id)}
+                  />
+                );
+              })}
+
+              {/* Zone labels */}
+              {zonas.map((zona) => {
+                const isFocused = focusedId === zona.id;
+                const isDimmed = focusedId !== null && !isFocused;
+                return (
+                  <g key={`label-${zona.id}`} className="pointer-events-none select-none">
+                    <text
+                      x={zona.labelX}
+                      y={zona.labelY}
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fill="white"
+                      fontSize={isFocused ? 13 : 11}
+                      fontWeight="bold"
+                      opacity={isDimmed ? 0.3 : 1}
+                      style={{ textShadow: `0 1px 4px rgba(0,0,0,0.8)` }}
+                    >
+                      {zona.name}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Click-to-deselect hint */}
+              {selected && (
+                <text x="405" y="670" textAnchor="middle" fill="#666" fontSize="10" className="pointer-events-none">
+                  Clic en la zona para deseleccionar
                 </text>
-                <text
-                  x={zona.cx}
-                  y={zona.cy + 8}
-                  textAnchor="middle"
-                  className="pointer-events-none select-none"
-                  fill="rgba(255,255,255,0.8)"
-                  fontSize={8}
-                >
-                  {zona.municipios.length} mun.
-                </text>
-              </g>
-            ))}
-          </svg>
+              )}
+            </svg>
+          </div>
         </div>
 
-        {/* Info panel */}
-        <div className="lg:col-span-2 flex flex-col">
+        {/* ── INFO PANEL ── */}
+        <div className="lg:col-span-2 border-t lg:border-t-0 lg:border-l border-border">
           <AnimatePresence mode="wait">
-            {activeData ? (
+            {focusedData ? (
               <motion.div
-                key={activeData.id}
-                initial={{ opacity: 0, x: 20 }}
+                key={focusedData.id}
+                initial={{ opacity: 0, x: 18 }}
                 animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.25 }}
-                className="space-y-4"
+                exit={{ opacity: 0, x: -18 }}
+                transition={{ duration: 0.22 }}
+                className="p-5 h-full"
               >
-                <div className="flex items-center justify-between">
+                {/* Zone header */}
+                <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded shrink-0" style={{ backgroundColor: activeData.color }} />
+                    <div
+                      className="w-5 h-5 rounded-md shrink-0 shadow-sm"
+                      style={{ backgroundColor: focusedData.color }}
+                    />
                     <div>
-                      <h4 className="font-heading font-bold text-lg text-foreground leading-tight">{activeData.name}</h4>
-                      <p className="text-xs text-muted-foreground font-body">{activeData.subregion}</p>
+                      <h4 className="font-heading font-bold text-lg text-foreground leading-tight">
+                        {focusedData.name}
+                      </h4>
+                      <p className="text-xs text-muted-foreground font-body">{focusedData.subregion}</p>
                     </div>
                   </div>
                   {selected && (
-                    <button onClick={() => setSelected(null)} className="text-muted-foreground hover:text-foreground transition-colors">
-                      <X size={16} />
+                    <button
+                      onClick={() => setSelected(null)}
+                      className="text-muted-foreground hover:text-foreground transition-colors p-1 rounded-lg hover:bg-muted"
+                    >
+                      <X size={15} />
                     </button>
                   )}
                 </div>
 
                 {/* Taller badge */}
-                <div className="bg-primary/10 border border-primary/30 rounded-xl px-4 py-2">
-                  <p className="text-xs font-heading font-semibold text-primary">📍 {activeData.taller}</p>
+                <div
+                  className="rounded-xl px-4 py-2 mb-4 border"
+                  style={{
+                    backgroundColor: `${focusedData.color}15`,
+                    borderColor: `${focusedData.color}40`,
+                  }}
+                >
+                  <p className="text-xs font-heading font-semibold" style={{ color: focusedData.color }}>
+                    📍 {focusedData.taller}
+                  </p>
                 </div>
 
                 {/* Municipios */}
-                <div>
-                  <p className="text-xs font-heading font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
-                    Municipios ({activeData.municipios.length})
-                  </p>
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MapPin size={13} className="text-muted-foreground" />
+                    <p className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wide">
+                      Municipios ({focusedData.municipios.length})
+                    </p>
+                  </div>
                   <div className="flex flex-wrap gap-1.5">
-                    {activeData.municipios.map((m) => (
-                      <span key={m} className="bg-muted text-foreground px-2 py-0.5 rounded text-xs font-body">{m}</span>
+                    {focusedData.municipios.map((m) => (
+                      <span
+                        key={m}
+                        className="px-2.5 py-1 rounded-lg text-xs font-body font-medium border"
+                        style={{
+                          backgroundColor: `${focusedData.color}12`,
+                          borderColor: `${focusedData.color}35`,
+                          color: focusedData.color,
+                        }}
+                      >
+                        {m}
+                      </span>
                     ))}
                   </div>
                 </div>
 
                 {/* Actores */}
                 <div>
-                  <p className="text-xs font-heading font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
-                    Actores a Convocar ({activeData.actores.length})
-                  </p>
-                  <div className="max-h-40 overflow-y-auto space-y-1 pr-1">
-                    {activeData.actores.map((a, i) => (
+                  <div className="flex items-center gap-2 mb-2">
+                    <Users size={13} className="text-muted-foreground" />
+                    <p className="text-xs font-heading font-semibold text-muted-foreground uppercase tracking-wide">
+                      Actores a Convocar ({focusedData.actores.length})
+                    </p>
+                  </div>
+                  <div className="max-h-52 overflow-y-auto space-y-1 pr-1 scrollbar-thin">
+                    {focusedData.actores.map((a, i) => (
                       <div key={i} className="flex items-start gap-2 text-xs font-body text-foreground">
-                        <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />
-                        <span>{a}</span>
+                        <span
+                          className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
+                          style={{ backgroundColor: focusedData.color }}
+                        />
+                        <span className="leading-relaxed">{a}</span>
                       </div>
                     ))}
                   </div>
@@ -360,25 +493,49 @@ const CaucaMap: React.FC = () => {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="py-4"
+                className="p-5 h-full flex flex-col"
               >
-                <p className="text-muted-foreground font-body text-sm text-center mb-4">
-                  👆 Selecciona una zona para ver detalle
+                <p className="text-muted-foreground font-body text-sm text-center mb-5 mt-2">
+                  👆 Selecciona una zona del mapa
                 </p>
-                <div className="space-y-1.5">
+                <div className="space-y-1.5 overflow-y-auto">
                   {zonas.map((z) => (
                     <button
                       key={z.id}
                       onMouseEnter={() => setActive(z.id)}
                       onMouseLeave={() => setActive(null)}
-                      onClick={() => setSelected(selected === z.id ? null : z.id)}
-                      className="flex items-center gap-2 w-full px-3 py-1.5 rounded-lg hover:bg-muted transition-colors text-left"
+                      onClick={() => setSelected(z.id)}
+                      className="flex items-center gap-2.5 w-full px-3 py-2 rounded-xl hover:bg-muted transition-colors text-left group"
                     >
-                      <div className="w-3 h-3 rounded-sm shrink-0" style={{ backgroundColor: z.color }} />
-                      <span className="text-xs font-heading font-semibold text-foreground flex-1">{z.name} — {z.subregion}</span>
-                      <span className="text-xs text-muted-foreground shrink-0">{z.municipios.length} mun.</span>
+                      <div
+                        className="w-3.5 h-3.5 rounded shrink-0 transition-transform group-hover:scale-125"
+                        style={{ backgroundColor: z.color }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <span className="text-xs font-heading font-bold text-foreground">{z.name}</span>
+                        <span className="text-xs text-muted-foreground font-body ml-1.5 truncate">{z.subregion}</span>
+                      </div>
+                      <span className="text-[10px] text-muted-foreground shrink-0">{z.municipios.length} mun.</span>
                     </button>
                   ))}
+                </div>
+
+                {/* Legend */}
+                <div className="mt-4 pt-4 border-t border-border">
+                  <p className="text-[10px] font-heading font-semibold text-muted-foreground uppercase tracking-wide mb-2">Leyenda</p>
+                  <div className="grid grid-cols-2 gap-1">
+                    {[
+                      { label: "7 Subregiones", val: "geográficas" },
+                      { label: "9 Zonas", val: "operativas" },
+                      { label: "1 Taller", val: "por zona" },
+                      { label: "42 Municipios", val: "intervenidos" },
+                    ].map((l, i) => (
+                      <div key={i} className="bg-muted/50 rounded-lg px-2 py-1.5 text-center">
+                        <p className="font-heading font-bold text-xs text-foreground">{l.label}</p>
+                        <p className="text-[10px] text-muted-foreground">{l.val}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
