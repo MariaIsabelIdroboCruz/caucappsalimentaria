@@ -125,10 +125,6 @@ const InteractiveReport: React.FC = () => {
         <img src={heroCauca} alt="Cauca" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-foreground via-foreground/75 to-foreground/20" />
         <motion.div initial="hidden" animate="visible" variants={stagger} className="relative z-10 text-center px-6 max-w-5xl">
-          <motion.div variants={fadeUp} className="flex items-center justify-center gap-8 mb-10">
-            
-            <img src={secretariaLogo} alt="Secretaría Agricultura" className="h-16 md:h-20 w-auto drop-shadow-lg" />
-          </motion.div>
           <motion.div variants={fadeUp} className="h-1 w-24 bg-primary rounded mx-auto mb-6" />
           <motion.h1 variants={fadeUp} className="font-heading font-black text-4xl md:text-6xl text-primary-foreground leading-tight mb-6">
             Construcción de la Política Pública de{" "}
