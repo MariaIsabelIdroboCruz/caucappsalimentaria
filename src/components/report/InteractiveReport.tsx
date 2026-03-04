@@ -603,7 +603,7 @@ const InteractiveReport: React.FC = () => {
                   icon: <Activity size={24} />,
                   items: [
                     "Aplicación de 7.560 encuestas en 42 municipios",
-                    "9 talleres diferenciales (1 por zona operativa)",
+                    "20 talleres diferenciales (1 por zona operativa)",
                     "Procesamiento y análisis cuanti-cualitativo",
                     "Presentación informe diagnóstico al CDSAN",
                   ],
