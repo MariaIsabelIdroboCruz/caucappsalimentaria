@@ -244,40 +244,6 @@ const InteractiveReport: React.FC = () => {
         </div>
       </div>
 
-      {/* ═══ 2. CONTEXTO ═══ */}
-      <Section id="contexto">
-        <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
-          <SectionTag icon={<FileText size={16} />} label="Sección 2 — Contexto del Proyecto" />
-          <SectionTitle>Contexto del Proyecto</SectionTitle>
-          <SectionSummary>
-            Visión general del proyecto: objetivo general, presupuesto total de $943.381.615, duración de 12 meses (Feb 2026–Ene 2027), Fase III (Factibilidad), con enfoque diferencial por ciclos de vida, género, étnico y campesino.
-          </SectionSummary>
-          <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="bg-card rounded-2xl border border-border p-6">
-              <h3 className="font-heading font-bold text-lg text-foreground mb-3 flex items-center gap-2">
-                <Target size={18} className="text-primary" /> Objetivo General
-              </h3>
-              <p className="text-muted-foreground font-body leading-relaxed text-sm">
-                Generar una estrategia para la garantía progresiva del Derecho Humano a la Alimentación Adecuada en el Departamento del Cauca, mediante un diagnóstico participativo, la formulación de la política pública y su seguimiento institucional, con enfoque diferencial étnico, de género, ciclo de vida y campesino.
-              </p>
-            </div>
-            <div className="bg-card rounded-2xl border border-border p-6">
-              <h3 className="font-heading font-bold text-lg text-foreground mb-3 flex items-center gap-2">
-                <Users size={18} className="text-primary" /> Enfoques Diferenciales
-              </h3>
-              <div className="flex flex-wrap gap-2 mb-4">
-                {["Ciclos de Vida", "Género", "Étnico", "Campesino"].map(e => (
-                  <span key={e} className="bg-slide-green-light text-primary px-4 py-2 rounded-full font-heading font-semibold text-sm">{e}</span>
-                ))}
-              </div>
-              <p className="text-xs text-muted-foreground font-body">
-                Articulación Nación – Departamento – Municipios con cobertura urbana y rural.
-              </p>
-              <AIBadge text="Modelos predictivos para monitorear avances" detail="Implementar modelos de series temporales (ARIMA/Prophet) con datos DANE para proyectar indicadores de inseguridad alimentaria por subregión, generando alertas tempranas cuando se identifiquen tendencias de deterioro y permitiendo ajustar las intervenciones en tiempo real." />
-            </div>
-          </motion.div>
-        </motion.div>
-      </Section>
 
       {/* ═══ 3. ANTECEDENTES ═══ */}
       <div className="bg-muted/50">
