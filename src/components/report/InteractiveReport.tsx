@@ -436,7 +436,7 @@ const InteractiveReport: React.FC = () => {
         <Section id="poblacion">
           <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
           <SectionTag icon={<MapPin size={16} />} label="Sección 5 — Población Objeto" />
-          <SectionTitle>Población Objeto — 7 Subregiones / 9 Zonas</SectionTitle>
+          <SectionTitle>Población Objeto — 7 Subregiones en 9 Zonas</SectionTitle>
           <SectionSummary>
             Se intervendrán las 7 subregiones del Cauca, organizadas en 9 zonas para facilitar la ejecución de 1 taller diferencial por zona. Haz clic en cada zona del mapa para ver municipios y actores a convocar.
           </SectionSummary>
