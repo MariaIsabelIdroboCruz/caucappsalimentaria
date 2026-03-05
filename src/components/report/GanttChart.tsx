@@ -567,36 +567,31 @@ const GanttChart: React.FC = () => {
     <div>
       {/* ── Resumen de Fases ── */}
       <motion.div initial="hidden" whileInView="visible" viewport={{ once: true }} variants={stagger} className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        {phases.map((f, i) => {}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        )}
+        {phases.map((f, i) => (
+          <motion.div key={f.key} variants={scaleIn} className={`rounded-xl border p-4 ring-2 ${f.colorRing}`}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-2xl">{f.icon}</span>
+              <div>
+                <p className="font-bold text-sm text-foreground">{f.title}</p>
+                <p className="text-xs text-muted-foreground">{f.dateRange} · {f.totalDays}</p>
+              </div>
+            </div>
+            <ul className="space-y-1">
+              {f.summary.map((s) => (
+                <li key={s} className="text-xs text-muted-foreground flex items-center gap-1">
+                  <span className={`w-1.5 h-1.5 rounded-full ${f.colorBg}`} />
+                  {s}
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        ))}
       </motion.div>
 
       {/* ── Tab Buttons ── */}
+
+      {/* ── Tab Buttons ── */}
+
       <div className="flex flex-wrap gap-2 mb-4">
         {tabs.map((t) =>
         <button
