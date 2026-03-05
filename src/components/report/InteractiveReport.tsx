@@ -43,7 +43,7 @@ const SectionTitle: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-3 leading-tight">{children}</h2>;
 
 
-const SectionSummary: React.FC<{children: React.ReactNode;}> = ({ children }) => {};
+const SectionSummary: React.FC<{children: React.ReactNode;}> = ({ children }) => null;
 
 
 
@@ -314,7 +314,7 @@ const InteractiveReport: React.FC = () => {
                   <ul className="space-y-2 text-sm font-body text-muted-foreground">
                     <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Línea de base territorial con metodología FIES/CARI</li>
                     <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Diagnóstico participativo con 9 zonas operativas</li>
-                    <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Articulación con CDSAN y Asamblea Departamental</li>
+                    <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Articulación con CDSAN y Asamblea Departamental: comités departamentales de seguridad alimentaria y nutricional, comités municipales, asamblea departamental, organizaciones sociales, instituciones de orden departamental nacional, cooperación internacional y la comunidad general</li>
                     <li className="flex items-start gap-2"><span className="text-primary mt-1">•</span>Marco técnico para ordenanza departamental SAN</li>
                   </ul>
                 </motion.div>
