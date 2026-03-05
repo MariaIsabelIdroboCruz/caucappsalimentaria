@@ -311,6 +311,17 @@ const SOCIALIZACION_PLAN = [
 const PRUEBA_PILOTO = [
 "Popayán"];
 
+const TALLERES_ZONAS = [
+  { zona: "Zona 1 — Centro", sede: "Piendamó", municipios: ["Piendamó", "Cajibío", "Morales", "Silvia"] },
+  { zona: "Zona 2 — Norte", sede: "Santander de Quilichao", municipios: ["Santander de Quilichao", "Caldono", "Buenos Aires", "Caloto", "Jambaló"] },
+  { zona: "Zona 3 — Oriente", sede: "Inzá", municipios: ["Inzá", "Páez (Belalcázar)", "Totoró"] },
+  { zona: "Zona 4 — Pacífico", sede: "Guapi", municipios: ["Guapi", "López de Micay", "Timbiquí"] },
+  { zona: "Zona 5 — Sur", sede: "El Bordo / Bolívar", municipios: ["El Bordo (Patía)", "Mercaderes", "Bolívar", "Florencia", "Sucre", "Balboa", "Argelia"] },
+  { zona: "Zona 6 — Centro Capital", sede: "Popayán", municipios: ["Popayán"] },
+  { zona: "Zona 7 — Centro Sur", sede: "Timbío / Rosas", municipios: ["Timbío", "Rosas", "La Sierra", "Sotará"] },
+  { zona: "Zona 8 — Macizo", sede: "La Vega", municipios: ["La Vega", "San Sebastián", "Almaguer"] },
+  { zona: "Zona 9 — Bota Caucana", sede: "Piamonte", municipios: ["Santa Rosa", "Piamonte"] },
+];
 
 const ACERCAMIENTO_LIDERES_GRUPOS = [
 {
@@ -381,7 +392,8 @@ const GanttRow: React.FC<{
     item.id === "c6" ? PRUEBA_PILOTO :
     null;
   const popupGrupos = item.id === "q2" ? ACERCAMIENTO_LIDERES_GRUPOS : null;
-  const hasSpecialPopup = !!(popupItems || popupGrupos);
+  const popupZonas = item.id === "q3" ? TALLERES_ZONAS : null;
+  const hasSpecialPopup = !!(popupItems || popupGrupos || popupZonas);
 
   const showPopup = hovered || pinned;
 
@@ -407,16 +419,16 @@ const GanttRow: React.FC<{
   return (
     <div
       ref={rowRef}
-      className="flex items-center h-9 group relative"
+      className={`flex items-center group relative ${item.id === "q3" ? "h-auto min-h-[2.5rem] py-1" : "h-9"}`}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}>
       
-      <span className="w-[250px] text-xs font-body pr-2 text-foreground shrink-0 flex items-center gap-1.5">
-        {item.hito && <span className={colorDot}>◆</span>}
-        {item.dependsOn && <span className="text-muted-foreground/50 text-[10px]">↳</span>}
-        <span className="truncate">{item.label}</span>
+      <span className="w-[250px] text-xs font-body pr-2 text-foreground shrink-0 flex items-start gap-1.5">
+        {item.hito && <span className={`${colorDot} mt-0.5`}>◆</span>}
+        {item.dependsOn && <span className="text-muted-foreground/50 text-[10px] mt-0.5">↳</span>}
+        <span className={item.id === "q3" ? "leading-snug" : "truncate"}>{item.label}</span>
         {hasSpecialPopup &&
-        <span className="ml-1 text-[9px] text-primary/60 font-heading hidden group-hover:inline">clic para fijar</span>
+        <span className="ml-1 text-[9px] text-primary/60 font-heading hidden group-hover:inline shrink-0 mt-0.5">clic</span>
         }
       </span>
       <div className="flex-1 relative h-7">
@@ -495,6 +507,41 @@ const GanttRow: React.FC<{
               )}
                 </div>
             )}
+            </div>
+            {!pinned && <p className="text-background/40 text-[9px] mt-2 italic">Clic en la barra para fijar</p>}
+          </div>
+        }
+
+        {/* Popup for talleres — 9 zonas con municipios */}
+        {showPopup && popupZonas &&
+        <div
+          ref={pinned ? popupRef : undefined}
+          className="absolute bottom-full z-30 bg-foreground text-background text-[10px] px-4 py-3 rounded-xl shadow-2xl max-w-[380px]"
+          style={{ left: `${Math.min(item.start / TOTAL_WEEKS * 100, 30)}%` }}
+          onMouseEnter={() => setHovered(true)}
+          onMouseLeave={() => setHovered(false)}>
+            <div className="flex items-center justify-between mb-2 gap-4">
+              <p className="font-heading font-bold text-[11px]">9 Zonas Operativas · Talleres Diferenciales</p>
+              {pinned &&
+              <button onClick={() => setPinned(false)} className="text-background/50 hover:text-background text-[11px] shrink-0">✕</button>
+              }
+            </div>
+            <p className="text-background/60 text-[10px] mb-3">{item.dias}</p>
+            <div className="space-y-2.5 max-h-[320px] overflow-y-auto pr-1">
+              {popupZonas.map((z, zi) =>
+              <div key={zi}>
+                <p className="font-heading font-semibold text-[10px] text-accent mb-0.5 uppercase tracking-wide">
+                  {z.zona} — Sede: {z.sede}
+                </p>
+                <div className="flex flex-wrap gap-x-2 gap-y-0.5 pl-1">
+                  {z.municipios.map((m, mi) =>
+                  <span key={mi} className="flex items-center gap-1 text-[9px] text-background/80">
+                    <span className="w-1 h-1 rounded-full bg-accent/60 shrink-0" />{m}
+                  </span>
+                  )}
+                </div>
+              </div>
+              )}
             </div>
             {!pinned && <p className="text-background/40 text-[9px] mt-2 italic">Clic en la barra para fijar</p>}
           </div>
