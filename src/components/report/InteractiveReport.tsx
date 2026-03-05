@@ -43,7 +43,7 @@ const SectionTitle: React.FC<{children: React.ReactNode;}> = ({ children }) =>
 <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-3 leading-tight">{children}</h2>;
 
 
-const SectionSummary: React.FC<{children: React.ReactNode;}> = ({ children }) => {};
+const SectionSummary: React.FC<{children: React.ReactNode;}> = () => null;
 
 
 
@@ -341,7 +341,8 @@ const InteractiveReport: React.FC = () => {
               <Lightbulb size={20} /> Justificación
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {["Alineación directa con el Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo' (meta 149).",
+              {["El Objetivo de Desarrollo Sostenible 2. Hambre cero, establece como meta reducir todas las formas de hambre y desnutrición.",
+              "Alineación directa con el Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo' (meta 149).",
               "Cumplimiento progresivo del Derecho Humano a la Alimentación Adecuada.",
               "Articulación con lineamientos internacionales del PMA y FAO (metodologías CARI, FIES, Directrices Voluntarias 2004).",
               "Respuesta a las realidades territoriales del Cauca con enfoque diferencial (étnico, de género, ciclos de vida y campesino).",
