@@ -4,8 +4,8 @@ import {
   ChevronDown, Brain, BarChart3, Users, Target, MapPin, Shield,
   Flag, Calendar, FileText, Lightbulb, TrendingUp, Database, Cpu,
   Network, Sparkles, X, Activity, ClipboardList, Clock, BookOpen,
-  Scale, Globe, Layers, CheckCircle2, AlertTriangle, ArrowRight,
-} from "lucide-react";
+  Scale, Globe, Layers, CheckCircle2, AlertTriangle, ArrowRight } from
+"lucide-react";
 import heroCauca from "@/assets/hero-cauca-report.jpg";
 import escudoCauca from "@/assets/escudo-cauca.png";
 import secretariaLogo from "@/assets/secretaria-agricultura.png";
@@ -18,52 +18,52 @@ import GanttChart from "./GanttChart";
 // ─── Animation variants ────────────────────────
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.6 } }
 };
 const stagger = { visible: { transition: { staggerChildren: 0.12 } } };
 const scaleIn = {
   hidden: { opacity: 0, scale: 0.9 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } },
+  visible: { opacity: 1, scale: 1, transition: { duration: 0.5 } }
 };
 
 // ─── Reusable Components ────────────────────────
-const Section: React.FC<{ id?: string; children: React.ReactNode; className?: string }> = ({ id, children, className = "" }) => (
-  <section id={id} className={`max-w-7xl mx-auto px-6 py-16 ${className}`}>
+const Section: React.FC<{id?: string;children: React.ReactNode;className?: string;}> = ({ id, children, className = "" }) =>
+<section id={id} className={`max-w-7xl mx-auto px-6 py-16 ${className}`}>
     {children}
-  </section>
-);
+  </section>;
 
-const SectionTag: React.FC<{ icon: React.ReactNode; label: string }> = ({ icon, label }) => (
-  <div className="flex items-center gap-2 text-primary font-heading font-semibold text-sm uppercase tracking-wider mb-3">
+
+const SectionTag: React.FC<{icon: React.ReactNode;label: string;}> = ({ icon, label }) =>
+<div className="flex items-center gap-2 text-primary font-heading font-semibold text-sm uppercase tracking-wider mb-3">
     {icon}{label}
-  </div>
-);
+  </div>;
 
-const SectionTitle: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-3 leading-tight">{children}</h2>
-);
 
-const SectionSummary: React.FC<{ children: React.ReactNode }> = ({ children }) => (
-  <p className="text-muted-foreground font-body text-base leading-relaxed mb-8 max-w-3xl border-l-4 border-primary/30 pl-4">
-    {children}
-  </p>
-);
+const SectionTitle: React.FC<{children: React.ReactNode;}> = ({ children }) =>
+<h2 className="font-heading font-extrabold text-3xl md:text-4xl text-foreground mb-3 leading-tight">{children}</h2>;
 
-const AIBadge: React.FC<{ text: string; detail?: string }> = ({ text, detail }) => {
+
+const SectionSummary: React.FC<{children: React.ReactNode;}> = ({ children }) => {};
+
+
+
+
+
+const AIBadge: React.FC<{text: string;detail?: string;}> = ({ text, detail }) => {
   const [open, setOpen] = useState(false);
   return (
     <div className="mt-4">
       <button
         onClick={() => detail && setOpen(!open)}
-        className={`inline-flex items-center gap-2 bg-gradient-to-r from-accent/20 to-accent/10 border border-accent rounded-full px-4 py-1.5 text-sm font-heading font-semibold text-accent-foreground transition-all hover:shadow-md hover:from-accent/30 ${detail ? "cursor-pointer" : "cursor-default"}`}
-      >
+        className={`inline-flex items-center gap-2 bg-gradient-to-r from-accent/20 to-accent/10 border border-accent rounded-full px-4 py-1.5 text-sm font-heading font-semibold text-accent-foreground transition-all hover:shadow-md hover:from-accent/30 ${detail ? "cursor-pointer" : "cursor-default"}`}>
+        
         <Sparkles size={14} className="text-accent" />
         <span>IA: {text}</span>
         {detail && <ChevronDown size={14} className={`transition-transform ${open ? "rotate-180" : ""}`} />}
       </button>
       <AnimatePresence>
-        {open && detail && (
-          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
+        {open && detail &&
+        <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
             <div className="mt-2 bg-accent/10 border border-accent/30 rounded-xl p-4 text-sm font-body text-foreground relative">
               <button onClick={() => setOpen(false)} className="absolute top-2 right-2 text-muted-foreground hover:text-foreground"><X size={14} /></button>
               <div className="flex items-start gap-2">
@@ -72,28 +72,28 @@ const AIBadge: React.FC<{ text: string; detail?: string }> = ({ text, detail }) 
               </div>
             </div>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 };
 
-const StatCard: React.FC<{ value: string; label: string; icon: React.ReactNode; color?: string }> = ({ value, label, icon, color = "bg-primary" }) => (
-  <motion.div variants={scaleIn} className="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-lg transition-shadow">
+const StatCard: React.FC<{value: string;label: string;icon: React.ReactNode;color?: string;}> = ({ value, label, icon, color = "bg-primary" }) =>
+<motion.div variants={scaleIn} className="bg-card rounded-2xl border border-border p-6 shadow-sm hover:shadow-lg transition-shadow">
     <div className={`w-12 h-12 ${color} rounded-xl flex items-center justify-center text-primary-foreground mb-4`}>{icon}</div>
     <p className="font-heading font-black text-3xl text-foreground">{value}</p>
     <p className="text-muted-foreground text-sm mt-1 font-body">{label}</p>
-  </motion.div>
-);
+  </motion.div>;
 
-const HeroStat: React.FC<{ value: string; label: string }> = ({ value, label }) => (
-  <motion.div variants={scaleIn} className="text-center px-4 py-3">
+
+const HeroStat: React.FC<{value: string;label: string;}> = ({ value, label }) =>
+<motion.div variants={scaleIn} className="text-center px-4 py-3">
     <p className="font-heading font-black text-3xl md:text-4xl text-primary">{value}</p>
     <p className="text-muted-foreground text-xs md:text-sm mt-1 font-body">{label}</p>
-  </motion.div>
-);
+  </motion.div>;
 
-const Accordion: React.FC<{ title: string; icon?: React.ReactNode; children: React.ReactNode; defaultOpen?: boolean; accent?: string }> = ({ title, icon, children, defaultOpen = false, accent = "border-primary/30" }) => {
+
+const Accordion: React.FC<{title: string;icon?: React.ReactNode;children: React.ReactNode;defaultOpen?: boolean;accent?: string;}> = ({ title, icon, children, defaultOpen = false, accent = "border-primary/30" }) => {
   const [open, setOpen] = useState(defaultOpen);
   return (
     <div className={`bg-card rounded-2xl border border-border overflow-hidden shadow-sm border-l-4 ${accent}`}>
@@ -105,14 +105,14 @@ const Accordion: React.FC<{ title: string; icon?: React.ReactNode; children: Rea
         <ChevronDown size={20} className={`text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       <AnimatePresence>
-        {open && (
-          <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
+        {open &&
+        <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden">
             <div className="px-6 pb-6 border-t border-border pt-4">{children}</div>
           </motion.div>
-        )}
+        }
       </AnimatePresence>
-    </div>
-  );
+    </div>);
+
 };
 
 // ─── Reading Progress Bar ───────────────────────
@@ -121,7 +121,7 @@ const ReadingProgress: React.FC = () => {
   useEffect(() => {
     const onScroll = () => {
       const total = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(total > 0 ? (window.scrollY / total) * 100 : 0);
+      setProgress(total > 0 ? window.scrollY / total * 100 : 0);
     };
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -131,10 +131,10 @@ const ReadingProgress: React.FC = () => {
       <motion.div
         className="h-full bg-primary origin-left"
         style={{ scaleX: progress / 100 }}
-        transition={{ type: "spring", stiffness: 200, damping: 30 }}
-      />
-    </div>
-  );
+        transition={{ type: "spring", stiffness: 200, damping: 30 }} />
+      
+    </div>);
+
 };
 
 // ─── MAIN COMPONENT ─────────────────────────────
@@ -148,14 +148,14 @@ const InteractiveReport: React.FC = () => {
       <section
         id="hero"
         aria-label="Portada del proyecto"
-        className="relative min-h-[92vh] flex items-center justify-center overflow-hidden"
-      >
+        className="relative min-h-[92vh] flex items-center justify-center overflow-hidden">
+        
         <img
           src={heroCauca}
           alt="Paisaje del Departamento del Cauca, Colombia"
           className="absolute inset-0 w-full h-full object-cover"
-          loading="eager"
-        />
+          loading="eager" />
+        
         {/* Dark gradient — stronger at bottom for text legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/20" />
 
@@ -163,16 +163,16 @@ const InteractiveReport: React.FC = () => {
           initial="hidden"
           animate="visible"
           variants={stagger}
-          className="relative z-10 text-center px-6 max-w-4xl w-full"
-        >
+          className="relative z-10 text-center px-6 max-w-4xl w-full">
+          
           {/* Logo institucional sobre fondo semi-transparente */}
           <motion.div variants={fadeUp} className="flex justify-center mb-8">
             <div className="bg-white/95 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-2xl inline-block">
               <img
                 src={logoGobernacion}
                 alt="Gobernación del Cauca — Secretaría de Agricultura y Desarrollo Rural"
-                className="h-14 md:h-16 w-auto object-contain"
-              />
+                className="h-14 md:h-16 w-auto object-contain" />
+              
             </div>
           </motion.div>
 
@@ -181,8 +181,8 @@ const InteractiveReport: React.FC = () => {
 
           <motion.h1
             variants={fadeUp}
-            className="font-heading font-black text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5 drop-shadow-lg"
-          >
+            className="font-heading font-black text-4xl md:text-5xl lg:text-6xl text-white leading-tight mb-5 drop-shadow-lg">
+            
             Construcción de la Política Pública de{" "}
             <span className="text-accent drop-shadow-md">Seguridad y Soberanía Alimentaria</span>{" "}
             en el Cauca
@@ -200,13 +200,13 @@ const InteractiveReport: React.FC = () => {
             variants={fadeUp}
             href="#cifras-clave"
             aria-label="Ver cifras clave del proyecto"
-            className="inline-flex flex-col items-center gap-2 text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg p-2"
-          >
+            className="inline-flex flex-col items-center gap-2 text-white/70 hover:text-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white rounded-lg p-2">
+            
             <span className="text-xs font-heading font-semibold uppercase tracking-widest">Explorar</span>
             <motion.div
               animate={{ y: [0, 6, 0] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-            >
+              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}>
+              
               <ChevronDown size={24} />
             </motion.div>
           </motion.a>
@@ -222,23 +222,23 @@ const InteractiveReport: React.FC = () => {
             </motion.p>
             <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-6">
               {[
-                { value: "7.560", label: "Encuestas totales" },
-                { value: "420",   label: "Encuestadores" },
-                { value: "9",     label: "Zonas" },
-                { value: "12",    label: "Meses de duración" },
-                { value: "42",    label: "Municipios" },
-                { value: "466K",  label: "Personas objeto" },
-                { value: "20",    label: "Talleres diferenciales" },
-              ].map((s, i) => (
-                <motion.div
-                  key={i}
-                  variants={scaleIn}
-                  className="text-center px-3 py-4 rounded-xl hover:bg-muted/50 transition-colors"
-                >
+              { value: "7.560", label: "Encuestas totales" },
+              { value: "420", label: "Encuestadores" },
+              { value: "9", label: "Zonas" },
+              { value: "12", label: "Meses de duración" },
+              { value: "42", label: "Municipios" },
+              { value: "466K", label: "Personas objeto" },
+              { value: "20", label: "Talleres diferenciales" }].
+              map((s, i) =>
+              <motion.div
+                key={i}
+                variants={scaleIn}
+                className="text-center px-3 py-4 rounded-xl hover:bg-muted/50 transition-colors">
+                
                   <p className="font-heading font-black text-3xl md:text-4xl text-primary leading-none">{s.value}</p>
                   <p className="text-muted-foreground text-xs md:text-sm mt-2 font-body leading-snug">{s.label}</p>
                 </motion.div>
-              ))}
+              )}
             </div>
           </motion.div>
         </div>
@@ -266,9 +266,9 @@ const InteractiveReport: React.FC = () => {
                 <Users size={18} className="text-primary" /> Enfoques Diferenciales
               </h3>
               <div className="flex flex-wrap gap-2 mb-4">
-                {["Ciclos de Vida", "Género", "Étnico", "Campesino"].map(e => (
-                  <span key={e} className="bg-slide-green-light text-primary px-4 py-2 rounded-full font-heading font-semibold text-sm">{e}</span>
-                ))}
+                {["Ciclos de Vida", "Género", "Étnico", "Campesino"].map((e) =>
+                <span key={e} className="bg-slide-green-light text-primary px-4 py-2 rounded-full font-heading font-semibold text-sm">{e}</span>
+                )}
               </div>
               <p className="text-xs text-muted-foreground font-body">
                 Articulación Nación – Departamento – Municipios con cobertura urbana y rural.
@@ -291,16 +291,16 @@ const InteractiveReport: React.FC = () => {
             <motion.div variants={fadeUp} className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
                 {[
-                  { icon: "📊", text: "El Cauca registra inseguridad alimentaria grave en el 2,8% de su población, con marcadas brechas entre zonas urbanas y rurales (DANE 2023)." },
-                  { icon: "🌿", text: "Las comunidades étnicas e indígenas presentan mayor vulnerabilidad, con acceso limitado a alimentos nutritivos y a servicios de salud nutricional." },
-                  { icon: "🏛️", text: "Históricamente, las acciones institucionales han sido fragmentadas y sin política pública departamental que las articule bajo una visión de largo plazo." },
-                  { icon: "📋", text: "La construcción de esta política pública responde al Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo', meta 149, y a los compromisos internacionales ODS 2." },
-                ].map((item, i) => (
-                  <motion.div key={i} variants={fadeUp} className="flex items-start gap-4 bg-card rounded-xl border border-border p-4">
+                { icon: "📊", text: "El Cauca registra inseguridad alimentaria grave en el 2,8% de su población, con marcadas brechas entre zonas urbanas y rurales (DANE 2023)." },
+                { icon: "🌿", text: "Las comunidades étnicas e indígenas presentan mayor vulnerabilidad, con acceso limitado a alimentos nutritivos y a servicios de salud nutricional." },
+                { icon: "🏛️", text: "Históricamente, las acciones institucionales han sido fragmentadas y sin política pública departamental que las articule bajo una visión de largo plazo." },
+                { icon: "📋", text: "La construcción de esta política pública responde al Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo', meta 149, y a los compromisos internacionales ODS 2." }].
+                map((item, i) =>
+                <motion.div key={i} variants={fadeUp} className="flex items-start gap-4 bg-card rounded-xl border border-border p-4">
                     <span className="text-2xl shrink-0">{item.icon}</span>
                     <p className="text-foreground font-body text-sm leading-relaxed">{item.text}</p>
                   </motion.div>
-                ))}
+                )}
               </div>
               <div className="space-y-4">
                 <motion.div variants={scaleIn} className="bg-secondary/10 border-l-4 border-secondary rounded-r-2xl p-6">
@@ -341,18 +341,18 @@ const InteractiveReport: React.FC = () => {
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {[
-                "Alineación directa con el Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo' (meta 149).",
-                "Cumplimiento progresivo del Derecho Humano a la Alimentación Adecuada.",
-                "Articulación con lineamientos internacionales del PMA y FAO (metodologías CARI, FIES, Directrices Voluntarias 2004).",
-                "Respuesta a las realidades territoriales del Cauca con enfoque diferencial (étnico, de género, ciclos de vida y campesino).",
-                "Fortalecimiento de la producción local y reducción de la inseguridad alimentaria grave (de 2,8% a 1,8% según línea base).",
-                "Alcance: garantizar progresivamente el Derecho Humano a la Alimentación Adecuada con cobertura urbana y rural.",
-              ].map((t, i) => (
-                <div key={i} className="flex items-start gap-3 text-sm font-body text-foreground">
+              "Alineación directa con el Plan de Desarrollo Departamental 2024-2027 'La Fuerza del Pueblo' (meta 149).",
+              "Cumplimiento progresivo del Derecho Humano a la Alimentación Adecuada.",
+              "Articulación con lineamientos internacionales del PMA y FAO (metodologías CARI, FIES, Directrices Voluntarias 2004).",
+              "Respuesta a las realidades territoriales del Cauca con enfoque diferencial (étnico, de género, ciclos de vida y campesino).",
+              "Fortalecimiento de la producción local y reducción de la inseguridad alimentaria grave (de 2,8% a 1,8% según línea base).",
+              "Alcance: garantizar progresivamente el Derecho Humano a la Alimentación Adecuada con cobertura urbana y rural."].
+              map((t, i) =>
+              <div key={i} className="flex items-start gap-3 text-sm font-body text-foreground">
                   <CheckCircle2 size={16} className="text-primary mt-0.5 shrink-0" />
                   <span>{t}</span>
                 </div>
-              ))}
+              )}
             </div>
           </motion.div>
 
@@ -361,66 +361,66 @@ const InteractiveReport: React.FC = () => {
             <Accordion title="3.1 Fundamento Constitucional" icon={<BookOpen size={18} />} defaultOpen={true} accent="border-primary/30">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { art: "Art. 65", desc: "Protección especial a la producción de alimentos y desarrollo agropecuario." },
-                  { art: "Art. 64", desc: "Acceso progresivo a la tierra y servicios rurales." },
-                  { art: "Art. 49", desc: "Salud como derecho fundamental — incluye control sanitario de alimentos." },
-                  { art: "Art. 366", desc: "Bienestar general y mejora de la calidad de vida — prioriza nutrición." },
-                ].map((a, i) => (
-                  <div key={i} className="bg-slide-green-light rounded-xl p-4 flex gap-3">
+                { art: "Art. 65", desc: "Protección especial a la producción de alimentos y desarrollo agropecuario." },
+                { art: "Art. 64", desc: "Acceso progresivo a la tierra y servicios rurales." },
+                { art: "Art. 49", desc: "Salud como derecho fundamental — incluye control sanitario de alimentos." },
+                { art: "Art. 366", desc: "Bienestar general y mejora de la calidad de vida — prioriza nutrición." }].
+                map((a, i) =>
+                <div key={i} className="bg-slide-green-light rounded-xl p-4 flex gap-3">
                     <span className="font-heading font-black text-primary text-sm min-w-[60px]">{a.art}</span>
                     <span className="text-sm font-body text-foreground">{a.desc}</span>
                   </div>
-                ))}
+                )}
               </div>
             </Accordion>
 
             <Accordion title="3.2 Marco Legal Nacional" icon={<Scale size={18} />} accent="border-secondary/30">
               <div className="space-y-2">
                 {[
-                  { norm: "Ley 2294/2023", desc: "Plan Nacional de Desarrollo 2022-2026: Sistema Nacional para la Garantía Progresiva del DHA." },
-                  { norm: "Ley 2046/2020", desc: "Participación de pequeños productores en compras públicas." },
-                  { norm: "Ley 2120/2021", desc: "Entornos alimentarios saludables y etiquetado frontal." },
-                  { norm: "Ley 101/1993", desc: "Desarrollo agropecuario y pesquero." },
-                  { norm: "Ley 9/1979", desc: "Código Sanitario Nacional." },
-                  { norm: "Ley 2536/2025", desc: "Medidas estructurales contra el hambre." },
-                  { norm: "Ley 100/1993", desc: "Sistema de Seguridad Social Integral (nutrición y salud)." },
-                  { norm: "CONPES 113/2008", desc: "Política Nacional de Seguridad Alimentaria y Nutricional." },
-                ].map((n, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-muted rounded-xl px-4 py-3 hover:bg-slide-green-light transition-colors">
+                { norm: "Ley 2294/2023", desc: "Plan Nacional de Desarrollo 2022-2026: Sistema Nacional para la Garantía Progresiva del DHA." },
+                { norm: "Ley 2046/2020", desc: "Participación de pequeños productores en compras públicas." },
+                { norm: "Ley 2120/2021", desc: "Entornos alimentarios saludables y etiquetado frontal." },
+                { norm: "Ley 101/1993", desc: "Desarrollo agropecuario y pesquero." },
+                { norm: "Ley 9/1979", desc: "Código Sanitario Nacional." },
+                { norm: "Ley 2536/2025", desc: "Medidas estructurales contra el hambre." },
+                { norm: "Ley 100/1993", desc: "Sistema de Seguridad Social Integral (nutrición y salud)." },
+                { norm: "CONPES 113/2008", desc: "Política Nacional de Seguridad Alimentaria y Nutricional." }].
+                map((n, i) =>
+                <div key={i} className="flex items-center gap-3 bg-muted rounded-xl px-4 py-3 hover:bg-slide-green-light transition-colors">
                     <span className="font-heading font-bold text-sm text-primary min-w-[130px]">{n.norm}</span>
                     <span className="text-sm text-foreground font-body">{n.desc}</span>
                   </div>
-                ))}
+                )}
               </div>
             </Accordion>
 
             <Accordion title="3.3 Marco Internacional" icon={<Globe size={18} />} accent="border-accent/40">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { org: "PIDESC – Art. 11", desc: "Derecho a una alimentación adecuada como derecho económico, social y cultural." },
-                  { org: "Directrices FAO (2004)", desc: "Directrices Voluntarias sobre el Derecho a la Alimentación y Marco Estratégico Mundial CFS." },
-                  { org: "PMA", desc: "Mandato humanitario con principios de neutralidad e imparcialidad en seguridad alimentaria." },
-                  { org: "ODS 2 — Hambre Cero", desc: "Agenda 2030 para el Desarrollo Sostenible — Meta 2.1 y 2.2." },
-                ].map((n, i) => (
-                  <div key={i} className="bg-accent/10 rounded-xl p-4 border border-accent/20">
+                { org: "PIDESC – Art. 11", desc: "Derecho a una alimentación adecuada como derecho económico, social y cultural." },
+                { org: "Directrices FAO (2004)", desc: "Directrices Voluntarias sobre el Derecho a la Alimentación y Marco Estratégico Mundial CFS." },
+                { org: "PMA", desc: "Mandato humanitario con principios de neutralidad e imparcialidad en seguridad alimentaria." },
+                { org: "ODS 2 — Hambre Cero", desc: "Agenda 2030 para el Desarrollo Sostenible — Meta 2.1 y 2.2." }].
+                map((n, i) =>
+                <div key={i} className="bg-accent/10 rounded-xl p-4 border border-accent/20">
                     <p className="font-heading font-bold text-sm text-accent-foreground mb-1">{n.org}</p>
                     <p className="text-xs font-body text-muted-foreground">{n.desc}</p>
                   </div>
-                ))}
+                )}
               </div>
             </Accordion>
 
             <Accordion title="3.4 Marco Territorial del Cauca" icon={<MapPin size={18} />} accent="border-primary/30">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {[
-                  { doc: "Plan Desarrollo 2024-2027", desc: "'La Fuerza del Pueblo' — Meta 149: Formulación política pública SAN." },
-                  { doc: "POD del Cauca", desc: "Plan de Ordenamiento Departamental con enfoque territorial diferencial." },
-                ].map((d, i) => (
-                  <div key={i} className="bg-slide-green-light rounded-xl p-4">
+                { doc: "Plan Desarrollo 2024-2027", desc: "'La Fuerza del Pueblo' — Meta 149: Formulación política pública SAN." },
+                { doc: "POD del Cauca", desc: "Plan de Ordenamiento Departamental con enfoque territorial diferencial." }].
+                map((d, i) =>
+                <div key={i} className="bg-slide-green-light rounded-xl p-4">
                     <p className="font-heading font-bold text-sm text-primary mb-1">{d.doc}</p>
                     <p className="text-xs font-body text-foreground">{d.desc}</p>
                   </div>
-                ))}
+                )}
               </div>
             </Accordion>
           </motion.div>
@@ -465,8 +465,8 @@ const InteractiveReport: React.FC = () => {
       </Section>
 
       <ReportFooter />
-    </div>
-  );
+    </div>);
+
 };
 
 export default InteractiveReport;
