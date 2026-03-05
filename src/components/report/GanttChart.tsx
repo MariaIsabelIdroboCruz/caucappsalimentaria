@@ -55,10 +55,8 @@ const phases: GanttPhase[] = [
   { id: "c1", label: "Análisis información secundaria", start: 0, dur: 3, dias: "Feb 2–20 · 15 días", hito: false },
   { id: "c2", label: "Acercamiento institucional", start: 2, dur: 3, dias: "Feb 16 – Mar 6 · 18 días", hito: false, dependsOn: "c1" },
   { id: "c4", label: "Socialización del plan de acción", start: 5, dur: 2, dias: "Mar 9–20 · 10 días", hito: false, dependsOn: "c2" },
-  { id: "c5", label: "Elaborar encuesta digital", start: 6, dur: 2, dias: "Mar 16–27 · 10 días", hito: true, dependsOn: "c4" },
-  { id: "c6", label: "Prueba piloto (2 municipios)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: false, dependsOn: "c5" },
-  { id: "c7", label: "Ajustes post-piloto", start: 9, dur: 1, dias: "Abr 6–10 · 5 días", hito: false, dependsOn: "c6" },
-  { id: "c8", label: "Aplicación encuestas — 7.560", start: 10, dur: 4, dias: "Abr 13 – May 8 · 20 días", hito: false, dependsOn: "c7" }]
+  { id: "c6", label: "Prueba piloto (1 municipio)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: false, dependsOn: "c4" },
+  { id: "c8", label: "Aplicación encuestas — 7.560", start: 10, dur: 4, dias: "Abr 13 – May 8 · 20 días", hito: false, dependsOn: "c6" }]
 
 },
 {
@@ -303,11 +301,15 @@ const DependencyArrows: React.FC<{tasks: GanttTask[];colorClass: string;}> = ({ 
 
 // ─── Popup content for special tasks ─────────
 const ACERCAMIENTO_INSTITUCIONAL = [
-"ICBF",
-"ICA Servicios",
-"Secretaría de Salud",
-"Secretaría de Ambiente",
-"Secretaría de Agricultura"];
+"CDSAN",
+"Comités Municipales de Seguridad Alimentaria y Nutricional"];
+
+const SOCIALIZACION_PLAN = [
+"CDSAN",
+"Asamblea Departamental"];
+
+const PRUEBA_PILOTO = [
+"Popayán"];
 
 
 const ACERCAMIENTO_LIDERES_GRUPOS = [
@@ -373,7 +375,11 @@ const GanttRow: React.FC<{
   const popupRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
 
-  const popupItems = item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL : null;
+  const popupItems =
+    item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL :
+    item.id === "c4" ? SOCIALIZACION_PLAN :
+    item.id === "c6" ? PRUEBA_PILOTO :
+    null;
   const popupGrupos = item.id === "q2" ? ACERCAMIENTO_LIDERES_GRUPOS : null;
   const hasSpecialPopup = !!(popupItems || popupGrupos);
 
