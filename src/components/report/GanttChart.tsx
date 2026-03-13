@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -600,6 +602,123 @@ const PhaseBlock: React.FC<{phase: GanttPhase;showHeader?: boolean;}> = ({ phase
   </div>;
 
 
+// ─── Excel Export ────────────────────────────
+function getPopupText(taskId: string): string {
+  if (taskId === "c2") return ACERCAMIENTO_INSTITUCIONAL.join(" | ");
+  if (taskId === "c4") return SOCIALIZACION_PLAN.join(" | ");
+  if (taskId === "c6") return PRUEBA_PILOTO.join(" | ");
+  if (taskId === "q2")
+    return ACERCAMIENTO_LIDERES_GRUPOS
+      .map((g) => `${g.grupo}: ${g.items.join(", ")}`)
+      .join(" || ");
+  if (taskId === "q3")
+    return TALLERES_ZONAS
+      .map((z) => `${z.zona} (Sede: ${z.sede}) — ${z.municipios.join(", ")}`)
+      .join(" || ");
+  return "";
+}
+
+function exportToExcel() {
+  const wb = XLSX.utils.book_new();
+
+  // ── HOJA 1: Cronograma Gantt ──────────────
+  const WEEKS = TOTAL_WEEKS;
+  const weekLabels = Array.from({ length: WEEKS }, (_, i) => `S${i + 1}`);
+  const monthRow: (string | null)[] = ["", "Actividad", "Período", "Dep.", "Hito", "Detalle (popup)"];
+  let colOffset = 0;
+  for (const m of MONTHS) {
+    monthRow.push(m.mes);
+    for (let i = 1; i < m.semanas; i++) monthRow.push(null);
+    colOffset += m.semanas;
+  }
+  const weekRow: string[] = ["", "Actividad", "Período", "Dep.", "Hito", "Detalle (popup)", ...weekLabels];
+
+  const aoa: (string | null)[][] = [monthRow as (string | null)[], weekRow];
+
+  for (const phase of phases) {
+    // Phase header row
+    aoa.push([phase.icon, phase.title, phase.dateRange, "", phase.totalDays, phase.summary.join(" · "), ...Array(WEEKS).fill("")]);
+
+    for (const task of phase.tasks) {
+      const depTask = phase.tasks.find((t) => t.id === task.dependsOn);
+      const bar: (string | null)[] = Array(WEEKS).fill("");
+      for (let w = task.start; w < task.start + task.dur; w++) {
+        bar[w] = task.hito ? "◆" : "█";
+      }
+      aoa.push([
+        "",
+        task.label,
+        task.dias,
+        depTask ? depTask.label : "—",
+        task.hito ? "◆" : "",
+        getPopupText(task.id),
+        ...bar,
+      ]);
+    }
+    aoa.push(Array(6 + WEEKS).fill("") as string[]); // blank row between phases
+  }
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+
+  // Column widths
+  ws["!cols"] = [
+    { wch: 4 },   // icon
+    { wch: 45 },  // actividad
+    { wch: 28 },  // período
+    { wch: 35 },  // dep
+    { wch: 6 },   // hito
+    { wch: 80 },  // detalle popup
+    ...Array(WEEKS).fill({ wch: 4 }),
+  ];
+
+  // Merge month header cells
+  const merges: XLSX.Range[] = [];
+  let startCol = 6;
+  for (const m of MONTHS) {
+    merges.push({ s: { r: 0, c: startCol }, e: { r: 0, c: startCol + m.semanas - 1 } });
+    startCol += m.semanas;
+  }
+  ws["!merges"] = merges;
+
+  XLSX.utils.book_append_sheet(wb, ws, "Cronograma Gantt");
+
+  // ── HOJA 2: Detalle Popups ─────────────────
+  const popupAoa: string[][] = [
+    ["Tarea", "Actividad", "Tipo", "Información Detallada"],
+  ];
+
+  // c2 Acercamiento institucional
+  for (const item of ACERCAMIENTO_INSTITUCIONAL) {
+    popupAoa.push(["c2", "Acercamiento institucional", "Institución", item]);
+  }
+  // c4 Socialización
+  for (const item of SOCIALIZACION_PLAN) {
+    popupAoa.push(["c4", "Socialización del plan de acción", "Institución", item]);
+  }
+  // c6 Prueba piloto
+  for (const item of PRUEBA_PILOTO) {
+    popupAoa.push(["c6", "Prueba piloto (1 municipio)", "Municipio", item]);
+  }
+  // q2 Líderes y actores
+  for (const g of ACERCAMIENTO_LIDERES_GRUPOS) {
+    for (const it of g.items) {
+      popupAoa.push(["q2", "Acercamiento líderes y actores", g.grupo, it]);
+    }
+  }
+  // q3 Talleres zonas
+  for (const z of TALLERES_ZONAS) {
+    for (const m of z.municipios) {
+      popupAoa.push(["q3", "Talleres diferenciales — 9 zonas", `${z.zona} · Sede: ${z.sede}`, m]);
+    }
+  }
+
+  const wsPopup = XLSX.utils.aoa_to_sheet(popupAoa);
+  wsPopup["!cols"] = [{ wch: 6 }, { wch: 42 }, { wch: 40 }, { wch: 40 }];
+  XLSX.utils.book_append_sheet(wb, wsPopup, "Detalle Participantes y Zonas");
+
+  XLSX.writeFile(wb, "Cronograma_Diagnostico_SAN_Cauca.xlsx");
+}
+
 // ─── MAIN COMPONENT ─────────────────────────
 const GanttChart: React.FC = () => {
   const [view, setView] = useState<ViewMode>("general");
@@ -640,11 +759,8 @@ const GanttChart: React.FC = () => {
         ))}
       </motion.div>
 
-      {/* ── Tab Buttons ── */}
-
-      {/* ── Tab Buttons ── */}
-
-      <div className="flex flex-wrap gap-2 mb-4">
+      {/* ── Tab Buttons + Export ── */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         {tabs.map((t) =>
         <button
           key={t.key}
@@ -654,10 +770,17 @@ const GanttChart: React.FC = () => {
           "bg-primary text-primary-foreground shadow-md" :
           "bg-muted text-muted-foreground hover:bg-muted/80"}`
           }>
-          
             {t.label}
           </button>
         )}
+        <button
+          onClick={exportToExcel}
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-heading font-semibold bg-accent text-accent-foreground hover:bg-accent/90 active:scale-95 transition-all shadow-sm"
+          aria-label="Descargar cronograma en Excel"
+        >
+          <Download size={14} />
+          Descargar Excel
+        </button>
       </div>
 
       {/* ── Gantt Chart ── */}
