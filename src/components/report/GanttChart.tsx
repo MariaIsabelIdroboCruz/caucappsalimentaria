@@ -626,7 +626,8 @@ const PHASE_COLORS: Record<string, { bar: string; header: string; text: string }
 };
 
 // Helper: apply cell style
-function styleCell(ws: XLSX.WorkSheet, addr: string, style: XLSX.CellStyle) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>) {
   if (!ws[addr]) ws[addr] = { t: "z", v: "" };
   ws[addr].s = style;
 }
