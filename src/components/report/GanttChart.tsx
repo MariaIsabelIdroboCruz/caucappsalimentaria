@@ -687,7 +687,8 @@ function exportToExcel() {
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
   // ── Apply styles ──
-  const headerBase: XLSX.CellStyle = {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const headerBase: Record<string, any> = {
     font: { bold: true, sz: 10, color: { rgb: "FF1E293B" } },
     alignment: { horizontal: "center", vertical: "center", wrapText: true },
     fill: { fgColor: { rgb: "FFE2E8F0" }, patternType: "solid" },
