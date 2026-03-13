@@ -618,29 +618,50 @@ function getPopupText(taskId: string): string {
   return "";
 }
 
+// Phase color fills (ARGB) for xlsx styling
+const PHASE_COLORS: Record<string, { bar: string; header: string; text: string }> = {
+  cuantitativa: { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A" },
+  cualitativa:  { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733" },
+  procesamiento:{ bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A" },
+};
+
+// Helper: apply cell style
+function styleCell(ws: XLSX.WorkSheet, addr: string, style: XLSX.CellStyle) {
+  if (!ws[addr]) ws[addr] = { t: "z", v: "" };
+  ws[addr].s = style;
+}
+
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
 
-  // ── HOJA 1: Cronograma Gantt ──────────────
   const WEEKS = TOTAL_WEEKS;
   const weekLabels = Array.from({ length: WEEKS }, (_, i) => `S${i + 1}`);
-  const monthRow: (string | null)[] = ["", "Actividad", "Período", "Dep.", "Hito", "Detalle (popup)"];
-  let colOffset = 0;
+
+  // ── Row 1: Month headers ──
+  const monthRow: (string | null)[] = ["", "Actividad", "Período", "Dependencia", "Hito", "Detalle (popup)"];
   for (const m of MONTHS) {
     monthRow.push(m.mes);
     for (let i = 1; i < m.semanas; i++) monthRow.push(null);
-    colOffset += m.semanas;
   }
-  const weekRow: string[] = ["", "Actividad", "Período", "Dep.", "Hito", "Detalle (popup)", ...weekLabels];
+
+  // ── Row 2: Week labels ──
+  const weekRow: string[] = ["", "Actividad", "Período", "Dependencia", "Hito", "Detalle (popup)", ...weekLabels];
 
   const aoa: (string | null)[][] = [monthRow as (string | null)[], weekRow];
 
+  // Track row indices for styling
+  const rowMeta: { type: "header" | "task" | "blank"; phase: string; taskId?: string; taskStart?: number; taskDur?: number; hito?: boolean }[] = [
+    { type: "blank", phase: "" }, // row 0 = month header
+    { type: "blank", phase: "" }, // row 1 = week header
+  ];
+
   for (const phase of phases) {
-    // Phase header row
+    // Phase header
     aoa.push([phase.icon, phase.title, phase.dateRange, "", phase.totalDays, phase.summary.join(" · "), ...Array(WEEKS).fill("")]);
+    rowMeta.push({ type: "header", phase: phase.key });
 
     for (const task of phase.tasks) {
-      const depTask = phase.tasks.find((t) => t.id === task.dependsOn);
+      const depTask = phases.flatMap(p => p.tasks).find((t) => t.id === task.dependsOn);
       const bar: (string | null)[] = Array(WEEKS).fill("");
       for (let w = task.start; w < task.start + task.dur; w++) {
         bar[w] = task.hito ? "◆" : "█";
@@ -654,24 +675,91 @@ function exportToExcel() {
         getPopupText(task.id),
         ...bar,
       ]);
+      rowMeta.push({ type: "task", phase: phase.key, taskId: task.id, taskStart: task.start, taskDur: task.dur, hito: task.hito });
     }
-    aoa.push(Array(6 + WEEKS).fill("") as string[]); // blank row between phases
+
+    // Blank separator
+    aoa.push(Array(6 + WEEKS).fill("") as string[]);
+    rowMeta.push({ type: "blank", phase: "" });
   }
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-  // Column widths
+  // ── Apply styles ──
+  const headerBase: XLSX.CellStyle = {
+    font: { bold: true, sz: 10, color: { rgb: "FF1E293B" } },
+    alignment: { horizontal: "center", vertical: "center", wrapText: true },
+    fill: { fgColor: { rgb: "FFE2E8F0" }, patternType: "solid" },
+    border: { bottom: { style: "thin", color: { rgb: "FFCBD5E1" } } },
+  };
+
+  // Style row 0 (months) and row 1 (weeks)
+  for (let c = 0; c < 6 + WEEKS; c++) {
+    const addr0 = XLSX.utils.encode_cell({ r: 0, c });
+    const addr1 = XLSX.utils.encode_cell({ r: 1, c });
+    styleCell(ws, addr0, { ...headerBase, fill: { fgColor: { rgb: "FF1E293B" }, patternType: "solid" }, font: { bold: true, sz: 10, color: { rgb: "FFFFFFFF" } } });
+    styleCell(ws, addr1, { ...headerBase });
+  }
+
+  // Style data rows
+  for (let r = 2; r < rowMeta.length; r++) {
+    const meta = rowMeta[r];
+    const pc = PHASE_COLORS[meta.phase] ?? { bar: "FF94A3B8", header: "FFF8FAFC", text: "FF334155" };
+
+    if (meta.type === "header") {
+      for (let c = 0; c < 6 + WEEKS; c++) {
+        const addr = XLSX.utils.encode_cell({ r, c });
+        styleCell(ws, addr, {
+          font: { bold: true, sz: 11, color: { rgb: pc.text } },
+          fill: { fgColor: { rgb: pc.header }, patternType: "solid" },
+          alignment: { vertical: "center", wrapText: true },
+          border: { top: { style: "medium", color: { rgb: pc.bar } }, bottom: { style: "thin", color: { rgb: pc.bar } } },
+        });
+      }
+    } else if (meta.type === "task") {
+      // Style label columns
+      for (let c = 0; c < 6; c++) {
+        const addr = XLSX.utils.encode_cell({ r, c });
+        styleCell(ws, addr, {
+          font: { sz: 10, color: { rgb: "FF334155" } },
+          fill: { fgColor: { rgb: "FFFAFAFA" }, patternType: "solid" },
+          alignment: { vertical: "center", wrapText: c === 5 }, // wrap popup text
+          border: { bottom: { style: "hair", color: { rgb: "FFE2E8F0" } } },
+        });
+      }
+      // Style bar columns
+      for (let c = 6; c < 6 + WEEKS; c++) {
+        const weekIdx = c - 6;
+        const isActive = meta.taskStart !== undefined && meta.taskDur !== undefined
+          && weekIdx >= meta.taskStart && weekIdx < (meta.taskStart + meta.taskDur);
+        const addr = XLSX.utils.encode_cell({ r, c });
+        styleCell(ws, addr, {
+          font: { bold: isActive, sz: meta.hito ? 12 : 10, color: { rgb: isActive ? "FFFFFFFF" : "FFCBD5E1" } },
+          fill: { fgColor: { rgb: isActive ? pc.bar : "FFFFFFFF" }, patternType: "solid" },
+          alignment: { horizontal: "center", vertical: "center" },
+          border: { bottom: { style: "hair", color: { rgb: "FFE2E8F0" } } },
+        });
+      }
+    }
+  }
+
+  // ── Row heights ──
+  ws["!rows"] = rowMeta.map((m) => ({
+    hpt: m.type === "header" ? 22 : m.type === "task" ? 18 : 6,
+  }));
+
+  // ── Column widths ──
   ws["!cols"] = [
-    { wch: 4 },   // icon
-    { wch: 45 },  // actividad
-    { wch: 28 },  // período
-    { wch: 35 },  // dep
-    { wch: 6 },   // hito
-    { wch: 80 },  // detalle popup
+    { wch: 4 },
+    { wch: 45 },
+    { wch: 26 },
+    { wch: 38 },
+    { wch: 6 },
+    { wch: 80 },
     ...Array(WEEKS).fill({ wch: 4 }),
   ];
 
-  // Merge month header cells
+  // ── Merge month header cells ──
   const merges: XLSX.Range[] = [];
   let startCol = 6;
   for (const m of MONTHS) {
@@ -680,6 +768,9 @@ function exportToExcel() {
   }
   ws["!merges"] = merges;
 
+  // ── Freeze top 2 rows + first 2 columns ──
+  ws["!freeze"] = { xSplit: 2, ySplit: 2 };
+
   XLSX.utils.book_append_sheet(wb, ws, "Cronograma Gantt");
 
   // ── HOJA 2: Detalle Popups ─────────────────
@@ -687,25 +778,20 @@ function exportToExcel() {
     ["Tarea", "Actividad", "Tipo", "Información Detallada"],
   ];
 
-  // c2 Acercamiento institucional
   for (const item of ACERCAMIENTO_INSTITUCIONAL) {
     popupAoa.push(["c2", "Acercamiento institucional", "Institución", item]);
   }
-  // c4 Socialización
   for (const item of SOCIALIZACION_PLAN) {
     popupAoa.push(["c4", "Socialización del plan de acción", "Institución", item]);
   }
-  // c6 Prueba piloto
   for (const item of PRUEBA_PILOTO) {
     popupAoa.push(["c6", "Prueba piloto (1 municipio)", "Municipio", item]);
   }
-  // q2 Líderes y actores
   for (const g of ACERCAMIENTO_LIDERES_GRUPOS) {
     for (const it of g.items) {
       popupAoa.push(["q2", "Acercamiento líderes y actores", g.grupo, it]);
     }
   }
-  // q3 Talleres zonas
   for (const z of TALLERES_ZONAS) {
     for (const m of z.municipios) {
       popupAoa.push(["q3", "Talleres diferenciales — 9 zonas", `${z.zona} · Sede: ${z.sede}`, m]);
@@ -713,7 +799,41 @@ function exportToExcel() {
   }
 
   const wsPopup = XLSX.utils.aoa_to_sheet(popupAoa);
-  wsPopup["!cols"] = [{ wch: 6 }, { wch: 42 }, { wch: 40 }, { wch: 40 }];
+
+  // Style popup sheet header
+  for (let c = 0; c < 4; c++) {
+    const addr = XLSX.utils.encode_cell({ r: 0, c });
+    if (wsPopup[addr]) {
+      wsPopup[addr].s = {
+        font: { bold: true, sz: 11, color: { rgb: "FFFFFFFF" } },
+        fill: { fgColor: { rgb: "FF1E293B" }, patternType: "solid" },
+        alignment: { horizontal: "center", vertical: "center" },
+      };
+    }
+  }
+
+  // Color rows by task type
+  const popupPhaseMap: Record<string, string> = {
+    c2: "cuantitativa", c4: "cuantitativa", c6: "cuantitativa",
+    q2: "cualitativa", q3: "cualitativa",
+  };
+  for (let r = 1; r < popupAoa.length; r++) {
+    const taskId = popupAoa[r][0];
+    const pc2 = PHASE_COLORS[popupPhaseMap[taskId]] ?? { header: "FFFFFFFF", text: "FF334155" };
+    for (let c = 0; c < 4; c++) {
+      const addr = XLSX.utils.encode_cell({ r, c });
+      if (!wsPopup[addr]) wsPopup[addr] = { t: "z", v: "" };
+      wsPopup[addr].s = {
+        font: { sz: 10, color: { rgb: pc2.text } },
+        fill: { fgColor: { rgb: pc2.header }, patternType: "solid" },
+        alignment: { vertical: "center", wrapText: c === 3 },
+        border: { bottom: { style: "hair", color: { rgb: "FFCBD5E1" } } },
+      };
+    }
+  }
+
+  wsPopup["!cols"] = [{ wch: 6 }, { wch: 42 }, { wch: 44 }, { wch: 55 }];
+  wsPopup["!rows"] = popupAoa.map((_, i) => ({ hpt: i === 0 ? 20 : 15 }));
   XLSX.utils.book_append_sheet(wb, wsPopup, "Detalle Participantes y Zonas");
 
   XLSX.writeFile(wb, "Cronograma_Diagnostico_SAN_Cauca.xlsx");
