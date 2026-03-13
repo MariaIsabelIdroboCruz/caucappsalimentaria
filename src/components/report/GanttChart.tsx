@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
+import { Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
