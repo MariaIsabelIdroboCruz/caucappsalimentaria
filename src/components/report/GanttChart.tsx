@@ -759,11 +759,8 @@ const GanttChart: React.FC = () => {
         ))}
       </motion.div>
 
-      {/* ── Tab Buttons ── */}
-
-      {/* ── Tab Buttons ── */}
-
-      <div className="flex flex-wrap gap-2 mb-4">
+      {/* ── Tab Buttons + Export ── */}
+      <div className="flex flex-wrap items-center gap-2 mb-4">
         {tabs.map((t) =>
         <button
           key={t.key}
@@ -773,10 +770,17 @@ const GanttChart: React.FC = () => {
           "bg-primary text-primary-foreground shadow-md" :
           "bg-muted text-muted-foreground hover:bg-muted/80"}`
           }>
-          
             {t.label}
           </button>
         )}
+        <button
+          onClick={exportToExcel}
+          className="ml-auto flex items-center gap-2 px-4 py-2 rounded-full text-sm font-heading font-semibold bg-accent text-accent-foreground hover:bg-accent/90 active:scale-95 transition-all shadow-sm"
+          aria-label="Descargar cronograma en Excel"
+        >
+          <Download size={14} />
+          Descargar Excel
+        </button>
       </div>
 
       {/* ── Gantt Chart ── */}
