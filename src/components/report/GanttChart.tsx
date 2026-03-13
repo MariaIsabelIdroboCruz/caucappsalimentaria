@@ -395,6 +395,7 @@ const GanttRow: React.FC<{
 
   const popupItems =
     item.id === "c2" ? ACERCAMIENTO_INSTITUCIONAL :
+    item.id === "c3b" ? RESPUESTA_SOLICITUD :
     item.id === "c4" ? SOCIALIZACION_PLAN :
     item.id === "c6" ? PRUEBA_PILOTO :
     null;
