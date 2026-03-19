@@ -214,7 +214,7 @@ const zonas: ZonaData[] = [
     id: "zona8",
     name: "Zona 8",
     subregion: "Macizo — La Vega",
-    municipios: ["La Vega", "San Sebastián", "Almaguer"],
+    municipios: ["La Vega", "San Sebastián", "Almaguer", "Santa Rosa"],
     taller: "1 taller participativo — sede La Vega",
     color: "#7a3daa",
     cx: 560, cy: 455, rx: 65, ry: 58,
