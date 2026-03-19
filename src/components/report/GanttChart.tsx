@@ -309,7 +309,7 @@ const ACERCAMIENTO_INSTITUCIONAL = [
 "Comités Municipales de Seguridad Alimentaria y Nutricional"];
 
 const RESPUESTA_SOLICITUD = [
-"Fecha de Entrega de oficios 30 de marzo"];
+"Fecha de Entrega de oficios del 15 al 30 de abril"];
 
 const SOCIALIZACION_PLAN = [
 "CDSAN",
