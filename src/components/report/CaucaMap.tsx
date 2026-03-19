@@ -54,7 +54,7 @@ const zonas: ZonaData[] = [
     id: "zona2",
     name: "Zona 2",
     subregion: "Norte — Santander de Quilichao",
-    municipios: ["Santander de Quilichao", "Caldono", "Buenos Aires", "Caloto", "Jambaló"],
+    municipios: ["Santander de Quilichao", "Caldono", "Buenos Aires", "Caloto", "Jambaló", "Padilla", "Puerto Tejada", "Villa Rica", "Miranda", "Guachené", "Piamonte"],
     taller: "1 taller participativo — sede Santander de Quilichao",
     color: "#2d9e5a",
     cx: 400, cy: 120, rx: 130, ry: 90,
