@@ -59,7 +59,7 @@ const phases: GanttPhase[] = [
   { id: "c3", label: "Recolección de Información Primaria", start: 4, dur: 2, dias: "Mar 9–20 · 12 días", hito: false, dependsOn: "c2" },
   { id: "c3b", label: "Respuesta a la solicitud enviada", start: 10, dur: 2, dias: "Abr 15–30 · 15 días", hito: true, dependsOn: "c3" },
   { id: "c4", label: "Socialización del plan de acción", start: 6, dur: 2, dias: "Mar 23 – Abr 3 · 10 días", hito: false, dependsOn: "c3" },
-  { id: "c6", label: "Prueba piloto (1 municipio)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: false, dependsOn: "c4" },
+  { id: "c6", label: "Prueba piloto (1 municipio)", start: 10, dur: 2, dias: "Abr 15 – Abr 30 · 15 días", hito: false, dependsOn: "c4" },
   { id: "c8", label: "Aplicación encuestas — 7.560", start: 10, dur: 4, dias: "Abr 13 – May 8 · 20 días", hito: false, dependsOn: "c6" }]
 
 },
