@@ -57,7 +57,7 @@ const phases: GanttPhase[] = [
   { id: "c1", label: "Análisis información secundaria", start: 0, dur: 3, dias: "Feb 2–20 · 15 días", hito: false },
   { id: "c2", label: "Acercamiento institucional", start: 2, dur: 3, dias: "Feb 16 – Mar 6 · 18 días", hito: false, dependsOn: "c1" },
   { id: "c3", label: "Recolección de Información Primaria", start: 4, dur: 2, dias: "Mar 9–20 · 12 días", hito: false, dependsOn: "c2" },
-  { id: "c3b", label: "Respuesta a la solicitud enviada", start: 4, dur: 1, dias: "Mar 13–18 · 5 días", hito: true, dependsOn: "c3" },
+  { id: "c3b", label: "Respuesta a la solicitud enviada", start: 10, dur: 2, dias: "Abr 15–30 · 15 días", hito: true, dependsOn: "c3" },
   { id: "c4", label: "Socialización del plan de acción", start: 6, dur: 2, dias: "Mar 23 – Abr 3 · 10 días", hito: false, dependsOn: "c3" },
   { id: "c6", label: "Prueba piloto (1 municipio)", start: 8, dur: 1, dias: "Mar 30 – Abr 3 · 5 días", hito: false, dependsOn: "c4" },
   { id: "c8", label: "Aplicación encuestas — 7.560", start: 10, dur: 4, dias: "Abr 13 – May 8 · 20 días", hito: false, dependsOn: "c6" }]
@@ -309,7 +309,7 @@ const ACERCAMIENTO_INSTITUCIONAL = [
 "Comités Municipales de Seguridad Alimentaria y Nutricional"];
 
 const RESPUESTA_SOLICITUD = [
-"Fecha de Entrega de oficios 30 de marzo"];
+"Fecha de Entrega de oficios del 15 al 30 de abril"];
 
 const SOCIALIZACION_PLAN = [
 "CDSAN",
