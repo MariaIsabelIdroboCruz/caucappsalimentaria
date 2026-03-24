@@ -867,22 +867,8 @@ function exportToExcel() {
   XLSX.writeFile(wb, "CronogramaSAN_Cauca_2026.xlsx");
 }
 
-// Phase color fills — kept for internal use
-const PHASE_COLORS: Record<string, { bar: string; header: string; text: string }> = {
 
-  cuantitativa: { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A" },
-  cualitativa:  { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733" },
-  procesamiento:{ bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A" },
-};
 
-// Helper: apply cell style
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>) {
-  if (!ws[addr]) ws[addr] = { t: "z", v: "" };
-  ws[addr].s = style;
-}
-
-function exportToExcel() {
   const wb = XLSX.utils.book_new();
 
   // ── 19 activities data (exact user-provided order) ──
