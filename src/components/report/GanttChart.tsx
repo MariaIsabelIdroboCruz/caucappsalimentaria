@@ -610,224 +610,262 @@ const PhaseBlock: React.FC<{phase: GanttPhase;showHeader?: boolean;}> = ({ phase
 
 // ─── Excel Export ────────────────────────────
 
-// Phase color fills (ARGB) for xlsx styling
-const PHASE_COLORS: Record<string, { bar: string; header: string; text: string }> = {
-  cuantitativa: { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A" },
-  cualitativa:  { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733" },
-  procesamiento:{ bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A" },
+// Colors matching the reference file exactly
+const XL_COLORS = {
+  headerDark:  "FF1F4E79",
+  white:       "FFFFFFFF",
+  alistFill:   "FFDEEBF7", alistBar:  "FF2E75B6", alistText: "FF2E75B6",
+  diagFill:    "FFE2EFDA", diagBar:   "FF375623", diagText:  "FF375623",
+  f1Fill:      "FFFFF2CC", f1Bar:     "FFBF8F00", f1Text:    "FFBF8F00",
+  f2Fill:      "FFFCE4D6", f2Bar:     "FF843C0C", f2Text:    "FF843C0C",
+  f3Fill:      "FFF2CEEF", f3Bar:     "FF7030A0", f3Text:    "FF7030A0",
+  hitoBar:     "FFC00000",
+  inactive:    "FFF7F7F7",
 };
 
-// Helper: apply cell style
+const FASE_XL: Record<string, { fill: string; bar: string; text: string }> = {
+  "Alistamiento":         { fill: XL_COLORS.alistFill, bar: XL_COLORS.alistBar, text: XL_COLORS.alistText },
+  "Diagnóstico":          { fill: XL_COLORS.diagFill,  bar: XL_COLORS.diagBar,  text: XL_COLORS.diagText  },
+  "Fase 1 Cuantitativa":  { fill: XL_COLORS.f1Fill,    bar: XL_COLORS.f1Bar,    text: XL_COLORS.f1Text    },
+  "Fase 2 Cualitativa":   { fill: XL_COLORS.f2Fill,    bar: XL_COLORS.f2Bar,    text: XL_COLORS.f2Text    },
+  "Fase 3 Procesamiento": { fill: XL_COLORS.f3Fill,    bar: XL_COLORS.f3Bar,    text: XL_COLORS.f3Text    },
+};
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>) {
+function xlStyle(ws: XLSX.WorkSheet, addr: string, s: Record<string, any>) {
   if (!ws[addr]) ws[addr] = { t: "z", v: "" };
-  ws[addr].s = style;
+  ws[addr].s = s;
 }
 
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
 
-  // ── 19 activities data (exact user-provided order) ──
-  type ActivityRow = {
-    n: number;
-    fase: string;
-    actividad: string;
-    descripcion: string;
-    responsable: string;
-    recursos: string;
-    producto: string;
-    semanas: number[]; // 1-indexed active weeks out of S1..S16
-    hito: boolean;
-    faseKey: "alistamiento" | "diagnostico" | "fase1" | "fase2" | "fase3";
+  type Act = {
+    n: number; fase: string; actividad: string; descripcion: string;
+    responsable: string; recursos: string; producto: string;
+    semanas: number[]; hito: boolean; labelS: string;
   };
 
-  const activities: ActivityRow[] = [
-    { n: 1, fase: "Alistamiento", actividad: "Análisis de antecedentes de política pública", descripcion: "Revisión y análisis de marco normativo, institucional, antecedentes de gestión e inversión y políticas existentes.", responsable: "Equipo técnico de investigación", recursos: "Viáticos investigadores, bases de datos DANE/ICBF", producto: "Matrices marco normativo y marco referencial", semanas: [1, 2], hito: false, faseKey: "alistamiento" },
-    { n: 2, fase: "Alistamiento", actividad: "Mapeo de actores clave", descripcion: "Identificar y analizar la relación de actores institucionales, sociales y privados relevantes.", responsable: "Coordinador del proyecto + enlaces territoriales", recursos: "Transporte, material de presentación, directorio de actores", producto: "Matriz de actores", semanas: [3], hito: false, faseKey: "alistamiento" },
-    { n: 3, fase: "Alistamiento", actividad: "Diseñar estrategia de participación", descripcion: "Definir mecanismos, espacios y metodologías participativas.", responsable: "Coordinador general + equipo metodológico", recursos: "Software de diseño, material impreso", producto: "Estrategia de participación", semanas: [4], hito: false, faseKey: "alistamiento" },
-    { n: 4, fase: "Diagnóstico", actividad: "Levantamiento de información cuantitativa y línea base", descripcion: "Recolección de datos del problema con fuentes secundarias.", responsable: "Equipo técnico de investigación", recursos: "Acceso a repositorios digitales, bases de datos", producto: "Matriz diagnóstico inicial", semanas: [5, 6], hito: false, faseKey: "diagnostico" },
-    { n: 5, fase: "Diagnóstico", actividad: "Diagnóstico participativo", descripcion: "Realizar talleres y espacios participativos para identificar el problema.", responsable: "Coordinadores de zona + facilitadores", recursos: "Transporte, salones comunales, refrigerios", producto: "Sistematización de información de los espacios participativos", semanas: [7, 8], hito: false, faseKey: "diagnostico" },
-    { n: 6, fase: "Diagnóstico", actividad: "Caracterización del problema", descripcion: "Analizar causas, efectos y magnitud del problema (árbol de problemas).", responsable: "Equipo multidisciplinario", recursos: "Software de análisis, material bibliográfico", producto: "Árbol de problemas", semanas: [9], hito: false, faseKey: "diagnostico" },
-    { n: 7, fase: "Diagnóstico", actividad: "Socialización del diagnóstico", descripcion: "Validar resultados con actores institucionales y sociales.", responsable: "Coordinador general", recursos: "Material de presentación, video beam", producto: "Diagnóstico validado", semanas: [10], hito: false, faseKey: "diagnostico" },
-    { n: 8, fase: "Diagnóstico", actividad: "Diagnóstico finalizado", descripcion: "Escritura del diagnóstico.", responsable: "Coordinador técnico + equipo redactor", recursos: "Procesador de texto, software de diseño", producto: "Documento Diagnóstico", semanas: [11], hito: false, faseKey: "diagnostico" },
-    { n: 9, fase: "Fase 1 Cuantitativa", actividad: "Recolección de Información Primaria", descripcion: "Diseño y preparación de instrumentos de recolección de datos cuantitativos para los 42 municipios.", responsable: "Equipo metodológico", recursos: "Equipos de cómputo, software KoBoToolbox/ODK", producto: "Instrumentos de recolección validados", semanas: [5, 6], hito: false, faseKey: "fase1" },
-    { n: 10, fase: "Fase 1 Cuantitativa", actividad: "Aplicación masiva de encuestas — 7.560", descripcion: "Aplicación de 7.560 encuestas en los 42 municipios por 420 encuestadores.", responsable: "420 encuestadores coordinados por zonas", recursos: "Honorarios, refrigerios, transporte, alojamiento", producto: "7.560 encuestas diligenciadas y enviadas", semanas: [12, 13, 14], hito: false, faseKey: "fase1" },
-    { n: 11, fase: "Fase 1 Cuantitativa", actividad: "Prueba piloto (1 municipio — Popayán)", descripcion: "Aplicación piloto de instrumentos de encuesta en Popayán para validar metodología.", responsable: "Equipo de campo - Zona 6", recursos: "Transporte, refrigerios piloto, tabletas", producto: "Encuesta validada con ajustes incorporados", semanas: [11], hito: false, faseKey: "fase1" },
-    { n: 12, fase: "Fase 2 Cualitativa", actividad: "Revisión de información secundaria cualitativa", descripcion: "Análisis de fuentes cualitativas sobre SAN diferencial por grupos poblacionales y territorios.", responsable: "Equipo de investigación cualitativa", recursos: "Material bibliográfico, software atlas.ti", producto: "Marco conceptual cualitativo SAN diferencial", semanas: [15], hito: false, faseKey: "fase2" },
-    { n: 13, fase: "Fase 2 Cualitativa", actividad: "Acercamiento a líderes y actores comunitarios", descripcion: "Contacto con líderes comunitarios e institucionales en 9 zonas.", responsable: "Coordinadores de zona (9 zonas operativas)", recursos: "Transporte, material de presentación", producto: "Listado de participantes confirmados por zona", semanas: [15, 16], hito: false, faseKey: "fase2" },
-    { n: 14, fase: "Fase 2 Cualitativa", actividad: "Talleres diferenciales — 20 talleres / 9 zonas ◆ HITO", descripcion: "Realización de 20 talleres participativos diferenciales en 9 zonas con 2.000 participantes.", responsable: "Facilitadores especializados por zona", recursos: "Honorarios, alimentación, materiales, transporte", producto: "20 talleres ejecutados, memorias y relatorías", semanas: [13, 14, 15, 16], hito: true, faseKey: "fase2" },
-    { n: 15, fase: "Fase 3 Procesamiento", actividad: "Limpieza y validación de datos", descripcion: "Depuración y validación de las 7.560 encuestas y registros cualitativos.", responsable: "Estadísticos y analistas de datos", recursos: "Licencias SPSS/R/Python, computadores", producto: "Base de datos limpia, validada y codificada", semanas: [14, 15], hito: false, faseKey: "fase3" },
-    { n: 16, fase: "Fase 3 Procesamiento", actividad: "Procesamiento estadístico", descripcion: "Análisis estadístico descriptivo e inferencial de los datos cuantitativos.", responsable: "Estadístico principal", recursos: "Licencias SPSS/Stata/R", producto: "Tablas estadísticas y gráficos de resultados", semanas: [15], hito: false, faseKey: "fase3" },
-    { n: 17, fase: "Fase 3 Procesamiento", actividad: "Análisis cruzado cuantitativo — cualitativo", descripcion: "Triangulación e integración de resultados cuantitativos y cualitativos.", responsable: "Equipo técnico multidisciplinario", recursos: "Software NVivo/R, sala de trabajo", producto: "Análisis integrado y triangulación de resultados", semanas: [16], hito: false, faseKey: "fase3" },
-    { n: 18, fase: "Fase 3 Procesamiento", actividad: "Redacción informe diagnóstico ◆ HITO", descripcion: "Elaboración del informe final del diagnóstico departamental SAN del Cauca 2026.", responsable: "Coordinador técnico y equipo redactor", recursos: "Honorarios redactor, software de diseño", producto: "Informe diagnóstico SAN Cauca 2026 (borrador final)", semanas: [16], hito: true, faseKey: "fase3" },
-    { n: 19, fase: "Fase 3 Procesamiento", actividad: "Presentación ante el CDSAN", descripcion: "Presentación oficial del diagnóstico SAN ante el Comité Departamental.", responsable: "Director del proyecto", recursos: "Impresión informes, video beam, sistema de audio", producto: "Diagnóstico presentado y validado por CDSAN", semanas: [16], hito: false, faseKey: "fase3" },
+  const activities: Act[] = [
+    { n:1,  fase:"Alistamiento",         actividad:"Análisis de antecedentes de política pública",           descripcion:"Revisión y análisis de marco normativo, institucional, antecedentes de gestión e inversión y políticas existentes.",  responsable:"Equipo técnico de investigación",             recursos:"Viáticos investigadores, bases de datos DANE/ICBF",         producto:"Matrices marco normativo y marco referencial",         semanas:[1,2],         hito:false, labelS:"S1-S2" },
+    { n:2,  fase:"Alistamiento",         actividad:"Mapeo de actores clave",                                 descripcion:"Identificar y analizar la relación de actores institucionales, sociales y privados relevantes.",                     responsable:"Coordinador del proyecto + enlaces territoriales",    recursos:"Transporte, material de presentación, directorio de actores",producto:"Matriz de actores",                                   semanas:[3],           hito:false, labelS:"S3"    },
+    { n:3,  fase:"Alistamiento",         actividad:"Diseñar estrategia de participación",                    descripcion:"Definir mecanismos, espacios y metodologías participativas.",                                                        responsable:"Coordinador general + equipo metodológico",           recursos:"Software de diseño, material impreso",                     producto:"Estrategia de participación",                          semanas:[4],           hito:false, labelS:"S4"    },
+    { n:4,  fase:"Diagnóstico",          actividad:"Levantamiento de información cuantitativa y línea base", descripcion:"Recolección de datos del problema con fuentes secundarias.",                                                        responsable:"Equipo técnico de investigación",                     recursos:"Acceso a repositorios digitales, bases de datos",          producto:"Matriz diagnóstico inicial",                           semanas:[5,6],         hito:false, labelS:"S5-S6" },
+    { n:5,  fase:"Diagnóstico",          actividad:"Diagnóstico participativo",                              descripcion:"Realizar talleres y espacios participativos para identificar el problema.",                                          responsable:"Coordinadores de zona + facilitadores",               recursos:"Transporte, salones comunales, refrigerios",               producto:"Sistematización de información de los espacios participativos", semanas:[7,8], hito:false, labelS:"S7-S8" },
+    { n:6,  fase:"Diagnóstico",          actividad:"Caracterización del problema",                           descripcion:"Analizar causas, efectos y magnitud del problema (árbol de problemas).",                                             responsable:"Equipo multidisciplinario",                           recursos:"Software de análisis, material bibliográfico",             producto:"Árbol de problemas",                                   semanas:[9],           hito:false, labelS:"S9"    },
+    { n:7,  fase:"Diagnóstico",          actividad:"Socialización del diagnóstico",                          descripcion:"Validar resultados con actores institucionales y sociales.",                                                         responsable:"Coordinador general",                                 recursos:"Material de presentación, video beam",                     producto:"Diagnóstico validado",                                 semanas:[10],          hito:false, labelS:"S10"   },
+    { n:8,  fase:"Diagnóstico",          actividad:"Diagnóstico finalizado",                                 descripcion:"Escritura del diagnóstico.",                                                                                        responsable:"Coordinador técnico + equipo redactor",               recursos:"Procesador de texto, software de diseño",                  producto:"Documento Diagnóstico",                                semanas:[11],          hito:false, labelS:"S11"   },
+    { n:9,  fase:"Fase 1 Cuantitativa",  actividad:"Recolección de Información Primaria",                    descripcion:"Diseño y preparación de instrumentos de recolección de datos cuantitativos para los 42 municipios.",                 responsable:"Equipo metodológico",                                 recursos:"Equipos de cómputo, software KoBoToolbox/ODK",             producto:"Instrumentos de recolección validados",                semanas:[5,6],         hito:false, labelS:"S5-S6" },
+    { n:10, fase:"Fase 1 Cuantitativa",  actividad:"Aplicación masiva de encuestas — 7.560",                 descripcion:"Aplicación de 7.560 encuestas en los 42 municipios por 420 encuestadores.",                                         responsable:"420 encuestadores coordinados por zonas",             recursos:"Honorarios, refrigerios, transporte, alojamiento",          producto:"7.560 encuestas diligenciadas y enviadas",             semanas:[12,13,14],    hito:false, labelS:"S12-S14"},
+    { n:11, fase:"Fase 1 Cuantitativa",  actividad:"Prueba piloto (1 municipio — Popayán)",                  descripcion:"Aplicación piloto de instrumentos de encuesta en Popayán para validar metodología.",                                 responsable:"Equipo de campo - Zona 6",                            recursos:"Transporte, refrigerios piloto, tabletas",                 producto:"Encuesta validada con ajustes incorporados",           semanas:[11],          hito:false, labelS:"S11"   },
+    { n:12, fase:"Fase 2 Cualitativa",   actividad:"Revisión de información secundaria cualitativa",         descripcion:"Análisis de fuentes cualitativas sobre SAN diferencial por grupos poblacionales y territorios.",                    responsable:"Equipo de investigación cualitativa",                 recursos:"Material bibliográfico, software atlas.ti",                producto:"Marco conceptual cualitativo SAN diferencial",         semanas:[15],          hito:false, labelS:"S15"   },
+    { n:13, fase:"Fase 2 Cualitativa",   actividad:"Acercamiento a líderes y actores comunitarios",          descripcion:"Contacto con líderes comunitarios e institucionales en 9 zonas.",                                                    responsable:"Coordinadores de zona (9 zonas operativas)",          recursos:"Transporte, material de presentación",                     producto:"Listado de participantes confirmados por zona",        semanas:[15,16],       hito:false, labelS:"S15-S16"},
+    { n:14, fase:"Fase 2 Cualitativa",   actividad:"Talleres diferenciales — 20 talleres / 9 zonas ◆ HITO",  descripcion:"Realización de 20 talleres participativos diferenciales en 9 zonas con 2.000 participantes.",                       responsable:"Facilitadores especializados por zona",               recursos:"Honorarios, alimentación, materiales, transporte",          producto:"20 talleres ejecutados, memorias y relatorías",        semanas:[13,14,15,16], hito:true,  labelS:"S13-S16"},
+    { n:15, fase:"Fase 3 Procesamiento", actividad:"Limpieza y validación de datos",                         descripcion:"Depuración y validación de las 7.560 encuestas y registros cualitativos.",                                           responsable:"Estadísticos y analistas de datos",                   recursos:"Licencias SPSS/R/Python, computadores",                    producto:"Base de datos limpia, validada y codificada",          semanas:[14,15],       hito:false, labelS:"S14-S15"},
+    { n:16, fase:"Fase 3 Procesamiento", actividad:"Procesamiento estadístico",                              descripcion:"Análisis estadístico descriptivo e inferencial de los datos cuantitativos.",                                        responsable:"Estadístico principal",                               recursos:"Licencias SPSS/Stata/R",                                   producto:"Tablas estadísticas y gráficos de resultados",         semanas:[15],          hito:false, labelS:"S15"   },
+    { n:17, fase:"Fase 3 Procesamiento", actividad:"Análisis cruzado cuantitativo — cualitativo",            descripcion:"Triangulación e integración de resultados cuantitativos y cualitativos.",                                            responsable:"Equipo técnico multidisciplinario",                   recursos:"Software NVivo/R, sala de trabajo",                        producto:"Análisis integrado y triangulación de resultados",     semanas:[16],          hito:false, labelS:"S16"   },
+    { n:18, fase:"Fase 3 Procesamiento", actividad:"Redacción informe diagnóstico ◆ HITO",                   descripcion:"Elaboración del informe final del diagnóstico departamental SAN del Cauca 2026.",                                   responsable:"Coordinador técnico y equipo redactor",               recursos:"Honorarios redactor, software de diseño",                  producto:"Informe diagnóstico SAN Cauca 2026 (borrador final)",  semanas:[16],          hito:true,  labelS:"S16"   },
+    { n:19, fase:"Fase 3 Procesamiento", actividad:"Presentación ante el CDSAN",                             descripcion:"Presentación oficial del diagnóstico SAN ante el Comité Departamental.",                                           responsable:"Director del proyecto",                               recursos:"Impresión informes, video beam, sistema de audio",          producto:"Diagnóstico presentado y validado por CDSAN",          semanas:[16],          hito:false, labelS:"S16"   },
   ];
 
-  // Phase color fills (ARGB)
-  const FASE_COLORS: Record<string, { bar: string; header: string; text: string; rowFill: string }> = {
-    alistamiento: { bar: "FF7C3AED", header: "FFEDE9FE", text: "FF4C1D95", rowFill: "FFF5F3FF" },
-    diagnostico:  { bar: "FF0284C7", header: "FFE0F2FE", text: "FF0C4A6E", rowFill: "FFF0F9FF" },
-    fase1:        { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A", rowFill: "FFF8FAFF" },
-    fase2:        { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733", rowFill: "FFF0FDF4" },
-    fase3:        { bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A", rowFill: "FFFFFBEB" },
-  };
-
-  // 16 weeks mapped to months: Feb(S1-S4), Mar(S5-S8), Abr(S9-S12), May(S13-S16)
-  const WEEK_MONTHS = [
-    { mes: "feb-26", weeks: [1,2,3,4] },
-    { mes: "mar-26", weeks: [5,6,7,8] },
-    { mes: "abr-26", weeks: [9,10,11,12] },
-    { mes: "may-26", weeks: [13,14,15,16] },
-  ];
   const TOTAL_W = 16;
+  const TOTAL_COLS = 7 + TOTAL_W; // 23
 
-  // ── Build header rows ──
-  const titleRow: (string | null)[] = [
+  // ── ROW 0: TITLE ──────────────────────────────────────────────────
+  // Cols A-W = 0-22; rows are 0-indexed in XLSX aoa
+  const titleRow: (string | null)[] = Array(TOTAL_COLS).fill(null);
+  titleRow[0] = "CRONOGRAMA PLAN DE ACCIÓN SAN – CAUCA 2026";
+
+  // ── ROW 1: COLUMN HEADERS + MONTH SPANS ──────────────────────────
+  const headerRow: (string | null)[] = [
     "N°", "Fase", "Actividad", "Descripción", "Responsable",
-    "Recursos Necesarios (financieros, técnicos, humanos, logísticos)",
+    "Recursos Necesarios\n(financieros, técnicos, humanos, logísticos)",
     "Producto Esperado",
+    "feb-26", null, null, null,
+    "mar-26", null, null, null,
+    "abr-26", null, null, null,
+    "may-26", null, null, null,
   ];
-  for (const wm of WEEK_MONTHS) {
-    titleRow.push(wm.mes);
-    for (let i = 1; i < 4; i++) titleRow.push(null);
-  }
 
-  const weekLabelRow: (string | null)[] = [
-    "", "", "", "", "", "", "",
+  // ── ROW 2: WEEK LABELS ────────────────────────────────────────────
+  const weekRow: (string | null)[] = [
+    null, null, null, null, null, null, null,
     ...Array.from({ length: TOTAL_W }, (_, i) => `S${i + 1}`),
   ];
 
-  const aoa: (string | null)[][] = [titleRow, weekLabelRow];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const rowMeta2: { faseKey: string; hito: boolean; semanas: number[] }[] = [];
+  const aoa: (string | null)[][] = [titleRow, headerRow, weekRow];
 
+  // ── ROWS 3-21: ACTIVITIES ─────────────────────────────────────────
   for (const act of activities) {
-    const weekCells: string[] = Array(TOTAL_W).fill("");
+    const weekCells: (string | null)[] = Array(TOTAL_W).fill(null);
+    let isFirst = true;
     for (const s of act.semanas) {
-      if (s >= 1 && s <= TOTAL_W) weekCells[s - 1] = act.hito ? "◆" : "█";
+      if (s >= 1 && s <= TOTAL_W) {
+        weekCells[s - 1] = isFirst ? act.labelS : "";
+        isFirst = false;
+      }
     }
     aoa.push([
-      String(act.n),
-      act.fase,
-      act.actividad,
-      act.descripcion,
-      act.responsable,
-      act.recursos,
-      act.producto,
-      ...weekCells,
+      String(act.n), act.fase, act.actividad, act.descripcion,
+      act.responsable, act.recursos, act.producto, ...weekCells,
     ]);
-    rowMeta2.push({ faseKey: act.faseKey, hito: act.hito, semanas: act.semanas });
   }
+
+  // ── ROW 22: BLANK SEPARATOR ───────────────────────────────────────
+  aoa.push(Array(TOTAL_COLS).fill(""));
+
+  // ── ROW 23: LEGEND ───────────────────────────────────────────────
+  const legendRow: (string | null)[] = [
+    "LEYENDA:", "Alistamiento", "Diagnóstico", "Fase 1 Cuantitativa",
+    "Fase 2 Cualitativa", "Fase 3 Procesamiento", "Actividad activa", "Hito ◆",
+    ...Array(TOTAL_COLS - 8).fill(null),
+  ];
+  aoa.push(legendRow);
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
-  // ── Apply styles ──
-  const TOTAL_COLS = 7 + TOTAL_W;
+  const thin = { style: "thin", color: { rgb: "FFBFBFBF" } };
+  const bd = { left: thin, right: thin, top: thin, bottom: thin };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  function styleCell2(addr: string, style: Record<string, any>) {
-    if (!ws[addr]) ws[addr] = { t: "z", v: "" };
-    ws[addr].s = style;
+  // ── Style ROW 0: Title ─────────────────────────────────────────────
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    xlStyle(ws, XLSX.utils.encode_cell({ r: 0, c }), {
+      font: { bold: true, sz: 12, color: { rgb: XL_COLORS.white }, name: "Calibri" },
+      fill: { fgColor: { rgb: XL_COLORS.headerDark }, patternType: "solid" },
+      alignment: { horizontal: "center", vertical: "center", wrapText: false },
+      border: bd,
+    });
   }
 
-  // Row 0: month header (dark)
+  // ── Style ROW 1: Headers + month labels ───────────────────────────
   for (let c = 0; c < TOTAL_COLS; c++) {
-    styleCell2(XLSX.utils.encode_cell({ r: 0, c }), {
-      font: { bold: true, sz: 11, color: { rgb: "FFFFFFFF" }, name: "Arial" },
-      fill: { fgColor: { rgb: "FF1E293B" }, patternType: "solid" },
+    xlStyle(ws, XLSX.utils.encode_cell({ r: 1, c }), {
+      font: { bold: true, sz: 9, color: { rgb: XL_COLORS.white }, name: "Calibri" },
+      fill: { fgColor: { rgb: XL_COLORS.headerDark }, patternType: "solid" },
       alignment: { horizontal: "center", vertical: "center", wrapText: true },
-      border: { bottom: { style: "medium", color: { rgb: "FF475569" } } },
+      border: bd,
     });
   }
 
-  // Row 1: week labels
+  // ── Style ROW 2: Week labels ───────────────────────────────────────
   for (let c = 0; c < TOTAL_COLS; c++) {
-    styleCell2(XLSX.utils.encode_cell({ r: 1, c }), {
-      font: { bold: true, sz: 9, color: { rgb: "FF334155" }, name: "Arial" },
-      fill: { fgColor: { rgb: "FFE2E8F0" }, patternType: "solid" },
-      alignment: { horizontal: "center", vertical: "center" },
-      border: { bottom: { style: "thin", color: { rgb: "FFCBD5E1" } } },
+    xlStyle(ws, XLSX.utils.encode_cell({ r: 2, c }), {
+      font: { bold: true, sz: 9, color: { rgb: XL_COLORS.white }, name: "Calibri" },
+      fill: { fgColor: { rgb: XL_COLORS.headerDark }, patternType: "solid" },
+      alignment: { horizontal: "center", vertical: "center", wrapText: false },
+      border: bd,
     });
   }
 
-  // Data rows (row 2+)
-  for (let r = 0; r < rowMeta2.length; r++) {
-    const meta = rowMeta2[r];
-    const pc = FASE_COLORS[meta.faseKey] ?? { bar: "FF94A3B8", header: "FFF8FAFC", text: "FF334155", rowFill: "FFFFFFFF" };
-    const excelRow = r + 2;
+  // ── Style ROWS 3-21: Activities ────────────────────────────────────
+  for (let i = 0; i < activities.length; i++) {
+    const act = activities[i];
+    const r = i + 3;
+    const fase = act.fase as keyof typeof FASE_XL;
+    const fc = FASE_XL[fase] ?? FASE_XL["Alistamiento"];
+    const barColor = act.hito ? XL_COLORS.hitoBar : fc.bar;
 
-    // Text columns (0..6)
+    // Label columns 0-6
+    const labelStyles = [
+      { bold: true,  color: fc.text,       sz: 10, align: "center" }, // N°
+      { bold: true,  color: fc.text,       sz: 9,  align: "left"   }, // Fase
+      { bold: true,  color: "FF000000",    sz: 9,  align: "left"   }, // Actividad
+      { bold: false, color: "FF000000",    sz: 9,  align: "left"   }, // Descripción
+      { bold: false, color: "FF000000",    sz: 9,  align: "left"   }, // Responsable
+      { bold: false, color: "FF000000",    sz: 9,  align: "left"   }, // Recursos
+      { bold: false, color: "FF000000",    sz: 9,  align: "left"   }, // Producto
+    ];
     for (let c = 0; c < 7; c++) {
-      styleCell2(XLSX.utils.encode_cell({ r: excelRow, c }), {
-        font: { sz: 10, bold: c === 0 || c === 2, color: { rgb: c === 0 ? pc.text : "FF334155" }, name: "Arial" },
-        fill: { fgColor: { rgb: pc.rowFill }, patternType: "solid" },
-        alignment: { vertical: "center", wrapText: true, horizontal: c === 0 ? "center" : "left" },
-        border: {
-          bottom: { style: "hair", color: { rgb: "FFE2E8F0" } },
-          right: c === 6 ? { style: "thin", color: { rgb: "FFCBD5E1" } } : undefined,
-        },
+      const ls = labelStyles[c];
+      xlStyle(ws, XLSX.utils.encode_cell({ r, c }), {
+        font: { bold: ls.bold, sz: ls.sz, color: { rgb: ls.color }, name: "Calibri" },
+        fill: { fgColor: { rgb: fc.fill }, patternType: "solid" },
+        alignment: { horizontal: ls.align, vertical: "center", wrapText: true },
+        border: bd,
       });
     }
 
-    // Week bar columns (7..7+TOTAL_W)
+    // Week columns 7-22
+    const activeSet = new Set(act.semanas);
     for (let c = 7; c < 7 + TOTAL_W; c++) {
-      const weekIdx = c - 7 + 1; // 1-indexed
-      const isActive = meta.semanas.includes(weekIdx);
-      styleCell2(XLSX.utils.encode_cell({ r: excelRow, c }), {
-        font: { bold: isActive && meta.hito, sz: meta.hito && isActive ? 13 : 10, color: { rgb: isActive ? "FFFFFFFF" : "FFCBD5E1" }, name: "Arial" },
-        fill: { fgColor: { rgb: isActive ? pc.bar : "FFFFFFFF" }, patternType: "solid" },
-        alignment: { horizontal: "center", vertical: "center" },
-        border: { bottom: { style: "hair", color: { rgb: "FFE2E8F0" } }, right: { style: "hair", color: { rgb: "FFE2E8F0" } } },
+      const wi = c - 6; // 1-indexed
+      const isActive = activeSet.has(wi);
+      xlStyle(ws, XLSX.utils.encode_cell({ r, c }), {
+        font: { bold: act.hito && isActive, sz: 9, color: { rgb: isActive ? XL_COLORS.white : XL_COLORS.inactive }, name: "Calibri" },
+        fill: { fgColor: { rgb: isActive ? barColor : XL_COLORS.inactive }, patternType: "solid" },
+        alignment: { horizontal: "center", vertical: "center", wrapText: false },
+        border: bd,
       });
     }
   }
 
-  // ── Merge month header cells ──
-  const merges: XLSX.Range[] = [];
-  // Merge first 7 cols in row 0
-  merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 6 } });
-  // Also merge row 0 & row 1 for label cols
-  for (let c = 0; c < 7; c++) {
-    merges.push({ s: { r: 0, c }, e: { r: 1, c } });
+  // ── Style LEGEND ROW ──────────────────────────────────────────────
+  const legendRow_r = activities.length + 4; // row index
+  const legendStyles: { fill: string; text: string }[] = [
+    { fill: "FFFFFFFF",            text: "FF000000" }, // LEYENDA:
+    { fill: XL_COLORS.alistFill,   text: XL_COLORS.alistText  },
+    { fill: XL_COLORS.diagFill,    text: XL_COLORS.diagText   },
+    { fill: XL_COLORS.f1Fill,      text: XL_COLORS.f1Text     },
+    { fill: XL_COLORS.f2Fill,      text: XL_COLORS.f2Text     },
+    { fill: XL_COLORS.f3Fill,      text: XL_COLORS.f3Text     },
+    { fill: XL_COLORS.alistBar,    text: XL_COLORS.white      }, // Actividad activa
+    { fill: XL_COLORS.hitoBar,     text: XL_COLORS.white      }, // Hito
+  ];
+  for (let c = 0; c < legendStyles.length; c++) {
+    const ls = legendStyles[c];
+    xlStyle(ws, XLSX.utils.encode_cell({ r: legendRow_r, c }), {
+      font: { bold: true, sz: 9, color: { rgb: ls.text }, name: "Calibri" },
+      fill: { fgColor: { rgb: ls.fill }, patternType: "solid" },
+      alignment: { horizontal: "center", vertical: "center", wrapText: false },
+      border: bd,
+    });
   }
-  // Month spans in header row
-  let startCol = 7;
-  for (const wm of WEEK_MONTHS) {
-    merges.push({ s: { r: 0, c: startCol }, e: { r: 0, c: startCol + 3 } });
-    startCol += 4;
+
+  // ── MERGES ───────────────────────────────────────────────────────
+  const merges: XLSX.Range[] = [];
+  // Row 0: full title
+  merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: TOTAL_COLS - 1 } });
+  // Rows 1-2: merge label cols vertically
+  for (let c = 0; c < 7; c++) {
+    merges.push({ s: { r: 1, c }, e: { r: 2, c } });
+  }
+  // Row 1: month spans (4 cols each)
+  for (let m = 0; m < 4; m++) {
+    const sc = 7 + m * 4;
+    merges.push({ s: { r: 1, c: sc }, e: { r: 1, c: sc + 3 } });
   }
   ws["!merges"] = merges;
 
-  // ── Column widths ──
+  // ── COLUMN WIDTHS ────────────────────────────────────────────────
   ws["!cols"] = [
-    { wch: 4 },   // N°
-    { wch: 20 },  // Fase
-    { wch: 42 },  // Actividad
-    { wch: 55 },  // Descripción
-    { wch: 36 },  // Responsable
-    { wch: 48 },  // Recursos
-    { wch: 42 },  // Producto
-    ...Array(TOTAL_W).fill({ wch: 5 }), // week cols
+    { wch: 4  }, // N°
+    { wch: 16 }, // Fase
+    { wch: 22 }, // Actividad
+    { wch: 40 }, // Descripción
+    { wch: 22 }, // Responsable
+    { wch: 32 }, // Recursos
+    { wch: 28 }, // Producto
+    { wch: 8  }, // S1 (wider for label)
+    ...Array(TOTAL_W - 1).fill({ wch: 4.5 }),
   ];
 
-  // ── Row heights ──
+  // ── ROW HEIGHTS ──────────────────────────────────────────────────
   ws["!rows"] = [
-    { hpt: 28 }, // month header
-    { hpt: 16 }, // week labels
-    ...rowMeta2.map(() => ({ hpt: 50 })),
+    { hpt: 22 }, // title
+    { hpt: 20 }, // headers
+    { hpt: 18 }, // week labels
+    ...Array(activities.length).fill({ hpt: 48 }),
+    { hpt: 6  }, // separator
+    { hpt: 18 }, // legend
   ];
 
-  // ── Freeze top 2 rows + first 3 columns ──
-  ws["!freeze"] = { xSplit: 3, ySplit: 2 };
+  // ── FREEZE panes at H4 (after 3 header rows, after G col) ────────
+  ws["!freeze"] = { xSplit: 7, ySplit: 3 };
 
   XLSX.utils.book_append_sheet(wb, ws, "Cronograma Gantt");
 
   XLSX.writeFile(wb, "CronogramaSAN_Cauca_2026.xlsx");
 }
-
-
-
-
 
 
 
