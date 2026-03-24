@@ -627,77 +627,232 @@ function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>)
 function exportToExcel() {
   const wb = XLSX.utils.book_new();
 
-  const WEEKS = TOTAL_WEEKS;
-  const weekLabels = Array.from({ length: WEEKS }, (_, i) => `S${i + 1}`);
+  // ── 19 activities data (exact user-provided order) ──
+  type ActivityRow = {
+    n: number;
+    fase: string;
+    actividad: string;
+    descripcion: string;
+    responsable: string;
+    recursos: string;
+    producto: string;
+    semanas: number[]; // 1-indexed active weeks out of S1..S16
+    hito: boolean;
+    faseKey: "alistamiento" | "diagnostico" | "fase1" | "fase2" | "fase3";
+  };
 
-  // ── Row 1: Month headers ──
-  const monthRow: (string | null)[] = ["", "Actividad", "Período", "Dependencia", "Hito", "Detalle (popup)"];
-  for (const m of MONTHS) {
-    monthRow.push(m.mes);
-    for (let i = 1; i < m.semanas; i++) monthRow.push(null);
-  }
-
-  // ── Row 2: Week labels ──
-  const weekRow: string[] = ["", "Actividad", "Período", "Dependencia", "Hito", "Detalle (popup)", ...weekLabels];
-
-  const aoa: (string | null)[][] = [monthRow as (string | null)[], weekRow];
-
-  // Track row indices for styling
-  const rowMeta: { type: "header" | "task" | "blank"; phase: string; taskId?: string; taskStart?: number; taskDur?: number; hito?: boolean }[] = [
-    { type: "blank", phase: "" }, // row 0 = month header
-    { type: "blank", phase: "" }, // row 1 = week header
+  const activities: ActivityRow[] = [
+    { n: 1, fase: "Alistamiento", actividad: "Análisis de antecedentes de política pública", descripcion: "Revisión y análisis de marco normativo, institucional, antecedentes de gestión e inversión y políticas existentes.", responsable: "Equipo técnico de investigación", recursos: "Viáticos investigadores, bases de datos DANE/ICBF", producto: "Matrices marco normativo y marco referencial", semanas: [1, 2], hito: false, faseKey: "alistamiento" },
+    { n: 2, fase: "Alistamiento", actividad: "Mapeo de actores clave", descripcion: "Identificar y analizar la relación de actores institucionales, sociales y privados relevantes.", responsable: "Coordinador del proyecto + enlaces territoriales", recursos: "Transporte, material de presentación, directorio de actores", producto: "Matriz de actores", semanas: [3], hito: false, faseKey: "alistamiento" },
+    { n: 3, fase: "Alistamiento", actividad: "Diseñar estrategia de participación", descripcion: "Definir mecanismos, espacios y metodologías participativas.", responsable: "Coordinador general + equipo metodológico", recursos: "Software de diseño, material impreso", producto: "Estrategia de participación", semanas: [4], hito: false, faseKey: "alistamiento" },
+    { n: 4, fase: "Diagnóstico", actividad: "Levantamiento de información cuantitativa y línea base", descripcion: "Recolección de datos del problema con fuentes secundarias.", responsable: "Equipo técnico de investigación", recursos: "Acceso a repositorios digitales, bases de datos", producto: "Matriz diagnóstico inicial", semanas: [5, 6], hito: false, faseKey: "diagnostico" },
+    { n: 5, fase: "Diagnóstico", actividad: "Diagnóstico participativo", descripcion: "Realizar talleres y espacios participativos para identificar el problema.", responsable: "Coordinadores de zona + facilitadores", recursos: "Transporte, salones comunales, refrigerios", producto: "Sistematización de información de los espacios participativos", semanas: [7, 8], hito: false, faseKey: "diagnostico" },
+    { n: 6, fase: "Diagnóstico", actividad: "Caracterización del problema", descripcion: "Analizar causas, efectos y magnitud del problema (árbol de problemas).", responsable: "Equipo multidisciplinario", recursos: "Software de análisis, material bibliográfico", producto: "Árbol de problemas", semanas: [9], hito: false, faseKey: "diagnostico" },
+    { n: 7, fase: "Diagnóstico", actividad: "Socialización del diagnóstico", descripcion: "Validar resultados con actores institucionales y sociales.", responsable: "Coordinador general", recursos: "Material de presentación, video beam", producto: "Diagnóstico validado", semanas: [10], hito: false, faseKey: "diagnostico" },
+    { n: 8, fase: "Diagnóstico", actividad: "Diagnóstico finalizado", descripcion: "Escritura del diagnóstico.", responsable: "Coordinador técnico + equipo redactor", recursos: "Procesador de texto, software de diseño", producto: "Documento Diagnóstico", semanas: [11], hito: false, faseKey: "diagnostico" },
+    { n: 9, fase: "Fase 1 Cuantitativa", actividad: "Recolección de Información Primaria", descripcion: "Diseño y preparación de instrumentos de recolección de datos cuantitativos para los 42 municipios.", responsable: "Equipo metodológico", recursos: "Equipos de cómputo, software KoBoToolbox/ODK", producto: "Instrumentos de recolección validados", semanas: [5, 6], hito: false, faseKey: "fase1" },
+    { n: 10, fase: "Fase 1 Cuantitativa", actividad: "Aplicación masiva de encuestas — 7.560", descripcion: "Aplicación de 7.560 encuestas en los 42 municipios por 420 encuestadores.", responsable: "420 encuestadores coordinados por zonas", recursos: "Honorarios, refrigerios, transporte, alojamiento", producto: "7.560 encuestas diligenciadas y enviadas", semanas: [12, 13, 14], hito: false, faseKey: "fase1" },
+    { n: 11, fase: "Fase 1 Cuantitativa", actividad: "Prueba piloto (1 municipio — Popayán)", descripcion: "Aplicación piloto de instrumentos de encuesta en Popayán para validar metodología.", responsable: "Equipo de campo - Zona 6", recursos: "Transporte, refrigerios piloto, tabletas", producto: "Encuesta validada con ajustes incorporados", semanas: [11], hito: false, faseKey: "fase1" },
+    { n: 12, fase: "Fase 2 Cualitativa", actividad: "Revisión de información secundaria cualitativa", descripcion: "Análisis de fuentes cualitativas sobre SAN diferencial por grupos poblacionales y territorios.", responsable: "Equipo de investigación cualitativa", recursos: "Material bibliográfico, software atlas.ti", producto: "Marco conceptual cualitativo SAN diferencial", semanas: [15], hito: false, faseKey: "fase2" },
+    { n: 13, fase: "Fase 2 Cualitativa", actividad: "Acercamiento a líderes y actores comunitarios", descripcion: "Contacto con líderes comunitarios e institucionales en 9 zonas.", responsable: "Coordinadores de zona (9 zonas operativas)", recursos: "Transporte, material de presentación", producto: "Listado de participantes confirmados por zona", semanas: [15, 16], hito: false, faseKey: "fase2" },
+    { n: 14, fase: "Fase 2 Cualitativa", actividad: "Talleres diferenciales — 20 talleres / 9 zonas ◆ HITO", descripcion: "Realización de 20 talleres participativos diferenciales en 9 zonas con 2.000 participantes.", responsable: "Facilitadores especializados por zona", recursos: "Honorarios, alimentación, materiales, transporte", producto: "20 talleres ejecutados, memorias y relatorías", semanas: [13, 14, 15, 16], hito: true, faseKey: "fase2" },
+    { n: 15, fase: "Fase 3 Procesamiento", actividad: "Limpieza y validación de datos", descripcion: "Depuración y validación de las 7.560 encuestas y registros cualitativos.", responsable: "Estadísticos y analistas de datos", recursos: "Licencias SPSS/R/Python, computadores", producto: "Base de datos limpia, validada y codificada", semanas: [14, 15], hito: false, faseKey: "fase3" },
+    { n: 16, fase: "Fase 3 Procesamiento", actividad: "Procesamiento estadístico", descripcion: "Análisis estadístico descriptivo e inferencial de los datos cuantitativos.", responsable: "Estadístico principal", recursos: "Licencias SPSS/Stata/R", producto: "Tablas estadísticas y gráficos de resultados", semanas: [15], hito: false, faseKey: "fase3" },
+    { n: 17, fase: "Fase 3 Procesamiento", actividad: "Análisis cruzado cuantitativo — cualitativo", descripcion: "Triangulación e integración de resultados cuantitativos y cualitativos.", responsable: "Equipo técnico multidisciplinario", recursos: "Software NVivo/R, sala de trabajo", producto: "Análisis integrado y triangulación de resultados", semanas: [16], hito: false, faseKey: "fase3" },
+    { n: 18, fase: "Fase 3 Procesamiento", actividad: "Redacción informe diagnóstico ◆ HITO", descripcion: "Elaboración del informe final del diagnóstico departamental SAN del Cauca 2026.", responsable: "Coordinador técnico y equipo redactor", recursos: "Honorarios redactor, software de diseño", producto: "Informe diagnóstico SAN Cauca 2026 (borrador final)", semanas: [16], hito: true, faseKey: "fase3" },
+    { n: 19, fase: "Fase 3 Procesamiento", actividad: "Presentación ante el CDSAN", descripcion: "Presentación oficial del diagnóstico SAN ante el Comité Departamental.", responsable: "Director del proyecto", recursos: "Impresión informes, video beam, sistema de audio", producto: "Diagnóstico presentado y validado por CDSAN", semanas: [16], hito: false, faseKey: "fase3" },
   ];
 
-  for (const phase of phases) {
-    // Phase header
-    aoa.push([phase.icon, phase.title, phase.dateRange, "", phase.totalDays, phase.summary.join(" · "), ...Array(WEEKS).fill("")]);
-    rowMeta.push({ type: "header", phase: phase.key });
+  // Phase color fills (ARGB)
+  const FASE_COLORS: Record<string, { bar: string; header: string; text: string; rowFill: string }> = {
+    alistamiento: { bar: "FF7C3AED", header: "FFEDE9FE", text: "FF4C1D95", rowFill: "FFF5F3FF" },
+    diagnostico:  { bar: "FF0284C7", header: "FFE0F2FE", text: "FF0C4A6E", rowFill: "FFF0F9FF" },
+    fase1:        { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A", rowFill: "FFF8FAFF" },
+    fase2:        { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733", rowFill: "FFF0FDF4" },
+    fase3:        { bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A", rowFill: "FFFFFBEB" },
+  };
 
-    for (const task of phase.tasks) {
-      const depTask = phases.flatMap(p => p.tasks).find((t) => t.id === task.dependsOn);
-      const bar: (string | null)[] = Array(WEEKS).fill("");
-      for (let w = task.start; w < task.start + task.dur; w++) {
-        bar[w] = task.hito ? "◆" : "█";
-      }
-      aoa.push([
-        "",
-        task.label,
-        task.dias,
-        depTask ? depTask.label : "—",
-        task.hito ? "◆" : "",
-        getPopupText(task.id),
-        ...bar,
-      ]);
-      rowMeta.push({ type: "task", phase: phase.key, taskId: task.id, taskStart: task.start, taskDur: task.dur, hito: task.hito });
+  // 16 weeks mapped to months: Feb(S1-S4), Mar(S5-S8), Abr(S9-S12), May(S13-S16)
+  const WEEK_MONTHS = [
+    { mes: "feb-26", weeks: [1,2,3,4] },
+    { mes: "mar-26", weeks: [5,6,7,8] },
+    { mes: "abr-26", weeks: [9,10,11,12] },
+    { mes: "may-26", weeks: [13,14,15,16] },
+  ];
+  const TOTAL_W = 16;
+
+  // ── Build header rows ──
+  const titleRow: (string | null)[] = [
+    "N°", "Fase", "Actividad", "Descripción", "Responsable",
+    "Recursos Necesarios (financieros, técnicos, humanos, logísticos)",
+    "Producto Esperado",
+  ];
+  for (const wm of WEEK_MONTHS) {
+    titleRow.push(wm.mes);
+    for (let i = 1; i < 4; i++) titleRow.push(null);
+  }
+
+  const weekLabelRow: (string | null)[] = [
+    "", "", "", "", "", "", "",
+    ...Array.from({ length: TOTAL_W }, (_, i) => `S${i + 1}`),
+  ];
+
+  const aoa: (string | null)[][] = [titleRow, weekLabelRow];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const rowMeta2: { faseKey: string; hito: boolean; semanas: number[] }[] = [];
+
+  for (const act of activities) {
+    const weekCells: string[] = Array(TOTAL_W).fill("");
+    for (const s of act.semanas) {
+      if (s >= 1 && s <= TOTAL_W) weekCells[s - 1] = act.hito ? "◆" : "█";
     }
-
-    // Blank separator
-    aoa.push(Array(6 + WEEKS).fill("") as string[]);
-    rowMeta.push({ type: "blank", phase: "" });
+    aoa.push([
+      String(act.n),
+      act.fase,
+      act.actividad,
+      act.descripcion,
+      act.responsable,
+      act.recursos,
+      act.producto,
+      ...weekCells,
+    ]);
+    rowMeta2.push({ faseKey: act.faseKey, hito: act.hito, semanas: act.semanas });
   }
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
 
   // ── Apply styles ──
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const headerBase: Record<string, any> = {
-    font: { bold: true, sz: 10, color: { rgb: "FF1E293B" } },
-    alignment: { horizontal: "center", vertical: "center", wrapText: true },
-    fill: { fgColor: { rgb: "FFE2E8F0" }, patternType: "solid" },
-    border: { bottom: { style: "thin", color: { rgb: "FFCBD5E1" } } },
-  };
+  const TOTAL_COLS = 7 + TOTAL_W;
 
-  // Style row 0 (months) and row 1 (weeks)
-  for (let c = 0; c < 6 + WEEKS; c++) {
-    const addr0 = XLSX.utils.encode_cell({ r: 0, c });
-    const addr1 = XLSX.utils.encode_cell({ r: 1, c });
-    styleCell(ws, addr0, { ...headerBase, fill: { fgColor: { rgb: "FF1E293B" }, patternType: "solid" }, font: { bold: true, sz: 10, color: { rgb: "FFFFFFFF" } } });
-    styleCell(ws, addr1, { ...headerBase });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  function styleCell2(addr: string, style: Record<string, any>) {
+    if (!ws[addr]) ws[addr] = { t: "z", v: "" };
+    ws[addr].s = style;
   }
 
-  // Style data rows
-  for (let r = 2; r < rowMeta.length; r++) {
-    const meta = rowMeta[r];
+  // Row 0: month header (dark)
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    styleCell2(XLSX.utils.encode_cell({ r: 0, c }), {
+      font: { bold: true, sz: 11, color: { rgb: "FFFFFFFF" }, name: "Arial" },
+      fill: { fgColor: { rgb: "FF1E293B" }, patternType: "solid" },
+      alignment: { horizontal: "center", vertical: "center", wrapText: true },
+      border: { bottom: { style: "medium", color: { rgb: "FF475569" } } },
+    });
+  }
+
+  // Row 1: week labels
+  for (let c = 0; c < TOTAL_COLS; c++) {
+    styleCell2(XLSX.utils.encode_cell({ r: 1, c }), {
+      font: { bold: true, sz: 9, color: { rgb: "FF334155" }, name: "Arial" },
+      fill: { fgColor: { rgb: "FFE2E8F0" }, patternType: "solid" },
+      alignment: { horizontal: "center", vertical: "center" },
+      border: { bottom: { style: "thin", color: { rgb: "FFCBD5E1" } } },
+    });
+  }
+
+  // Data rows (row 2+)
+  for (let r = 0; r < rowMeta2.length; r++) {
+    const meta = rowMeta2[r];
+    const pc = FASE_COLORS[meta.faseKey] ?? { bar: "FF94A3B8", header: "FFF8FAFC", text: "FF334155", rowFill: "FFFFFFFF" };
+    const excelRow = r + 2;
+
+    // Text columns (0..6)
+    for (let c = 0; c < 7; c++) {
+      styleCell2(XLSX.utils.encode_cell({ r: excelRow, c }), {
+        font: { sz: 10, bold: c === 0 || c === 2, color: { rgb: c === 0 ? pc.text : "FF334155" }, name: "Arial" },
+        fill: { fgColor: { rgb: pc.rowFill }, patternType: "solid" },
+        alignment: { vertical: "center", wrapText: true, horizontal: c === 0 ? "center" : "left" },
+        border: {
+          bottom: { style: "hair", color: { rgb: "FFE2E8F0" } },
+          right: c === 6 ? { style: "thin", color: { rgb: "FFCBD5E1" } } : undefined,
+        },
+      });
+    }
+
+    // Week bar columns (7..7+TOTAL_W)
+    for (let c = 7; c < 7 + TOTAL_W; c++) {
+      const weekIdx = c - 7 + 1; // 1-indexed
+      const isActive = meta.semanas.includes(weekIdx);
+      styleCell2(XLSX.utils.encode_cell({ r: excelRow, c }), {
+        font: { bold: isActive && meta.hito, sz: meta.hito && isActive ? 13 : 10, color: { rgb: isActive ? "FFFFFFFF" : "FFCBD5E1" }, name: "Arial" },
+        fill: { fgColor: { rgb: isActive ? pc.bar : "FFFFFFFF" }, patternType: "solid" },
+        alignment: { horizontal: "center", vertical: "center" },
+        border: { bottom: { style: "hair", color: { rgb: "FFE2E8F0" } }, right: { style: "hair", color: { rgb: "FFE2E8F0" } } },
+      });
+    }
+  }
+
+  // ── Merge month header cells ──
+  const merges: XLSX.Range[] = [];
+  // Merge first 7 cols in row 0
+  merges.push({ s: { r: 0, c: 0 }, e: { r: 0, c: 6 } });
+  // Also merge row 0 & row 1 for label cols
+  for (let c = 0; c < 7; c++) {
+    merges.push({ s: { r: 0, c }, e: { r: 1, c } });
+  }
+  // Month spans in header row
+  let startCol = 7;
+  for (const wm of WEEK_MONTHS) {
+    merges.push({ s: { r: 0, c: startCol }, e: { r: 0, c: startCol + 3 } });
+    startCol += 4;
+  }
+  ws["!merges"] = merges;
+
+  // ── Column widths ──
+  ws["!cols"] = [
+    { wch: 4 },   // N°
+    { wch: 20 },  // Fase
+    { wch: 42 },  // Actividad
+    { wch: 55 },  // Descripción
+    { wch: 36 },  // Responsable
+    { wch: 48 },  // Recursos
+    { wch: 42 },  // Producto
+    ...Array(TOTAL_W).fill({ wch: 5 }), // week cols
+  ];
+
+  // ── Row heights ──
+  ws["!rows"] = [
+    { hpt: 28 }, // month header
+    { hpt: 16 }, // week labels
+    ...rowMeta2.map(() => ({ hpt: 50 })),
+  ];
+
+  // ── Freeze top 2 rows + first 3 columns ──
+  ws["!freeze"] = { xSplit: 3, ySplit: 2 };
+
+  XLSX.utils.book_append_sheet(wb, ws, "Cronograma Gantt");
+
+  XLSX.writeFile(wb, "CronogramaSAN_Cauca_2026.xlsx");
+}
+
+// Phase color fills (ARGB) for xlsx styling — kept for popup sheet
+const PHASE_COLORS: Record<string, { bar: string; header: string; text: string }> = {
+  cuantitativa: { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A" },
+  cualitativa:  { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733" },
+  procesamiento:{ bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A" },
+};
+
+// Helper: apply cell style
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>) {
+  if (!ws[addr]) ws[addr] = { t: "z", v: "" };
+  ws[addr].s = style;
+}
+
+// Dummy to satisfy no-unused-vars (styleCell used elsewhere if needed)
+void styleCell;
+void PHASE_COLORS;
+
+// ── Keep old export for reference ──
+function exportToExcel_old_unused() {
+  // intentionally empty — replaced by exportToExcel above
+  void 0;
+}
+void exportToExcel_old_unused;
+
+// ── Style data rows (old inline, replaced) ──
+function _oldStyleRows(r: number) {
+  void r;
     const pc = PHASE_COLORS[meta.phase] ?? { bar: "FF94A3B8", header: "FFF8FAFC", text: "FF334155" };
 
     if (meta.type === "header") {
