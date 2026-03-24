@@ -827,11 +827,6 @@ function exportToExcel() {
 
 
 
-  cuantitativa: { bar: "FF2563EB", header: "FFD1E0FF", text: "FF1D3C7A" },
-  cualitativa:  { bar: "FF16A34A", header: "FFD1FAE5", text: "FF145733" },
-  procesamiento:{ bar: "FFD97706", header: "FFFEF3C7", text: "FF78380A" },
-};
-
 // Helper: apply cell style
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>) {
