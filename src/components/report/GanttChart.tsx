@@ -827,23 +827,8 @@ function exportToExcel() {
 
 
 
-// Helper: apply cell style
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function styleCell(ws: XLSX.WorkSheet, addr: string, style: Record<string, any>) {
-  if (!ws[addr]) ws[addr] = { t: "z", v: "" };
-  ws[addr].s = style;
-}
 
-// Dummy to satisfy no-unused-vars (styleCell used elsewhere if needed)
-void styleCell;
-void PHASE_COLORS;
 
-// ── Keep old export for reference ──
-function exportToExcel_old_unused() {
-  // intentionally empty — replaced by exportToExcel above
-  void 0;
-}
-void exportToExcel_old_unused;
 
 // ── Style data rows (old inline, replaced) ──
 function _oldStyleRows(r: number) {
