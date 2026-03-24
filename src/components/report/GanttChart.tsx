@@ -869,22 +869,6 @@ function exportToExcel() {
 
 
 
-  const wb = XLSX.utils.book_new();
-
-  // ── 19 activities data (exact user-provided order) ──
-  type ActivityRow = {
-    n: number;
-    fase: string;
-    actividad: string;
-    descripcion: string;
-    responsable: string;
-    recursos: string;
-    producto: string;
-    semanas: number[]; // 1-indexed active weeks out of S1..S16
-    hito: boolean;
-    faseKey: "alistamiento" | "diagnostico" | "fase1" | "fase2" | "fase3";
-  };
-
   const activities: ActivityRow[] = [
     { n: 1, fase: "Alistamiento", actividad: "Análisis de antecedentes de política pública", descripcion: "Revisión y análisis de marco normativo, institucional, antecedentes de gestión e inversión y políticas existentes.", responsable: "Equipo técnico de investigación", recursos: "Viáticos investigadores, bases de datos DANE/ICBF", producto: "Matrices marco normativo y marco referencial", semanas: [1, 2], hito: false, faseKey: "alistamiento" },
     { n: 2, fase: "Alistamiento", actividad: "Mapeo de actores clave", descripcion: "Identificar y analizar la relación de actores institucionales, sociales y privados relevantes.", responsable: "Coordinador del proyecto + enlaces territoriales", recursos: "Transporte, material de presentación, directorio de actores", producto: "Matriz de actores", semanas: [3], hito: false, faseKey: "alistamiento" },
