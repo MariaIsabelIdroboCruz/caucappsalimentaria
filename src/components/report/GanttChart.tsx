@@ -609,20 +609,6 @@ const PhaseBlock: React.FC<{phase: GanttPhase;showHeader?: boolean;}> = ({ phase
 
 
 // ─── Excel Export ────────────────────────────
-function getPopupText(taskId: string): string {
-  if (taskId === "c2") return ACERCAMIENTO_INSTITUCIONAL.join(" | ");
-  if (taskId === "c4") return SOCIALIZACION_PLAN.join(" | ");
-  if (taskId === "c6") return PRUEBA_PILOTO.join(" | ");
-  if (taskId === "q2")
-    return ACERCAMIENTO_LIDERES_GRUPOS
-      .map((g) => `${g.grupo}: ${g.items.join(", ")}`)
-      .join(" || ");
-  if (taskId === "q3")
-    return TALLERES_ZONAS
-      .map((z) => `${z.zona} (Sede: ${z.sede}) — ${z.municipios.join(", ")}`)
-      .join(" || ");
-  return "";
-}
 
 // Phase color fills (ARGB) for xlsx styling
 const PHASE_COLORS: Record<string, { bar: string; header: string; text: string }> = {
