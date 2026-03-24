@@ -830,10 +830,7 @@ function exportToExcel() {
 
 
 
-// ── Style data rows (old inline, replaced) ──
-function _oldStyleRows(r: number) {
-  void r;
-    const pc = PHASE_COLORS[meta.phase] ?? { bar: "FF94A3B8", header: "FFF8FAFC", text: "FF334155" };
+// ─── MAIN COMPONENT ─────────────────────────
 
     if (meta.type === "header") {
       for (let c = 0; c < 6 + WEEKS; c++) {
