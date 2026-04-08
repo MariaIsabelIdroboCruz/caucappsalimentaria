@@ -14,6 +14,7 @@ import ReportHeader from "./ReportHeader";
 import ReportFooter from "./ReportFooter";
 import CaucaMap from "./CaucaMap";
 import GanttChart from "./GanttChart";
+import SurveyModule from "./SurveyModule";
 
 // ─── Animation variants ────────────────────────
 const fadeUp = {
@@ -463,6 +464,16 @@ const InteractiveReport: React.FC = () => {
           <GanttChart />
         </motion.div>
       </Section>
+
+      {/* ═══ 7. ENCUESTA SAN ═══ */}
+      <div className="bg-muted/30 border-y border-border">
+        <Section id="encuesta">
+          <motion.div initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-100px" }} variants={stagger}>
+            <SectionTag icon={<ClipboardList size={16} />} label="Sección 7 — Instrumento de Recolección" />
+            <SurveyModule />
+          </motion.div>
+        </Section>
+      </div>
 
       <ReportFooter />
     </div>);
